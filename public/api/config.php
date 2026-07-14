@@ -1,0 +1,48 @@
+<?php
+/**
+ * Configuration du site — Matière & Nuance
+ *
+ * Ce fichier centralise les réglages sensibles. Il n'est jamais exposé
+ * directement (voir api/.htaccess) et n'est chargé que via include().
+ *
+ * À COMPLÉTER avant mise en ligne : voir docs/DEPLOIEMENT.md
+ */
+
+return [
+
+    // Adresse qui reçoit les demandes du formulaire de contact.
+    'contact_recipient' => 'matiereetnuance@hotmail.com',
+
+    // Adresse technique d'envoi (créée sur o2switch une fois le domaine
+    // hébergé — cPanel > Comptes e-mail > noreply@matiereetnuance.fr).
+    // Elle bénéficie du SPF/DKIM du domaine, ce qui évite les faux
+    // positifs "spam" chez Hotmail/Outlook lors de la réception.
+    'from_email' => 'noreply@matiereetnuance.fr',
+    'from_name'  => 'Matière & Nuance — Site web',
+
+    // Nom affiché à l'utilisateur pour les e-mails de confirmation.
+    'site_name' => 'Matière & Nuance',
+    'site_url'  => 'https://www.matiereetnuance.fr',
+
+    // Limites anti-spam (voir api/contact.php).
+    'rate_limit' => [
+        'max_per_10_minutes' => 3,
+        'max_per_day'        => 8,
+    ],
+
+    // --- Avis Google (Google Places API — méthode officielle) ---------
+    // 1. Console Google Cloud > créer un projet > activer "Places API".
+    // 2. Créer une clé API, la restreindre par référent HTTP à
+    //    https://www.matiereetnuance.fr/* et à l'API "Places API".
+    // 3. Récupérer le Place ID de la fiche via :
+    //    https://developers.google.com/maps/documentation/places/web-service/place-id
+    // 4. Renseigner les deux valeurs ci-dessous.
+    // Tant qu'elles sont vides, le site affiche les avis de secours
+    // (statiques, issus du design validé) sans bloquer l'affichage.
+    'google_places_api_key' => getenv('GOOGLE_PLACES_API_KEY') ?: '',
+    'google_place_id'       => getenv('GOOGLE_PLACE_ID') ?: '',
+
+    // Durée de cache des avis Google en secondes (évite de consommer
+    // le quota d'API à chaque visite). 3600 = 1 heure.
+    'google_reviews_cache_ttl' => 3600,
+];

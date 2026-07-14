@@ -1,0 +1,66 @@
+# ============================================================
+# Matière & Nuance — configuration Apache (o2switch)
+# ============================================================
+
+# --- HTTPS + domaine canonique (www) -------------------------------------
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+
+  # Forcer HTTPS
+  RewriteCond %{HTTPS} off
+  RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+
+  # Forcer le sous-domaine www
+  RewriteCond %{HTTP_HOST} ^matiereetnuance\.fr$ [NC]
+  RewriteRule ^ https://www.matiereetnuance.fr%{REQUEST_URI} [L,R=301]
+
+  # URLs propres : matiereetnuance.fr/contact au lieu de /contact.html
+  # 1) On redirige les accès directs en .html vers la version sans extension
+  RewriteCond %{THE_REQUEST} \s/+([^?\s]+)\.html[\s?] [NC]
+  RewriteRule ^ /%1 [R=301,L]
+
+  # 2) En interne, on ressert le fichier .html correspondant
+  RewriteCond %{REQUEST_FILENAME} !-f
+  RewriteCond %{REQUEST_FILENAME} !-d
+  RewriteCond %{REQUEST_FILENAME}\.html -f
+  RewriteRule ^(.*)$ $1.html [L]
+</IfModule>
+
+ErrorDocument 404 /404.html
+
+# --- En-têtes de sécurité ---------------------------------------------------
+<IfModule mod_headers.c>
+  Header always set X-Content-Type-Options "nosniff"
+  Header always set X-Frame-Options "SAMEORIGIN"
+  Header always set Referrer-Policy "strict-origin-when-cross-origin"
+  Header always set Permissions-Policy "camera=(), microphone=(), geolocation=()"
+  Header always set Strict-Transport-Security "max-age=31536000; includeSubDomains"
+</IfModule>
+
+# --- Compression -------------------------------------------------------------
+<IfModule mod_deflate.c>
+  AddOutputFilterByType DEFLATE text/html text/css text/plain text/xml application/xml
+  AddOutputFilterByType DEFLATE application/javascript application/json image/svg+xml
+</IfModule>
+
+# --- Cache navigateur ---------------------------------------------------------
+<IfModule mod_expires.c>
+  ExpiresActive On
+  ExpiresByType text/css                "access plus 1 year"
+  ExpiresByType application/javascript   "access plus 1 year"
+  ExpiresByType image/svg+xml            "access plus 1 year"
+  ExpiresByType image/png                "access plus 1 year"
+  ExpiresByType image/jpeg               "access plus 1 year"
+  ExpiresByType image/webp               "access plus 1 year"
+  ExpiresByType font/woff2               "access plus 1 year"
+  ExpiresByType text/html                "access plus 0 seconds"
+  ExpiresByType application/xml          "access plus 1 hour"
+</IfModule>
+
+<IfModule mod_headers.c>
+  <FilesMatch "\.(css|js|svg|png|jpe?g|webp|woff2)$">
+    Header set Cache-Control "public, max-age=31536000, immutable"
+  </FilesMatch>
+</IfModule>
+
+Options -Indexes

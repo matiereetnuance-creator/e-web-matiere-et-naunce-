@@ -1,0 +1,10 @@
+# Données générées à l'exécution (cache avis Google, anti-spam)
+public/api/data/*.json
+
+# Fichiers système
+.DS_Store
+Thumbs.db
+
+# Éditeurs
+.vscode/
+.idea/
