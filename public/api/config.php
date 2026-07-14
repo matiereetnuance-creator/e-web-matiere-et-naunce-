@@ -45,4 +45,19 @@ return [
     // Durée de cache des avis Google en secondes (évite de consommer
     // le quota d'API à chaque visite). 3600 = 1 heure.
     'google_reviews_cache_ttl' => 3600,
+
+    // --- Administration (/admin) ---------------------------------------
+    // Identifiant + hash du mot de passe (jamais le mot de passe en clair).
+    // Pour changer le mot de passe manuellement :
+    //   php -r "echo password_hash('nouveau-mot-de-passe', PASSWORD_DEFAULT);"
+    // puis coller le résultat ci-dessous. Le formulaire "Changer le mot de
+    // passe" de l'admin fait exactement cela pour vous.
+    'admin_username'      => getenv('ADMIN_USERNAME') ?: 'admin',
+    'admin_password_hash' => getenv('ADMIN_PASSWORD_HASH') ?: '$2y$12$fMxSkVNdzsqVDfN.s6VjmO7S5D0U0x.EyDWq7iUUVales.lo1y/MG',
+
+    // Limite de tentatives de connexion admin (protection brute-force).
+    'admin_rate_limit' => [
+        'max_per_10_minutes' => 5,
+        'max_per_day'        => 20,
+    ],
 ];

@@ -14,12 +14,26 @@
   RewriteCond %{HTTP_HOST} ^matiereetnuance\.fr$ [NC]
   RewriteRule ^ https://www.matiereetnuance.fr%{REQUEST_URI} [L,R=301]
 
-  # URLs propres : matiereetnuance.fr/contact au lieu de /contact.html
-  # 1) On redirige les accès directs en .html vers la version sans extension
-  RewriteCond %{THE_REQUEST} \s/+([^?\s]+)\.html[\s?] [NC]
+  # sitemap.xml généré dynamiquement (inclut automatiquement les réalisations)
+  RewriteRule ^sitemap\.xml$ sitemap.php [L]
+
+  # Page dédiée à chaque réalisation : /realisations/{slug}
+  RewriteCond %{REQUEST_FILENAME} !-f
+  RewriteRule ^realisations/([a-zA-Z0-9_-]+)/?$ realisation.php?id=$1 [L,QSA]
+
+  # URLs propres : matiereetnuance.fr/contact au lieu de /contact.php ou /contact.html
+  # (l'administration et l'API gardent leurs URLs .php explicites)
+  # 1) On redirige les accès directs en .php ou .html vers la version sans extension
+  RewriteCond %{REQUEST_URI} !^/(admin|api)/
+  RewriteCond %{THE_REQUEST} \s/+([^?\s]+)\.(php|html)[\s?] [NC]
   RewriteRule ^ /%1 [R=301,L]
 
-  # 2) En interne, on ressert le fichier .html correspondant
+  # 2) En interne, on ressert le fichier .php correspondant, sinon .html
+  RewriteCond %{REQUEST_FILENAME} !-f
+  RewriteCond %{REQUEST_FILENAME} !-d
+  RewriteCond %{REQUEST_FILENAME}\.php -f
+  RewriteRule ^(.*)$ $1.php [L]
+
   RewriteCond %{REQUEST_FILENAME} !-f
   RewriteCond %{REQUEST_FILENAME} !-d
   RewriteCond %{REQUEST_FILENAME}\.html -f

@@ -11,12 +11,17 @@
 declare(strict_types=1);
 
 require __DIR__ . '/lib/helpers.php';
+require __DIR__ . '/lib/content.php';
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     json_response(['success' => false, 'message' => 'Méthode non autorisée.'], 405);
 }
 
 $config = require __DIR__ . '/config.php';
+// L'adresse de réception peut être modifiée depuis l'administration (Réglages)
+// sans toucher au code ; on retombe sur config.php si elle n'a jamais été définie.
+$settings = load_content('settings', []);
+$config['contact_recipient'] = $settings['contact_recipient'] ?? $config['contact_recipient'];
 
 // --- Anti-spam : honeypot -------------------------------------------------
 if (!empty($_POST['site_web'])) {
