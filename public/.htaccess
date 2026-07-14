@@ -52,6 +52,13 @@ ErrorDocument 404 /404.html
 </IfModule>
 
 # --- Compression -------------------------------------------------------------
+# Brotli en priorité si le serveur le propose (meilleur taux que gzip),
+# gzip en repli sinon — les deux directives sont sans risque si le module
+# correspondant n'est pas chargé (encadrées par IfModule).
+<IfModule mod_brotli.c>
+  AddOutputFilterByType BROTLI_COMPRESS text/html text/css text/plain text/xml application/xml
+  AddOutputFilterByType BROTLI_COMPRESS application/javascript application/json image/svg+xml
+</IfModule>
 <IfModule mod_deflate.c>
   AddOutputFilterByType DEFLATE text/html text/css text/plain text/xml application/xml
   AddOutputFilterByType DEFLATE application/javascript application/json image/svg+xml

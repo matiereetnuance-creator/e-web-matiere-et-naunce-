@@ -16,7 +16,7 @@ foreach ($realisations as $k => $r) {
 
 if ($index === null) {
     http_response_code(404);
-    header('Location: /404.html');
+    require __DIR__ . '/404.html';
     exit;
 }
 
@@ -89,6 +89,8 @@ $extraJsonLd = '<script type="application/ld+json">' . json_encode($jsonLd, JSON
 <body>
 
 <?php $activePage = 'realisations'; require __DIR__ . '/includes/nav.php'; ?>
+
+<main>
 
 <header style="padding:110px 64px 50px">
   <div class="container" style="padding:0;max-width:1280px">
@@ -189,6 +191,8 @@ $extraJsonLd = '<script type="application/ld+json">' . json_encode($jsonLd, JSON
     <a class="btn-outline-gold" style="position:relative" href="/contact">DEMANDER UN ÉCHANGE</a>
   </div>
 </section>
+
+</main>
 
 <?php require __DIR__ . '/includes/footer.php'; ?>
 

@@ -27,6 +27,8 @@ $extraJsonLd = '<script type="application/ld+json">' . json_encode([
 
 <?php $activePage = 'avis'; require __DIR__ . '/includes/nav.php'; ?>
 
+<main>
+
 <header style="padding:110px 64px 80px">
   <div class="container" style="padding:0;max-width:1280px;display:flex;justify-content:space-between;align-items:flex-end;gap:40px;flex-wrap:wrap">
     <div>
@@ -92,6 +94,8 @@ $extraJsonLd = '<script type="application/ld+json">' . json_encode([
     <a class="btn-outline-gold" style="position:relative" href="/contact">DEMANDER UN ÉCHANGE</a>
   </div>
 </section>
+
+</main>
 
 <?php require __DIR__ . '/includes/footer.php'; ?>
 

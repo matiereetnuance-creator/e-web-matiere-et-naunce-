@@ -22,6 +22,8 @@ $extraJsonLd = '<script type="application/ld+json">' . json_encode([
 
 <?php $activePage = 'entreprise'; require __DIR__ . '/includes/nav.php'; ?>
 
+<main>
+
 <header style="padding:110px 64px 90px">
   <div class="container" style="padding:0;max-width:1280px">
     <div data-mn-reveal style="display:flex;align-items:center;gap:18px">
@@ -100,6 +102,8 @@ $extraJsonLd = '<script type="application/ld+json">' . json_encode([
     <a class="btn-outline-gold" style="position:relative" href="/contact">DEMANDER UN ÉCHANGE</a>
   </div>
 </section>
+
+</main>
 
 <?php require __DIR__ . '/includes/footer.php'; ?>
 

@@ -37,6 +37,8 @@ $extraJsonLd = '<script type="application/ld+json">' . json_encode([
 
 <?php $activePage = ''; require __DIR__ . '/includes/nav.php'; ?>
 
+<main>
+
 <!-- ======================= HERO ======================= -->
 <header id="hero" class="mn-hero" style="position:relative;padding:96px 64px 88px;overflow:hidden">
   <div class="container" style="padding:0;max-width:1280px">
@@ -241,6 +243,7 @@ $extraJsonLd = '<script type="application/ld+json">' . json_encode([
 
   <?php $showLogoLink = false; require __DIR__ . '/includes/footer.php'; ?>
 </section>
+</main>
 
 <script src="/assets/js/main.js" defer></script>
 <?php if ($avisEnabled): ?><script src="/assets/js/google-reviews.js" defer></script><?php endif; ?>

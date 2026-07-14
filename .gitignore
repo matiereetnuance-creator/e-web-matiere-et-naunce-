@@ -9,6 +9,7 @@ public/api/data/content/admin-secrets.json
 # Photos envoyées depuis l'administration (contenu du client, pas du code)
 public/assets/img/uploads/*
 !public/assets/img/uploads/.gitkeep
+!public/assets/img/uploads/.htaccess
 !public/assets/img/uploads/realisations
 public/assets/img/uploads/realisations/*
 

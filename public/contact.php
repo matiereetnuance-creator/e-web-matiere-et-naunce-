@@ -26,6 +26,8 @@ if ($phoneTel !== '' && $phoneTel[0] === '0') {
 
 <?php $activePage = 'contact'; require __DIR__ . '/includes/nav.php'; ?>
 
+<main>
+
 <header style="padding:110px 64px 70px">
   <div class="container" style="padding:0;max-width:1280px">
     <div data-mn-reveal style="display:flex;align-items:center;gap:18px">
@@ -114,6 +116,8 @@ if ($phoneTel !== '' && $phoneTel[0] === '0') {
     </div>
   </div>
 </section>
+
+</main>
 
 <?php require __DIR__ . '/includes/footer.php'; ?>
 
