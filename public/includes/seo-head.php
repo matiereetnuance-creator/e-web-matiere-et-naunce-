@@ -47,8 +47,7 @@ $robots = $robots ?? 'index, follow';
 <meta name="twitter:description" content="<?= htmlspecialchars($ogDescription) ?>">
 <meta name="twitter:image" content="<?= htmlspecialchars($ogImage) ?>">
 <link rel="icon" type="image/svg+xml" href="/assets/img/esperluette-noir.svg">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&amp;family=Instrument+Sans:ital,wght@0,400;0,500;0,600;1,400&amp;display=swap" rel="stylesheet">
+<link rel="preload" href="/assets/fonts/instrument-sans-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="/assets/fonts/instrument-serif-latin.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="/assets/css/style.css">
 <?php if (!empty($extraJsonLd)) { echo $extraJsonLd; } ?>
