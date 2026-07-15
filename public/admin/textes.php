@@ -6,11 +6,11 @@ require __DIR__ . '/../api/lib/content.php';
 admin_require_login();
 
 $fields = [
-    'home_eyebrow', 'home_title', 'home_title_emphasis', 'home_intro', 'home_entreprise_intro',
-    'ent_histoire_lead', 'ent_histoire_p1', 'ent_histoire_p2', 'ent_histoire_conclusion',
+    'home_eyebrow', 'home_title', 'home_title_emphasis', 'home_intro', 'home_entreprise_intro', 'home_zone_text',
+    'ent_histoire_lead', 'ent_histoire_p1', 'ent_histoire_p2', 'ent_histoire_p3', 'ent_histoire_conclusion',
     'stat_years', 'stat_rating', 'stat_clients',
-    'avis_score', 'avis_count',
-    'contact_phone', 'contact_email', 'contact_zone',
+    'avis_score', 'avis_count', 'avis_zone_note',
+    'contact_phone', 'contact_email', 'contact_zone', 'contact_zone_communes',
 ];
 
 $textes = load_content('textes', []);
@@ -58,6 +58,7 @@ function field($name, $label, $textes, $multiline = false, $help = '')
     </div>
     <?php field('home_intro', 'Texte à côté des photos d\'accueil', $textes, true); ?>
     <?php field('home_entreprise_intro', 'Paragraphe « L\'entreprise » (accueil)', $textes, true); ?>
+    <?php field('home_zone_text', 'Texte de la zone d\'intervention (accueil)', $textes, true); ?>
   </div>
 
   <div class="card">
@@ -65,6 +66,7 @@ function field($name, $label, $textes, $multiline = false, $help = '')
     <?php field('ent_histoire_lead', 'Phrase d\'ouverture', $textes, true); ?>
     <?php field('ent_histoire_p1', 'Premier paragraphe', $textes, true); ?>
     <?php field('ent_histoire_p2', 'Second paragraphe', $textes, true); ?>
+    <?php field('ent_histoire_p3', 'Troisième paragraphe (zone d\'intervention)', $textes, true); ?>
     <?php field('ent_histoire_conclusion', 'Phrase de conclusion (italique)', $textes, true); ?>
   </div>
 
@@ -83,6 +85,7 @@ function field($name, $label, $textes, $multiline = false, $help = '')
       <?php field('avis_score', 'Note moyenne (ex. 4,9)', $textes); ?>
       <?php field('avis_count', 'Nombre d\'avis', $textes); ?>
     </div>
+    <?php field('avis_zone_note', 'Phrase sur l\'origine des avis (page Avis)', $textes, true); ?>
   </div>
 
   <div class="card">
@@ -92,6 +95,7 @@ function field($name, $label, $textes, $multiline = false, $help = '')
       <?php field('contact_email', 'E-mail affiché', $textes); ?>
     </div>
     <?php field('contact_zone', 'Description de la zone d\'intervention', $textes, true); ?>
+    <?php field('contact_zone_communes', 'Liste des communes (affichée discrètement)', $textes, true); ?>
     <div class="help">L'adresse e-mail qui <strong>reçoit</strong> les demandes du formulaire se règle dans « Réglages ».</div>
   </div>
 

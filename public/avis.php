@@ -37,6 +37,7 @@ $extraJsonLd = '<script type="application/ld+json">' . json_encode([
         <span style="font:500 13px 'Instrument Sans',sans-serif;letter-spacing:.28em;color:#a6947c">AVIS</span>
       </div>
       <h1 class="mn-h1" data-mn-reveal style="font:400 76px/1.06 'Instrument Serif',serif;color:#2b2926;margin:26px 0 0;max-width:820px;font-weight:400;text-wrap:balance">Ils nous ont confié leur <em style="font-style:italic;color:#8a7a63">intérieur.</em></h1>
+      <p data-mn-reveal class="mn-body-lg" style="font:400 15px/1.85 'Instrument Sans',sans-serif;color:#6c665c;margin:24px 0 0;max-width:540px"><?= t($textes, 'avis_zone_note', "Ces avis proviennent de particuliers et de professionnels qui nous ont confié leurs projets dans l'ensemble de l'Ouest lyonnais et du Beaujolais.") ?></p>
     </div>
     <div data-mn-reveal class="mn-rating" style="align-items:baseline;gap:18px;padding-bottom:10px" data-mn-google-rating>
       <span style="font:400 64px 'Instrument Serif',serif;color:#2b2926" data-mn-rating-score><?= t($textes, 'avis_score', '4,9') ?></span>

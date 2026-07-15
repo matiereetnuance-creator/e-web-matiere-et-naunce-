@@ -56,7 +56,7 @@ $extraJsonLd = '<script type="application/ld+json">' . json_encode([
       <div data-mn-reveal style="width:300px;height:300px;position:relative;margin-bottom:-48px;flex:none">
         <?= render_photo(photo_src('hero-detail'), 'Détail de texture d\'un béton ciré réalisé par Matière & Nuance', 'width="300" height="300" loading="lazy"') ?>
       </div>
-      <p data-mn-reveal class="mn-body-lg" style="font:400 15px/1.85 'Instrument Sans',sans-serif;color:#6c665c;max-width:250px;margin:0 0 8px"><?= t($textes, 'home_intro', "Plâtrerie, peinture et béton ciré haut de gamme. Des intérieurs préparés avec rigueur, finis avec précision.") ?></p>
+      <p data-mn-reveal class="mn-body-lg" style="font:400 15px/1.85 'Instrument Sans',sans-serif;color:#6c665c;max-width:250px;margin:0 0 8px"><?= t($textes, 'home_intro', "Plâtrerie, peinture, béton ciré et rénovation intérieure haut de gamme. Des intérieurs préparés avec rigueur, finis avec précision.") ?></p>
     </div>
   </div>
 </header>
@@ -146,7 +146,7 @@ $extraJsonLd = '<script type="application/ld+json">' . json_encode([
     <div>
       <div data-mn-reveal style="font:500 12px 'Instrument Sans',sans-serif;letter-spacing:.28em;color:#a6947c">L'ENTREPRISE</div>
       <h2 class="mn-h2" data-mn-reveal style="font:400 52px/1.12 'Instrument Serif',serif;color:#2b2926;margin:22px 0 0;font-weight:400;text-wrap:balance">L'exigence du détail, la passion des beaux <em style="font-style:italic;color:#8a7a63">intérieurs.</em></h2>
-      <div data-mn-reveal class="mn-body-lg" style="font:400 15.5px/1.9 'Instrument Sans',sans-serif;color:#6c665c;margin:26px 0 0;max-width:520px"><?= t_raw($textes, 'home_entreprise_intro', "Nous croyons qu'un intérieur réussi est le résultat d'une multitude de détails maîtrisés.") ?></div>
+      <div data-mn-reveal class="mn-body-lg" style="font:400 15.5px/1.9 'Instrument Sans',sans-serif;color:#6c665c;margin:26px 0 0;max-width:520px"><?= t_raw($textes, 'home_entreprise_intro', "Entreprise de peinture, de plâtrerie et de béton ciré basée dans l'Ouest lyonnais, nous accompagnons les particuliers et les professionnels dans l'ensemble de l'Ouest lyonnais et du Beaujolais.") ?></div>
       <div data-mn-reveal style="display:flex;gap:40px;margin-top:38px;font:500 12px 'Instrument Sans',sans-serif;letter-spacing:.18em;color:#8a7a63">
         <a href="/entreprise#histoire" style="color:#8a7a63">L'HISTOIRE</a><a href="/entreprise#valeurs" style="color:#8a7a63">LES VALEURS</a><a href="/entreprise#garanties" style="color:#8a7a63">LES GARANTIES</a>
       </div>
@@ -222,7 +222,7 @@ $extraJsonLd = '<script type="application/ld+json">' . json_encode([
   <div class="mn-contact-grid container" style="padding:0;max-width:1280px;display:grid;grid-template-columns:1fr 1fr;gap:28px;padding-bottom:96px">
     <div data-mn-reveal>
       <h2 class="mn-h2--md" style="font:400 40px/1.15 'Instrument Serif',serif;color:#2b2926;margin:0;font-weight:400;display:flex;align-items:baseline;gap:14px;flex-wrap:wrap">Ouest lyonnais <img src="/assets/img/esperluette-beige.svg" alt="&amp;" style="height:30px;align-self:center" width="30" height="30"> Beaujolais</h2>
-      <p style="font:400 15px/1.85 'Instrument Sans',sans-serif;color:#6c665c;margin:20px 0 0;max-width:440px"><?= t($textes, 'contact_zone', "Nous accompagnons nos clients dans l'Ouest lyonnais et le Beaujolais avec une même exigence : être disponibles, réactifs et présents du premier rendez-vous jusqu'aux dernières finitions.") ?></p>
+      <p style="font:400 15px/1.85 'Instrument Sans',sans-serif;color:#6c665c;margin:20px 0 0;max-width:440px"><?= t($textes, 'home_zone_text', "Nous accompagnons nos clients dans l'ensemble de l'Ouest lyonnais et du Beaujolais avec une même exigence : être disponibles, réactifs et présents du premier rendez-vous jusqu'aux dernières finitions.") ?></p>
       <div style="height:240px;margin-top:32px;position:relative">
         <?= render_photo(photo_src('zone-carte'), 'Carte de la zone d\'intervention Matière & Nuance — Ouest lyonnais et Beaujolais', 'width="600" height="240" loading="lazy"') ?>
       </div>

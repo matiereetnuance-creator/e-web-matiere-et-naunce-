@@ -106,7 +106,8 @@ if ($phoneTel !== '' && $phoneTel[0] === '0') {
           </div>
           <div>
             <div style="font:500 11px 'Instrument Sans',sans-serif;letter-spacing:.22em;color:#c8b394">ZONE D'INTERVENTION</div>
-            <div style="font:400 15px/1.8 'Instrument Sans',sans-serif;color:#b0a99b;margin-top:8px"><?= t($textes, 'contact_zone', "Ouest lyonnais & Beaujolais — Tassin, Écully, Craponne, Charbonnières, Dardilly, Francheville, Grézieu-la-Varenne, Lyon…") ?></div>
+            <div style="font:400 15px/1.8 'Instrument Sans',sans-serif;color:#b0a99b;margin-top:8px"><?= t($textes, 'contact_zone', "Basée dans l'Ouest lyonnais, Matière & Nuance intervient auprès des particuliers et des professionnels dans l'ensemble de l'Ouest lyonnais et du Beaujolais.") ?></div>
+            <div style="font:400 12.5px/1.7 'Instrument Sans',sans-serif;color:#7d766b;margin-top:10px"><?= t($textes, 'contact_zone_communes', "Tassin-la-Demi-Lune, Écully, Charbonnières-les-Bains, La Tour-de-Salvagny, Dommartin, Marcy-l'Étoile, Craponne, Grézieu-la-Varenne, Dardilly, Limonest, Francheville, Lyon 5ᵉ, Lyon 9ᵉ et les communes environnantes.") ?></div>
           </div>
         </div>
       </div>

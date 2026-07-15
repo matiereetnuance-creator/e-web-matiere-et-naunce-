@@ -2,12 +2,14 @@
   "home_eyebrow": "PLÂTRERIE · PEINTURE · BÉTON CIRÉ — OUEST LYONNAIS & BEAUJOLAIS",
   "home_title": "La matière juste, la nuance",
   "home_title_emphasis": "exacte.",
-  "home_intro": "Plâtrerie, peinture et béton ciré haut de gamme. Des intérieurs préparés avec rigueur, finis avec précision.",
-  "home_entreprise_intro": "Nous croyons qu'un intérieur réussi est le résultat d'une multitude de détails maîtrisés. Des supports soigneusement préparés aux finitions les plus exigeantes, chaque étape est réalisée avec le même souci de qualité et le respect de votre lieu de vie.&nbsp;<br>Nous intervenons sur un nombre volontairement limité de chantiers, pour tenir sur chacun le même niveau de précision — celui que l'on doit à une belle maison.",
+  "home_intro": "Plâtrerie, peinture, béton ciré et rénovation intérieure haut de gamme. Des intérieurs préparés avec rigueur, finis avec précision.",
+  "home_entreprise_intro": "Entreprise de peinture, de plâtrerie et de béton ciré basée dans l'Ouest lyonnais, nous accompagnons les particuliers et les professionnels dans l'ensemble de l'Ouest lyonnais et du Beaujolais.<br><br>Nous croyons qu'un intérieur réussi est le résultat d'une multitude de détails maîtrisés. Des supports soigneusement préparés aux finitions les plus exigeantes, chaque étape est réalisée avec le même souci de qualité et le respect de votre lieu de vie.&nbsp;<br>Nous intervenons sur un nombre volontairement limité de chantiers, pour tenir sur chacun le même niveau de précision — celui que l'on doit à une belle maison.",
+  "home_zone_text": "Nous accompagnons nos clients dans l'ensemble de l'Ouest lyonnais et du Beaujolais avec une même exigence : être disponibles, réactifs et présents du premier rendez-vous jusqu'aux dernières finitions.",
 
   "ent_histoire_lead": "Matière & Nuance est née d'une conviction simple : la peinture n'est pas une couche, c'est une matière que l'on travaille.",
   "ent_histoire_p1": "Après plusieurs années de métier, j'ai souhaité créer une entreprise à mon image : proche de ses clients, attentive aux détails et profondément attachée au travail bien fait. Chaque projet est unique et mérite le même niveau d'exigence, qu'il s'agisse d'une simple remise en peinture ou d'une rénovation complète.",
   "ent_histoire_p2": "J'accorde une importance particulière à la préparation des supports, à la qualité des finitions et au respect des lieux de vie. Pour moi, un chantier réussi ne se résume pas au résultat final : il repose aussi sur une communication transparente, un chantier propre et la confiance construite tout au long du projet.",
+  "ent_histoire_p3": "Installée dans l'Ouest lyonnais, Matière & Nuance accompagne les particuliers et les professionnels dans leurs projets d'aménagement et de rénovation intérieure, en intervenant dans l'ensemble de l'Ouest lyonnais et du Beaujolais avec la même exigence de qualité et de finition.",
   "ent_histoire_conclusion": "C'est cette façon de travailler, simple et sincère, qui guide chaque réalisation.",
   "stat_years": "10",
   "stat_rating": "4,9",
@@ -15,8 +17,10 @@
 
   "avis_score": "4,9",
   "avis_count": "47",
+  "avis_zone_note": "Ces avis proviennent de particuliers et de professionnels qui nous ont confié leurs projets dans l'ensemble de l'Ouest lyonnais et du Beaujolais.",
 
   "contact_phone": "07 60 03 38 20",
   "contact_email": "matiereetnuance@hotmail.com",
-  "contact_zone": "Ouest lyonnais & Beaujolais — Tassin, Écully, Craponne, Charbonnières, Dardilly, Francheville, Grézieu-la-Varenne, Lyon…"
+  "contact_zone": "Basée dans l'Ouest lyonnais, Matière & Nuance intervient auprès des particuliers et des professionnels dans l'ensemble de l'Ouest lyonnais et du Beaujolais.",
+  "contact_zone_communes": "Tassin-la-Demi-Lune, Écully, Charbonnières-les-Bains, La Tour-de-Salvagny, Dommartin, Marcy-l'Étoile, Craponne, Grézieu-la-Varenne, Dardilly, Limonest, Francheville, Lyon 5ᵉ, Lyon 9ᵉ et les communes environnantes."
 }
