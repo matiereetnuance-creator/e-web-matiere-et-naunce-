@@ -2,6 +2,13 @@
 # Matière & Nuance — configuration Apache (o2switch)
 # ============================================================
 
+# Force index.php comme page d'accueil, même si un ancien index.html
+# statique (issu d'une version antérieure du site) traîne encore dans
+# public_html : sans cette ligne, certaines configurations Apache
+# serviraient l'HTML statique à la place du gabarit PHP dynamique
+# (et donc sans Google Analytics, sans SEO dynamique, etc.).
+DirectoryIndex index.php index.html
+
 # --- HTTPS + domaine canonique (www) -------------------------------------
 <IfModule mod_rewrite.c>
   RewriteEngine On
