@@ -60,4 +60,10 @@ return [
         'max_per_10_minutes' => 5,
         'max_per_day'        => 20,
     ],
+
+    // --- Google Analytics 4 --------------------------------------------
+    // Identifiant de mesure (Admin Google Analytics > Flux de données).
+    // Laisser vide pour désactiver le suivi (aucune balise n'est alors
+    // injectée). Voir includes/analytics.php pour l'intégration.
+    'ga4_measurement_id' => getenv('GA4_MEASUREMENT_ID') ?: 'G-64S51T6H5Q',
 ];

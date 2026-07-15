@@ -83,6 +83,7 @@ $extraJsonLd = '<script type="application/ld+json">' . json_encode($jsonLd, JSON
 <link rel="preload" href="/assets/fonts/instrument-sans-latin.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="/assets/fonts/instrument-serif-latin.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="/assets/css/style.css">
+<?php require __DIR__ . '/includes/analytics.php'; ?>
 <?= $extraJsonLd ?>
 </head>
 <body>

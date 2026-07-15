@@ -50,4 +50,5 @@ $robots = $robots ?? 'index, follow';
 <link rel="preload" href="/assets/fonts/instrument-sans-latin.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="/assets/fonts/instrument-serif-latin.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="/assets/css/style.css">
+<?php require __DIR__ . '/analytics.php'; ?>
 <?php if (!empty($extraJsonLd)) { echo $extraJsonLd; } ?>
