@@ -13,16 +13,37 @@ return [
     // Adresse qui reçoit les demandes du formulaire de contact.
     'contact_recipient' => 'matiereetnuance@hotmail.com',
 
-    // Adresse technique d'envoi (créée sur o2switch une fois le domaine
-    // hébergé — cPanel > Comptes e-mail > noreply@matiereetnuance.fr).
-    // Elle bénéficie du SPF/DKIM du domaine, ce qui évite les faux
-    // positifs "spam" chez Hotmail/Outlook lors de la réception.
-    'from_email' => 'noreply@matiereetnuance.fr',
-    'from_name'  => 'Matière & Nuance — Site web',
+    // Adresse technique d'envoi. DOIT être une vraie boîte e-mail créée
+    // sur o2switch (cPanel > Comptes e-mail) et correspondre exactement
+    // à 'smtp_username' ci-dessous : c'est ce qui garantit l'alignement
+    // SPF/DKIM/DMARC attendu par Outlook et Gmail. Éviter "noreply@" —
+    // les filtres antispam le pénalisent légèrement ; une adresse comme
+    // contact@matiereetnuance.fr paraît plus légitime.
+    'from_email' => getenv('MAIL_FROM_EMAIL') ?: 'contact@matiereetnuance.fr',
+    'from_name'  => getenv('MAIL_FROM_NAME') ?: 'Matière & Nuance',
 
     // Nom affiché à l'utilisateur pour les e-mails de confirmation.
     'site_name' => 'Matière & Nuance',
     'site_url'  => 'https://www.matiereetnuance.fr',
+
+    // --- Envoi authentifié (SMTP o2switch) ------------------------------
+    // Recommandé pour une délivrabilité professionnelle (voir
+    // docs/DEPLOIEMENT.md, section « Délivrabilité des e-mails »).
+    // Tant que smtp_username/smtp_password sont vides, le site se replie
+    // automatiquement sur mail() — fonctionnel, mais avec une
+    // délivrabilité moins fiable.
+    // 1. cPanel > Comptes e-mail > créer contact@matiereetnuance.fr.
+    // 2. Renseigner ci-dessous cette adresse + son mot de passe (via les
+    //    variables d'environnement SMTP_USERNAME / SMTP_PASSWORD, jamais
+    //    en clair dans ce fichier).
+    // 3. smtp_host est généralement le nom de domaine lui-même sur
+    //    o2switch (mail.matiereetnuance.fr) ; à confirmer dans cPanel >
+    //    Comptes e-mail > Configurer le client de messagerie.
+    'smtp_host'       => getenv('SMTP_HOST') ?: 'mail.matiereetnuance.fr',
+    'smtp_port'       => (int) (getenv('SMTP_PORT') ?: 465),
+    'smtp_secure'     => getenv('SMTP_SECURE') ?: 'ssl', // 'ssl' (port 465) ou 'tls' (port 587, STARTTLS)
+    'smtp_username'   => getenv('SMTP_USERNAME') ?: '',
+    'smtp_password'   => getenv('SMTP_PASSWORD') ?: '',
 
     // Limites anti-spam (voir api/contact.php).
     'rate_limit' => [

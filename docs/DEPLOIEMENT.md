@@ -20,7 +20,7 @@ public/
 ├── index.php, savoir-faire.php, realisations.php, realisation.php,
 │   entreprise.php, avis.php, contact.php, 404.html
 ├── includes/            en-tête SEO, navigation, pied de page communs
-├── admin/                interface d'administration (voir §6)
+├── admin/                interface d'administration (voir §7)
 ├── assets/               CSS, JS, images, logos, visuels temporaires
 │   └── img/uploads/        photos envoyées depuis l'administration
 ├── api/
@@ -52,12 +52,12 @@ public/
 
 Ouvrez `public/api/config.php` et vérifiez/complétez :
 
-- `from_email` : `noreply@matiereetnuance.fr`. **Créez cette boîte** dans
-  cPanel > Comptes e-mail > Créer, une fois le domaine actif (aucune
-  utilisation manuelle nécessaire, elle sert uniquement à l'envoi
-  automatique — cela évite que les e-mails partent en spam chez Hotmail).
+- `from_email` / SMTP : voir §4 « Délivrabilité des e-mails » — c'est
+  l'étape la plus importante pour que vos e-mails arrivent en boîte de
+  réception plutôt qu'en courrier indésirable.
 - `google_places_api_key` / `google_place_id` : à renseigner pour activer
-  la synchronisation automatique des avis (voir §5).
+  la synchronisation automatique des avis (voir §6 « Activer la
+  synchronisation automatique des avis Google »).
 - L'adresse qui **reçoit** les demandes du formulaire (`contact_recipient`)
   et le lien Instagram se règlent désormais depuis l'administration
   (menu « Réglages »), pas dans ce fichier.
@@ -67,7 +67,77 @@ côté serveur (cPanel > Configurer PHP > variables d'environnement) plutôt
 que de l'écrire en clair dans le fichier : `GOOGLE_PLACES_API_KEY` et
 `GOOGLE_PLACE_ID`.
 
-## 4. Envoyer les fichiers sur o2switch
+## 4. Délivrabilité des e-mails (SMTP, SPF, DKIM, DMARC)
+
+Le formulaire de contact peut envoyer ses e-mails de deux façons :
+
+1. **SMTP authentifié o2switch** (recommandé) — le site se connecte avec
+   une vraie boîte e-mail du domaine, comme n'importe quel client de
+   messagerie. C'est la méthode la plus fiable pour éviter le classement
+   en courrier indésirable.
+2. **`mail()` PHP** (repli automatique) — fonctionne sans configuration,
+   mais confie le message au serveur sans authentification ; la
+   délivrabilité est moins bonne, en particulier chez Outlook/Hotmail.
+
+### 4.1 Activer le SMTP authentifié (recommandé)
+
+1. cPanel > **Comptes e-mail** > créez `contact@matiereetnuance.fr` (ou
+   l'adresse de votre choix sur le domaine) avec un mot de passe robuste.
+2. Dans cPanel > Comptes e-mail > **Configurer le client de messagerie**
+   pour cette adresse, notez le serveur SMTP indiqué (généralement
+   `mail.matiereetnuance.fr`, port **465** en SSL, ou 587 en STARTTLS).
+3. Renseignez ces informations soit directement dans `api/config.php`,
+   soit — préférable, pour ne jamais écrire le mot de passe en clair dans
+   un fichier — en variables d'environnement (cPanel > "Configurer PHP" >
+   variables d'environnement, ou fichier `.env` selon ce que propose votre
+   offre) :
+   - `SMTP_HOST` (ex. `mail.matiereetnuance.fr`)
+   - `SMTP_PORT` (`465` ou `587`)
+   - `SMTP_SECURE` (`ssl` pour 465, `tls` pour 587)
+   - `SMTP_USERNAME` (`contact@matiereetnuance.fr`)
+   - `SMTP_PASSWORD` (le mot de passe de cette boîte)
+   - `MAIL_FROM_EMAIL` : à régler sur la **même adresse** que
+     `SMTP_USERNAME` (obligatoire pour l'alignement SPF/DMARC).
+4. Tant que `SMTP_USERNAME`/`SMTP_PASSWORD` sont vides, le site continue de
+   fonctionner via `mail()` automatiquement — aucune coupure de service
+   pendant la mise en place.
+
+### 4.2 Vérifier les enregistrements DNS du domaine
+
+Ces enregistrements existent déjà sur `matiereetnuance.fr` (vérifiés lors
+de l'audit) — à recontrôler après toute modification DNS :
+
+- **SPF** (TXT sur `matiereetnuance.fr`) doit inclure l'IP/le serveur
+  d'envoi o2switch. Envisagez de durcir `~all` (résultat "probablement
+  spam" en cas d'échec) en `-all` (résultat "rejeté") une fois la
+  configuration SMTP stabilisée et testée pendant quelques semaines.
+- **DKIM** (TXT sur `default._domainkey.matiereetnuance.fr`) doit être
+  présent et actif (cPanel > "E-mail" > "Gestionnaire d'authentification
+  par e-mail" côté o2switch) — c'est lui qui signe cryptographiquement vos
+  e-mails pour prouver qu'ils viennent bien du domaine.
+- **DMARC** (TXT sur `_dmarc.matiereetnuance.fr`) : ajoutez une adresse de
+  rapport pour être informé des échecs d'authentification, par exemple
+  `v=DMARC1; p=none; rua=mailto:contact@matiereetnuance.fr;`. Après
+  quelques semaines sans échec inattendu dans les rapports, passez
+  progressivement `p=none` à `p=quarantine` puis `p=reject` pour une
+  protection complète contre l'usurpation de votre domaine.
+
+### 4.3 Bonnes pratiques d'expéditeur
+
+- Adresse d'expédition sur le **domaine du site** (`@matiereetnuance.fr`),
+  jamais une adresse Hotmail/Gmail générique.
+- Évitez les préfixes `noreply@` : ils sont légèrement pénalisés par les
+  filtres antispam et donnent une impression automatisée. Une adresse
+  comme `contact@matiereetnuance.fr` est préférable.
+- Objet et corps du message sans majuscules excessives, liens raccourcis
+  ou vocabulaire commercial agressif (« gratuit », « urgent »…) — déjà le
+  cas dans les modèles fournis.
+- Une fois quelques e-mails envoyés en conditions réelles, marquez-les
+  "Ce n'est pas un spam" s'ils arrivent malgré tout en courrier
+  indésirable chez un premier destinataire Outlook/Gmail : cela contribue
+  à réchauffer la réputation de l'adresse d'envoi.
+
+## 5. Envoyer les fichiers sur o2switch
 
 1. Récupérez vos identifiants FTP/SFTP dans cPanel > Comptes FTP (ou
    utilisez le "Gestionnaire de fichiers" du cPanel directement dans le
@@ -84,7 +154,7 @@ que de l'écrire en clair dans le fichier : `GOOGLE_PLACES_API_KEY` et
    **PHP 8.1 ou supérieur**, et vérifiez que l'extension **GD** est cochée
    (elle l'est par défaut chez o2switch).
 
-## 5. Activer la synchronisation automatique des avis Google
+## 6. Activer la synchronisation automatique des avis Google
 
 Méthode officielle Google (API Places) :
 
@@ -108,7 +178,7 @@ masquer entièrement la section (menu admin « Avis Google ») si besoin,
 mais les avis eux-mêmes ne se modifient jamais depuis le site, exactement
 comme sur votre fiche Google.
 
-## 6. L'interface d'administration
+## 7. L'interface d'administration
 
 Accessible à **https://www.matiereetnuance.fr/admin/** une fois le site en
 ligne.
@@ -126,7 +196,7 @@ Ce que vous pouvez gérer sans toucher au code :
 | **Réalisations** | Ajouter/modifier/supprimer un projet : titre, ville, description, prestations, date, image principale, avant/après, galerie photo (glisser-déposer, optimisation automatique JPEG + WebP, texte alternatif suggéré automatiquement). Chaque réalisation génère automatiquement sa page dédiée (`/realisations/votre-slug`) avec son propre référencement (titre, description, Open Graph, fil d'Ariane, données structurées), et des liens vers la réalisation précédente/suivante. |
 | **Textes** | Accroche et texte d'accueil, histoire de l'entreprise, chiffres clés, note moyenne affichée, coordonnées affichées publiquement. |
 | **Photos du site** | Remplace les visuels uniques (hero, portraits, cartes de zone…) — glisser-déposer, optimisation automatique. |
-| **Avis Google** | Affiche ou masque la section (les avis eux-mêmes ne s'éditent pas ici, voir §5). |
+| **Avis Google** | Affiche ou masque la section (les avis eux-mêmes ne s'éditent pas ici, voir §6). |
 | **SEO** | Meta Title, Meta Description et balises Open Graph, page par page. |
 | **Réglages** | Adresse e-mail qui reçoit les demandes du formulaire de contact, lien Instagram. |
 | **Mot de passe** | Changer le mot de passe de connexion. |
@@ -142,7 +212,7 @@ les couleurs, les typographies et les animations restent strictement
 celles validées dans Claude Design et ne sont pas éditables depuis
 l'administration — c'est voulu.
 
-## 7. Vérifications après mise en ligne
+## 8. Vérifications après mise en ligne
 
 - Ouvrez https://www.matiereetnuance.fr et vérifiez que le cadenas HTTPS
   est présent, que les 6 pages sont accessibles, et que le design
@@ -155,8 +225,12 @@ l'administration — c'est voulu.
 - Vérifiez que `https://www.matiereetnuance.fr/robots.txt` et
   `/sitemap.xml` répondent correctement (le sitemap inclut automatiquement
   vos réalisations).
+- **Délivrabilité** : envoyez un test via le formulaire vers une adresse
+  [mail-tester.com](https://www.mail-tester.com/) pour obtenir un score
+  détaillé (SPF, DKIM, DMARC, contenu) et confirmer que le SMTP
+  authentifié (§4) est bien actif plutôt que le repli `mail()`.
 
-## 8. Référencement (à faire une fois le site en ligne)
+## 9. Référencement (à faire une fois le site en ligne)
 
 1. [Google Search Console](https://search.google.com/search-console) :
    ajoutez la propriété `https://www.matiereetnuance.fr`, validez-la, puis
@@ -165,9 +239,9 @@ l'administration — c'est voulu.
    informations (adresse, téléphone, zone d'intervention).
 3. Les données structurées (Schema.org), balises Open Graph, canonical et
    balises ALT sont en place sur chaque page — éditables depuis
-   l'administration pour le contenu qui vous concerne (§6).
+   l'administration pour le contenu qui vous concerne (§7).
 
-## 9. Remplacer les visuels temporaires
+## 10. Remplacer les visuels temporaires
 
 Deux méthodes possibles :
 
@@ -179,7 +253,7 @@ Deux méthodes possibles :
    `assets/img/placeholders/` et s'affichent tant qu'aucune photo n'a été
    envoyée depuis l'administration pour cet emplacement.
 
-## 10. Support technique courant
+## 11. Support technique courant
 
 - **Support en cas de blocage** : toutes les actions de contenu passent
   par `/admin/` — il ne devrait plus être nécessaire de modifier le code

@@ -23,6 +23,15 @@ $config = require __DIR__ . '/config.php';
 $settings = load_content('settings', []);
 $config['contact_recipient'] = $settings['contact_recipient'] ?? $config['contact_recipient'];
 
+$smtp = [
+    'host'        => $config['smtp_host'] ?? '',
+    'port'        => $config['smtp_port'] ?? 465,
+    'secure'      => $config['smtp_secure'] ?? 'ssl',
+    'username'    => $config['smtp_username'] ?? '',
+    'password'    => $config['smtp_password'] ?? '',
+    'ehlo_domain' => parse_url($config['site_url'] ?? '', PHP_URL_HOST) ?: 'matiereetnuance.fr',
+];
+
 // --- Anti-spam : honeypot -------------------------------------------------
 if (!empty($_POST['site_web'])) {
     // Robot détecté : on répond succès pour ne pas l'informer, sans envoyer.
@@ -85,7 +94,8 @@ $sent = send_mail_safe(
     $body,
     $config['from_email'],
     $config['from_name'],
-    $visitorEmail
+    $visitorEmail,
+    $smtp
 );
 
 if (!$sent) {
@@ -114,7 +124,8 @@ if ($visitorEmail !== null) {
         $confirmBody,
         $config['from_email'],
         $config['site_name'],
-        $config['contact_recipient']
+        $config['contact_recipient'],
+        $smtp
     );
 }
 

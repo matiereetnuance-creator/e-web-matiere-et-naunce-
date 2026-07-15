@@ -98,12 +98,33 @@ function enforce_rate_limit(string $storageFile, string $ip, array $limits): voi
 /**
  * Envoi d'e-mail sécurisé : les valeurs fournies par l'utilisateur ne
  * sont jamais placées dans les en-têtes, uniquement dans le corps.
+ *
+ * Utilise le SMTP authentifié o2switch si les identifiants sont
+ * renseignés (voir api/config.php, clés 'smtp_*') — nécessaire pour un
+ * Return-Path aligné avec le domaine d'expédition, condition attendue
+ * par Outlook/Gmail pour éviter le classement en courrier indésirable.
+ * Se replie sur mail() sinon, avec les mêmes correctifs d'en-tête
+ * (Message-ID, Date, Return-Path via -f) pour rester le plus proche
+ * possible d'un envoi authentifié.
+ *
+ * @param array{host?:string,port?:int,secure?:string,username?:string,password?:string,ehlo_domain?:string} $smtp
  */
-function send_mail_safe(string $to, string $subject, string $body, string $fromEmail, string $fromName, ?string $replyTo = null): bool
+function send_mail_safe(string $to, string $subject, string $body, string $fromEmail, string $fromName, ?string $replyTo = null, array $smtp = []): bool
 {
-    $subject = mb_encode_mimeheader($subject, 'UTF-8', 'B', "\r\n");
+    if (!empty($smtp['host']) && !empty($smtp['username']) && !empty($smtp['password'])) {
+        require_once __DIR__ . '/smtp_mailer.php';
+        if (smtp_send_mail($smtp, $to, $subject, $body, $fromEmail, $fromName, $replyTo)) {
+            return true;
+        }
+        error_log('[matiereetnuance] Envoi SMTP échoué, tentative via mail() en repli.');
+    }
+
+    $domain = substr((string) strrchr($fromEmail, '@'), 1) ?: 'matiereetnuance.fr';
+    $subjectEnc = mb_encode_mimeheader($subject, 'UTF-8', 'B', "\r\n");
 
     $headers = [];
+    $headers[] = 'Date: ' . date('r');
+    $headers[] = 'Message-ID: <' . bin2hex(random_bytes(16)) . '@' . $domain . '>';
     $headers[] = 'From: ' . mb_encode_mimeheader($fromName, 'UTF-8', 'B', "\r\n") . ' <' . $fromEmail . '>';
     $headers[] = 'MIME-Version: 1.0';
     $headers[] = 'Content-Type: text/plain; charset=UTF-8';
@@ -114,7 +135,12 @@ function send_mail_safe(string $to, string $subject, string $body, string $fromE
         $headers[] = 'Reply-To: ' . $replyTo;
     }
 
-    return @mail($to, $subject, $body, implode("\r\n", $headers));
+    // Aligne le Return-Path (adresse d'enveloppe) sur le domaine du From,
+    // condition nécessaire à un SPF valide — mail() ne le fait pas par
+    // défaut et utilise sinon une adresse système propre au serveur.
+    $envelope = filter_var($fromEmail, FILTER_VALIDATE_EMAIL) ? ('-f' . $fromEmail) : '';
+
+    return @mail($to, $subjectEnc, $body, implode("\r\n", $headers), $envelope);
 }
 
 /** Nettoie une chaîne saisie par l'utilisateur pour un usage texte simple. */
