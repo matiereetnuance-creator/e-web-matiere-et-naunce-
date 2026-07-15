@@ -154,6 +154,46 @@ de l'audit) — à recontrôler après toute modification DNS :
    **PHP 8.1 ou supérieur**, et vérifiez que l'extension **GD** est cochée
    (elle l'est par défaut chez o2switch).
 
+### ⚠️ Mettre à jour un site déjà en ligne (sans perdre vos données)
+
+Un ZIP de mise à jour ne contient **jamais** vos données de production —
+volontairement, car ce sont vos données, pas du code. Le ZIP ne contient
+que le contenu de démonstration d'origine pour ces fichiers. **Ne
+supprimez jamais tout `public_html` avant d'extraire une mise à jour** :
+cela effacerait ces éléments propres à votre site, générés uniquement en
+production et absents du ZIP :
+
+- `api/data/content/admin-secrets.json` — votre mot de passe
+  d'administration personnalisé (si vous en avez défini un depuis
+  `/admin/`). Sans ce fichier, le site revient au mot de passe par défaut
+  du code source.
+- `api/data/content/realisations.json`, `textes.json`, `settings.json`,
+  `seo.json` — **si vous les avez modifiés depuis l'administration**,
+  vos modifications y sont stockées. Le ZIP contient sa propre version
+  (contenu de démonstration ou dernière version connue de ce projet) qui
+  écraserait les vôtres si vous remplacez le fichier.
+- `assets/img/uploads/` — toutes les photos envoyées depuis
+  l'administration.
+
+**Procédure sûre pour une mise à jour :**
+
+1. Avant toute chose, téléchargez une copie de sauvegarde de ces
+   éléments depuis le Gestionnaire de fichiers (clic droit > Télécharger) :
+   `api/data/content/admin-secrets.json`, `api/data/content/*.json`,
+   `assets/img/uploads/`.
+2. Extrayez le nouveau ZIP **par-dessus** `public_html` sans rien
+   supprimer au préalable (le gestionnaire de fichiers o2switch propose
+   d'écraser fichier par fichier) — cela met à jour le code sans toucher
+   aux dossiers que le ZIP ne contient pas.
+3. Si un fichier de contenu a malgré tout été écrasé, restaurez la copie
+   de sauvegarde de l'étape 1 par-dessus.
+4. Vérifiez la connexion à `/admin/` et l'affichage de vos réalisations
+   avant de considérer la mise à jour terminée.
+
+Un remplacement intégral (suppression puis ré-extraction) reste sûr
+**uniquement** si vous n'avez encore rien personnalisé depuis
+l'administration, ou si vous avez sauvegardé ces éléments au préalable.
+
 ## 6. Activer la synchronisation automatique des avis Google
 
 Méthode officielle Google (API Places) :

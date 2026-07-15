@@ -14,6 +14,13 @@ $pageTitle = 'Tableau de bord';
 $activeNav = 'dashboard';
 require __DIR__ . '/includes/header.php';
 ?>
+<?php if (admin_using_default_password()): ?>
+<div class="card" style="border:1px solid #d99;background:#fff5f5">
+  <h2 style="color:#a33">⚠️ Mot de passe par défaut en cours d'utilisation</h2>
+  <p style="margin:0 0 12px;color:var(--ink-soft)">Aucun mot de passe personnalisé n'a été enregistré sur cet hébergement : le site utilise le mot de passe par défaut du code source. Définissez votre propre mot de passe dès maintenant.</p>
+  <a class="btn" href="password.php">Changer le mot de passe →</a>
+</div>
+<?php endif; ?>
 <div class="card">
   <h2>Bienvenue</h2>
   <p style="margin:0;color:var(--ink-soft)">Gérez ici le contenu du site — réalisations, textes, photos, SEO — sans toucher au code. Le design public reste toujours strictement identique à celui validé.</p>

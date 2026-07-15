@@ -72,6 +72,19 @@ function admin_effective_credentials(array $config): array
     ];
 }
 
+/**
+ * true si aucun mot de passe personnalisé n'a été défini depuis l'admin
+ * (api/data/content/admin-secrets.json absent ou vide) — le site utilise
+ * alors le mot de passe par défaut de config.php, qui est connu (présent
+ * dans le dépôt de code) et doit être changé dès que possible.
+ */
+function admin_using_default_password(): bool
+{
+    require_once __DIR__ . '/content.php';
+    $override = load_content('admin-secrets', []);
+    return empty($override['admin_password_hash']);
+}
+
 /** @return true|string true si connecté, sinon un message d'erreur */
 function admin_attempt_login(string $username, string $password, array $config)
 {
