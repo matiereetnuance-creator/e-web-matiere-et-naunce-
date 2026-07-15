@@ -143,51 +143,129 @@ function cycle_pattern(array $pattern, int $index)
     return $pattern[$index % count($pattern)];
 }
 
+/** Taille maximale acceptée en entrée, avant optimisation (photos de smartphone incluses). */
+const MN_UPLOAD_MAX_BYTES = 20 * 1024 * 1024;
+
+/** Largeur cible des miniatures générées à côté de chaque image (aperçus admin). */
+const MN_THUMB_WIDTH = 480;
+
 /**
- * Optimise une image envoyée (redimensionnement + compression) et l'enregistre
- * en JPEG. Nécessite l'extension GD (présente par défaut sur o2switch).
- *
- * @return string|null Nom de fichier final (ex. "photo-1.jpg") ou null en cas d'échec
+ * Message clair et actionnable pour chaque code d'erreur retourné par
+ * optimize_and_store_upload(). Centralisé ici pour rester identique quel
+ * que soit l'écran d'administration qui déclenche l'envoi.
  */
-function optimize_and_store_upload(array $file, string $destDir, string $destBaseName, int $maxWidth = 1600, int $quality = 82): ?string
+function upload_error_message(?string $code): string
 {
+    $maxMb = (int) (MN_UPLOAD_MAX_BYTES / 1024 / 1024);
+    return match ($code) {
+        'heic_unsupported' => "Ce fichier est au format HEIC (photo iPhone) et ce serveur ne peut pas le convertir automatiquement. Merci de l'exporter en JPG avant de l'envoyer : dans l'app Photos de l'iPhone, partagez la photo puis choisissez « Options » > « Le plus compatible », ou allez dans Réglages > Appareil photo > Formats et sélectionnez « Le plus compatible » avant de reprendre la photo.",
+        'too_large' => "Ce fichier est trop volumineux (limite : {$maxMb} Mo). Les photos directement issues d'un iPhone dépassent rarement cette taille — vérifiez qu'il ne s'agit pas d'une vidéo ou d'un fichier RAW/ProRAW.",
+        'unsupported_format' => 'Format de fichier non reconnu. Formats acceptés : JPG, PNG, WebP, ainsi que HEIC (photos iPhone, converties automatiquement si le serveur le permet).',
+        'write_failed' => "Une erreur technique est survenue lors de l'enregistrement de l'image. Merci de réessayer.",
+        default => "Ce fichier n'a pas pu être traité.",
+    };
+}
+
+/**
+ * true si le serveur peut décoder le format HEIC/HEIF (photos iPhone) —
+ * nécessite l'extension Imagick compilée avec le délégué libheif, ce que
+ * n'offrent pas tous les hébergements mutualisés.
+ */
+function heic_conversion_available(): bool
+{
+    return class_exists('Imagick') && count(array_intersect(['HEIC', 'HEIF'], \Imagick::queryFormats())) > 0;
+}
+
+function is_heic_upload(array $file): bool
+{
+    $ext = strtolower((string) pathinfo((string) ($file['name'] ?? ''), PATHINFO_EXTENSION));
+    $mime = strtolower((string) ($file['type'] ?? ''));
+    return in_array($ext, ['heic', 'heif'], true)
+        || in_array($mime, ['image/heic', 'image/heif', 'image/heic-sequence', 'image/heif-sequence'], true);
+}
+
+/**
+ * Optimise une image envoyée (redimensionnement + compression), l'enregistre
+ * en JPEG + WebP, et génère une miniature (JPEG + WebP) à côté. Convertit
+ * automatiquement les photos HEIC/HEIF (iPhone) si le serveur le permet.
+ * Nécessite l'extension GD (présente par défaut sur o2switch).
+ *
+ * @return array{ok:bool, filename:?string, error:?string} filename ex. "photo-1.jpg"
+ */
+function optimize_and_store_upload(array $file, string $destDir, string $destBaseName, int $maxWidth = 1600, int $quality = 82): array
+{
+    $fail = static fn (string $code) => ['ok' => false, 'filename' => null, 'error' => $code];
+
     if (!isset($file['tmp_name']) || !is_uploaded_file($file['tmp_name'])) {
-        return null;
+        return $fail('unsupported_format');
     }
     if (($file['error'] ?? UPLOAD_ERR_NO_FILE) !== UPLOAD_ERR_OK) {
-        return null;
+        return $fail(in_array($file['error'] ?? null, [UPLOAD_ERR_INI_SIZE, UPLOAD_ERR_FORM_SIZE], true) ? 'too_large' : 'unsupported_format');
     }
-    // 8 Mo max en entrée (avant optimisation)
-    if (($file['size'] ?? 0) > 8 * 1024 * 1024) {
-        return null;
+    if (($file['size'] ?? 0) > MN_UPLOAD_MAX_BYTES) {
+        return $fail('too_large');
     }
 
-    $info = @getimagesize($file['tmp_name']);
+    $sourcePath = $file['tmp_name'];
+    $heicTempFile = null;
+
+    $info = @getimagesize($sourcePath);
     if (!$info) {
-        return null;
+        if (is_heic_upload($file)) {
+            if (!heic_conversion_available()) {
+                return $fail('heic_unsupported');
+            }
+            try {
+                $im = new \Imagick($sourcePath);
+                $im->setImageFormat('jpeg');
+                $im->setImageCompressionQuality(92);
+                $heicTempFile = tempnam(sys_get_temp_dir(), 'heic') . '.jpg';
+                $im->writeImage($heicTempFile);
+                $im->clear();
+            } catch (\Throwable $e) {
+                if ($heicTempFile && is_file($heicTempFile)) {
+                    @unlink($heicTempFile);
+                }
+                return $fail('heic_unsupported');
+            }
+            $sourcePath = $heicTempFile;
+            $info = @getimagesize($sourcePath);
+            if (!$info) {
+                @unlink($heicTempFile);
+                return $fail('heic_unsupported');
+            }
+        } else {
+            return $fail('unsupported_format');
+        }
     }
     [$width, $height, $type] = $info;
 
     switch ($type) {
         case IMAGETYPE_JPEG:
-            $src = @imagecreatefromjpeg($file['tmp_name']);
+            $src = @imagecreatefromjpeg($sourcePath);
             break;
         case IMAGETYPE_PNG:
-            $src = @imagecreatefrompng($file['tmp_name']);
+            $src = @imagecreatefrompng($sourcePath);
             break;
         case IMAGETYPE_WEBP:
-            $src = function_exists('imagecreatefromwebp') ? @imagecreatefromwebp($file['tmp_name']) : false;
+            $src = function_exists('imagecreatefromwebp') ? @imagecreatefromwebp($sourcePath) : false;
             break;
         default:
-            return null;
+            if ($heicTempFile) {
+                @unlink($heicTempFile);
+            }
+            return $fail('unsupported_format');
     }
     if (!$src) {
-        return null;
+        if ($heicTempFile) {
+            @unlink($heicTempFile);
+        }
+        return $fail('unsupported_format');
     }
 
     // Corrige l'orientation EXIF si présente (photos de téléphone)
     if (function_exists('exif_read_data') && $type === IMAGETYPE_JPEG) {
-        $exif = @exif_read_data($file['tmp_name']);
+        $exif = @exif_read_data($sourcePath);
         $orientation = $exif['Orientation'] ?? 1;
         if ($orientation === 3) {
             $src = imagerotate($src, 180, 0);
@@ -200,6 +278,10 @@ function optimize_and_store_upload(array $file, string $destDir, string $destBas
         }
     }
 
+    if ($heicTempFile) {
+        @unlink($heicTempFile);
+    }
+
     if ($width > $maxWidth) {
         $newWidth = $maxWidth;
         $newHeight = (int) round($height * ($maxWidth / $width));
@@ -208,6 +290,8 @@ function optimize_and_store_upload(array $file, string $destDir, string $destBas
         imagecopyresampled($resized, $src, 0, 0, 0, 0, $newWidth, $newHeight, $width, $height);
         imagedestroy($src);
         $src = $resized;
+        $width = $newWidth;
+        $height = $newHeight;
     } elseif ($type !== IMAGETYPE_JPEG) {
         // Aplati la transparence PNG éventuelle sur fond blanc avant conversion JPEG
         $flat = imagecreatetruecolor($width, $height);
@@ -229,9 +313,41 @@ function optimize_and_store_upload(array $file, string $destDir, string $destBas
         @imagewebp($src, $destDir . '/' . $destBaseName . '.webp', $quality);
     }
 
+    // Miniature (aperçus admin) : redimensionnement supplémentaire à partir
+    // de l'image déjà orientée/redimensionnée, sans re-décoder le fichier.
+    if ($width > MN_THUMB_WIDTH) {
+        $thumbWidth = MN_THUMB_WIDTH;
+        $thumbHeight = (int) round($height * ($thumbWidth / $width));
+        $thumb = imagecreatetruecolor($thumbWidth, $thumbHeight);
+        imagefill($thumb, 0, 0, imagecolorallocate($thumb, 255, 255, 255));
+        imagecopyresampled($thumb, $src, 0, 0, 0, 0, $thumbWidth, $thumbHeight, $width, $height);
+        imagejpeg($thumb, $destDir . '/' . $destBaseName . '-thumb.jpg', $quality);
+        if (function_exists('imagewebp')) {
+            @imagewebp($thumb, $destDir . '/' . $destBaseName . '-thumb.webp', $quality);
+        }
+        imagedestroy($thumb);
+    } else {
+        // Déjà assez petite : la miniature est une copie de l'image principale.
+        imagejpeg($src, $destDir . '/' . $destBaseName . '-thumb.jpg', $quality);
+        if (function_exists('imagewebp')) {
+            @imagewebp($src, $destDir . '/' . $destBaseName . '-thumb.webp', $quality);
+        }
+    }
+
     imagedestroy($src);
 
-    return $ok ? $filename : null;
+    return $ok ? ['ok' => true, 'filename' => $filename, 'error' => null] : $fail('write_failed');
+}
+
+/** URL de la miniature associée à un fichier photo de réalisation (ex. "photo-1.jpg" -> "…/photo-1-thumb.jpg"), si elle existe, sinon l'image d'origine. */
+function realisation_thumb_url(string $realisationId, string $filename): string
+{
+    $thumbName = preg_replace('/\.jpg$/', '-thumb.jpg', $filename) ?? $filename;
+    $dir = realisation_photo_dir($realisationId);
+    if (is_file($dir . '/' . $thumbName)) {
+        return realisation_photo_url($realisationId, $thumbName);
+    }
+    return realisation_photo_url($realisationId, $filename);
 }
 
 /**

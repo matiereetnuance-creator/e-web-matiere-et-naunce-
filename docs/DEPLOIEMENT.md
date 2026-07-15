@@ -13,7 +13,18 @@ styles, scripts, formulaire de contact, synchronisation des avis Google et
 Il n'y a rien à compiler : c'est du PHP classique, compatible avec
 n'importe quel hébergement mutualisé (o2switch inclus). **PHP 8.1+ avec
 l'extension GD** est requis (présente par défaut sur o2switch) pour
-l'optimisation automatique des photos envoyées depuis l'administration.
+l'optimisation automatique des photos envoyées depuis l'administration :
+redimensionnement, compression, conversion JPEG + WebP et génération
+d'une miniature, quelle que soit la taille du fichier d'origine (jusqu'à
+20 Mo par photo — largement au-dessus d'une photo iPhone classique).
+
+Les photos au format **HEIC** (réglage par défaut de l'appareil photo
+iPhone) sont converties automatiquement si l'extension **Imagick** est
+installée avec le délégué **libheif** — à vérifier/activer dans cPanel >
+"Sélecteur de version PHP" > Extensions PHP. Si ce n'est pas le cas,
+l'administration affiche un message clair demandant d'exporter la photo
+en JPG avant l'envoi (l'app Photos de l'iPhone sait le faire), plutôt
+que d'échouer silencieusement.
 
 ```
 public/
@@ -233,7 +244,7 @@ Ce que vous pouvez gérer sans toucher au code :
 
 | Menu | Ce que ça permet |
 |---|---|
-| **Réalisations** | Ajouter/modifier/supprimer un projet : titre, ville, description, prestations, date, image principale, avant/après, galerie photo (glisser-déposer, optimisation automatique JPEG + WebP, texte alternatif suggéré automatiquement). Chaque réalisation génère automatiquement sa page dédiée (`/realisations/votre-slug`) avec son propre référencement (titre, description, Open Graph, fil d'Ariane, données structurées), et des liens vers la réalisation précédente/suivante. |
+| **Réalisations** | Ajouter/modifier/supprimer un projet : titre, ville, description, prestations, date, image principale, avant/après, galerie photo. La galerie accepte l'envoi de **plusieurs photos en une seule fois** (ex. 10 photos sélectionnées d'un coup depuis l'iPhone) : chacune est redimensionnée, compressée, convertie en JPEG + WebP, avec sa miniature et son texte alternatif suggéré automatiquement — une photo illisible n'empêche pas l'ajout des autres. Chaque réalisation génère automatiquement sa page dédiée (`/realisations/votre-slug`) avec son propre référencement (titre, description, Open Graph, fil d'Ariane, données structurées), et des liens vers la réalisation précédente/suivante. |
 | **Textes** | Accroche et texte d'accueil, histoire de l'entreprise, chiffres clés, note moyenne affichée, coordonnées affichées publiquement. |
 | **Photos du site** | Remplace les visuels uniques (hero, portraits, cartes de zone…) — glisser-déposer, optimisation automatique. |
 | **Avis Google** | Affiche ou masque la section (les avis eux-mêmes ne s'éditent pas ici, voir §6). |

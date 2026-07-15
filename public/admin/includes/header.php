@@ -17,6 +17,7 @@ unset($_SESSION['flash']);
   --ink:#20211f; --ink-soft:#5b5a56; --line:#e6e3dd; --bg:#f7f6f3; --card:#ffffff;
   --accent:#8a7a63; --accent-dark:#5f5342; --accent-soft:#f0ebe1;
   --danger:#b3413a; --danger-soft:#faeae8; --ok:#2f6b4f; --ok-soft:#e9f4ee;
+  --warn:#9a6b1f; --warn-soft:#fbf1e0;
   --radius:10px;
 }
 *{box-sizing:border-box}
@@ -57,6 +58,7 @@ input:focus,textarea:focus,select:focus{outline:2px solid var(--accent);outline-
 .flash{padding:12px 16px;border-radius:8px;margin-bottom:18px;font-size:13.5px}
 .flash-ok{background:var(--ok-soft);color:var(--ok);border:1px solid #bfe0cd}
 .flash-error{background:var(--danger-soft);color:var(--danger);border:1px solid #e3b7b2}
+.flash-warn{background:var(--warn-soft);color:var(--warn);border:1px solid #ecd5a3}
 table{width:100%;border-collapse:collapse;font-size:13.5px}
 th{text-align:left;color:var(--ink-soft);font-weight:600;font-size:12px;text-transform:uppercase;letter-spacing:.04em;padding:8px 10px;border-bottom:1px solid var(--line)}
 td{padding:10px;border-bottom:1px solid var(--line);vertical-align:middle}
@@ -112,5 +114,6 @@ tr:last-child td{border-bottom:none}
       </div>
     </div>
     <?php if ($flash): ?>
-      <div class="flash flash-<?= $flash['type'] === 'error' ? 'error' : 'ok' ?>"><?= htmlspecialchars($flash['message']) ?></div>
+      <?php $flashClass = in_array($flash['type'], ['error', 'warn'], true) ? $flash['type'] : 'ok'; ?>
+      <div class="flash flash-<?= $flashClass ?>"><?= htmlspecialchars($flash['message']) ?></div>
     <?php endif; ?>

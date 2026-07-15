@@ -38,10 +38,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $slot = clean_text((string) ($_POST['slot'] ?? ''), 60);
     $allSlots = array_merge(...array_values($slots));
     if (isset($allSlots[$slot]) && !empty($_FILES['photo']['name'])) {
-        $file = optimize_and_store_upload($_FILES['photo'], MN_UPLOADS_DIR, $slot);
-        $_SESSION['flash'] = $file
+        $result = optimize_and_store_upload($_FILES['photo'], MN_UPLOADS_DIR, $slot);
+        $_SESSION['flash'] = $result['ok']
             ? ['type' => 'ok', 'message' => 'Photo mise à jour : ' . $allSlots[$slot] . '.']
-            : ['type' => 'error', 'message' => "Le fichier n'a pas pu être traité (format non supporté ou trop volumineux)."];
+            : ['type' => 'error', 'message' => upload_error_message($result['error'])];
     }
     header('Location: photos.php');
     exit;
@@ -64,7 +64,7 @@ require __DIR__ . '/includes/header.php';
       <form method="post" enctype="multipart/form-data" style="display:flex;align-items:center;gap:8px">
         <input type="hidden" name="csrf" value="<?= htmlspecialchars($csrf) ?>">
         <input type="hidden" name="slot" value="<?= htmlspecialchars($slot) ?>">
-        <input type="file" name="photo" accept="image/jpeg,image/png,image/webp" required style="font-size:12px;max-width:190px">
+        <input type="file" name="photo" accept="image/jpeg,image/png,image/webp,image/heic,image/heif,.heic,.heif" required style="font-size:12px;max-width:190px">
         <button type="submit" class="btn btn-ghost" style="padding:8px 14px">Remplacer</button>
       </form>
     </div>

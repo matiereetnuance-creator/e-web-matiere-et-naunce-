@@ -79,32 +79,36 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $dir = realisation_photo_dir($values['id']);
 
         if (!empty($_FILES['image_main']['name'])) {
-            $file = optimize_and_store_upload($_FILES['image_main'], $dir, 'principale-' . time());
-            if ($file) {
-                $values['image_main'] = $file;
+            $result = optimize_and_store_upload($_FILES['image_main'], $dir, 'principale-' . time());
+            if ($result['ok']) {
+                $values['image_main'] = $result['filename'];
                 if ($values['image_main_alt'] === '') {
                     $values['image_main_alt'] = suggest_alt($values['title'], $values['ville']);
                 }
             } else {
-                $errors[] = "L'image principale n'a pas pu être traitée (format non supporté ou fichier trop volumineux).";
+                $errors[] = "Image principale : " . upload_error_message($result['error']);
             }
         }
         if (!empty($_FILES['avant']['name'])) {
-            $file = optimize_and_store_upload($_FILES['avant'], $dir, 'avant-' . time());
-            if ($file) {
-                $values['avant'] = $file;
+            $result = optimize_and_store_upload($_FILES['avant'], $dir, 'avant-' . time());
+            if ($result['ok']) {
+                $values['avant'] = $result['filename'];
                 if ($values['avant_alt'] === '') {
                     $values['avant_alt'] = suggest_alt($values['title'], $values['ville'], 'avant travaux');
                 }
+            } else {
+                $errors[] = "Photo « avant » : " . upload_error_message($result['error']);
             }
         }
         if (!empty($_FILES['apres']['name'])) {
-            $file = optimize_and_store_upload($_FILES['apres'], $dir, 'apres-' . time());
-            if ($file) {
-                $values['apres'] = $file;
+            $result = optimize_and_store_upload($_FILES['apres'], $dir, 'apres-' . time());
+            if ($result['ok']) {
+                $values['apres'] = $result['filename'];
                 if ($values['apres_alt'] === '') {
                     $values['apres_alt'] = suggest_alt($values['title'], $values['ville'], 'après travaux');
                 }
+            } else {
+                $errors[] = "Photo « après » : " . upload_error_message($result['error']);
             }
         }
 
@@ -120,10 +124,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if (is_array($toRemove) && $toRemove) {
             $values['gallery'] = array_values(array_filter($values['gallery'], static fn ($g) => !in_array($g['file'], $toRemove, true)));
         }
-        // Galerie : nouveaux envois (plusieurs fichiers)
+        // Galerie : nouveaux envois (plusieurs fichiers à la fois, ex. 10 photos
+        // sélectionnées d'un coup sur iPhone). Une photo en échec (HEIC non
+        // convertible, format inconnu…) n'empêche pas l'enregistrement des
+        // autres : elle est simplement listée en avertissement, à renvoyer.
+        $galleryWarnings = [];
         if (!empty($_FILES['gallery']['name'][0])) {
             $count = count($_FILES['gallery']['name']);
             for ($i = 0; $i < $count; $i++) {
+                $originalName = $_FILES['gallery']['name'][$i] ?? ('fichier ' . ($i + 1));
                 if (($_FILES['gallery']['error'][$i] ?? UPLOAD_ERR_NO_FILE) !== UPLOAD_ERR_OK) {
                     continue;
                 }
@@ -134,10 +143,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     'error' => $_FILES['gallery']['error'][$i],
                     'size' => $_FILES['gallery']['size'][$i],
                 ];
-                $file = optimize_and_store_upload($single, $dir, 'galerie-' . time() . '-' . $i);
-                if ($file) {
+                $result = optimize_and_store_upload($single, $dir, 'galerie-' . time() . '-' . $i);
+                if ($result['ok']) {
                     $n = count($values['gallery']) + 1;
-                    $values['gallery'][] = ['file' => $file, 'alt' => suggest_alt($values['title'], $values['ville'], 'photo ' . $n)];
+                    $values['gallery'][] = ['file' => $result['filename'], 'alt' => suggest_alt($values['title'], $values['ville'], 'photo ' . $n)];
+                } else {
+                    $galleryWarnings[] = $originalName . ' : ' . upload_error_message($result['error']);
                 }
             }
         }
@@ -150,9 +161,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $realisations[$existingIndex] = $values;
             }
             save_content('realisations', $realisations);
-            $_SESSION['flash'] = ['type' => 'ok', 'message' => $isNew
+            $message = $isNew
                 ? 'Réalisation publiée — sa page est en ligne immédiatement sur /realisations/' . $values['id']
-                : 'Réalisation mise à jour.'];
+                : 'Réalisation mise à jour.';
+            if ($galleryWarnings) {
+                $message .= ' — ' . count($galleryWarnings) . ' photo(s) de la galerie non ajoutée(s) : ' . implode(' / ', $galleryWarnings);
+            }
+            $_SESSION['flash'] = ['type' => $galleryWarnings ? 'warn' : 'ok', 'message' => $message];
             header('Location: realisations.php');
             exit;
         }
@@ -236,14 +251,14 @@ $suggestedMetaDesc = realisation_meta_description($values);
       <img class="thumb" style="width:160px;height:110px;margin-bottom:12px" src="../<?= htmlspecialchars(realisation_main_image_url($values)) ?>" alt="">
     <?php endif; ?>
     <label class="dropzone" data-dropzone>
-      <input type="file" name="image_main" accept="image/jpeg,image/png,image/webp">
+      <input type="file" name="image_main" accept="image/jpeg,image/png,image/webp,image/heic,image/heif,.heic,.heif">
       <span data-dz-label>Cliquez ou glissez-déposez une photo ici</span>
     </label>
     <div class="field" style="margin-top:12px">
       <label for="image_main_alt">Texte alternatif (ALT)</label>
       <input type="text" id="image_main_alt" name="image_main_alt" value="<?= htmlspecialchars($values['image_main_alt']) ?>" placeholder="<?= htmlspecialchars(suggest_alt($values['title'] ?: 'Réalisation', $values['ville'])) ?>">
     </div>
-    <div class="help">Optimisée et convertie automatiquement (JPEG + WebP) pour un chargement rapide.</div>
+    <div class="help">Photo directement depuis un iPhone acceptée telle quelle (HEIC compris) : redimensionnement, compression et conversion JPEG + WebP automatiques.</div>
   </div>
 
   <div class="card">
@@ -251,18 +266,18 @@ $suggestedMetaDesc = realisation_meta_description($values);
     <div class="field-row">
       <div class="field">
         <label>Avant</label>
-        <?php if ($values['avant']): ?><img class="thumb" style="width:140px;height:96px;margin-bottom:8px" src="<?= htmlspecialchars(realisation_photo_url($values['id'], $values['avant'])) ?>" alt=""><?php endif; ?>
+        <?php if ($values['avant']): ?><img class="thumb" style="width:140px;height:96px;margin-bottom:8px" src="<?= htmlspecialchars(realisation_thumb_url($values['id'], $values['avant'])) ?>" alt=""><?php endif; ?>
         <label class="dropzone" data-dropzone>
-          <input type="file" name="avant" accept="image/jpeg,image/png,image/webp">
+          <input type="file" name="avant" accept="image/jpeg,image/png,image/webp,image/heic,image/heif,.heic,.heif">
           <span data-dz-label>Photo « avant »</span>
         </label>
         <input type="text" name="avant_alt" value="<?= htmlspecialchars($values['avant_alt']) ?>" placeholder="Texte alternatif" style="margin-top:8px">
       </div>
       <div class="field">
         <label>Après</label>
-        <?php if ($values['apres']): ?><img class="thumb" style="width:140px;height:96px;margin-bottom:8px" src="<?= htmlspecialchars(realisation_photo_url($values['id'], $values['apres'])) ?>" alt=""><?php endif; ?>
+        <?php if ($values['apres']): ?><img class="thumb" style="width:140px;height:96px;margin-bottom:8px" src="<?= htmlspecialchars(realisation_thumb_url($values['id'], $values['apres'])) ?>" alt=""><?php endif; ?>
         <label class="dropzone" data-dropzone>
-          <input type="file" name="apres" accept="image/jpeg,image/png,image/webp">
+          <input type="file" name="apres" accept="image/jpeg,image/png,image/webp,image/heic,image/heif,.heic,.heif">
           <span data-dz-label>Photo « après »</span>
         </label>
         <input type="text" name="apres_alt" value="<?= htmlspecialchars($values['apres_alt']) ?>" placeholder="Texte alternatif" style="margin-top:8px">
@@ -276,7 +291,7 @@ $suggestedMetaDesc = realisation_meta_description($values);
       <div class="gallery-grid">
         <?php foreach ($values['gallery'] as $g): ?>
           <div style="text-align:center;font-size:11px;width:110px">
-            <img src="<?= htmlspecialchars(realisation_photo_url($values['id'], $g['file'])) ?>" alt="" style="width:110px;height:76px">
+            <img src="<?= htmlspecialchars(realisation_thumb_url($values['id'], $g['file'])) ?>" alt="" style="width:110px;height:76px">
             <input type="text" name="gallery_alt[<?= htmlspecialchars($g['file']) ?>]" value="<?= htmlspecialchars($g['alt']) ?>" placeholder="Texte alternatif" style="width:100%;margin-top:4px;padding:4px 6px;font-size:11px">
             <label style="display:block;margin-top:4px"><input type="checkbox" name="remove_gallery[]" value="<?= htmlspecialchars($g['file']) ?>"> retirer</label>
           </div>
@@ -284,10 +299,10 @@ $suggestedMetaDesc = realisation_meta_description($values);
       </div>
     <?php endif; ?>
     <label class="dropzone" data-dropzone style="margin-top:12px">
-      <input type="file" name="gallery[]" accept="image/jpeg,image/png,image/webp" multiple>
-      <span data-dz-label>Ajouter des photos à la galerie (plusieurs fichiers possibles)</span>
+      <input type="file" name="gallery[]" accept="image/jpeg,image/png,image/webp,image/heic,image/heif,.heic,.heif" multiple>
+      <span data-dz-label>📷 Sélectionnez plusieurs photos d'un coup depuis votre iPhone (10 ou plus) — toutes sont optimisées, converties en WebP et classées automatiquement</span>
     </label>
-    <div class="help">Un texte alternatif est proposé automatiquement à l'ajout — modifiable ici à tout moment.</div>
+    <div class="help">Un texte alternatif est proposé automatiquement à l'ajout — modifiable ici à tout moment. En cas de fichier illisible (ex. HEIC non convertible), les autres photos sont tout de même ajoutées ; le détail s'affiche après l'enregistrement.</div>
   </div>
 
   <div class="btn-row">
