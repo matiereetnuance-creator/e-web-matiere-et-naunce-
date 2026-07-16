@@ -65,6 +65,9 @@ td{padding:10px;border-bottom:1px solid var(--line);vertical-align:middle}
 tr:last-child td{border-bottom:none}
 .thumb{width:64px;height:44px;object-fit:cover;border-radius:6px;background:var(--accent-soft);display:block}
 .pill{display:inline-block;padding:3px 9px;border-radius:99px;background:var(--accent-soft);color:var(--accent-dark);font-size:11.5px;font-weight:600;letter-spacing:.02em}
+.pill-ok{background:var(--ok-soft);color:var(--ok)}
+.pill-danger{background:var(--danger-soft);color:var(--danger)}
+.pill-warn{background:var(--warn-soft);color:var(--warn)}
 .toggle-row{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:14px 0}
 .switch{position:relative;display:inline-block;width:42px;height:24px;flex:none}
 .switch input{opacity:0;width:0;height:0}
@@ -101,6 +104,7 @@ tr:last-child td{border-bottom:none}
       <a href="avis.php" class="<?= $activeNav === 'avis' ? 'active' : '' ?>">Avis Google</a>
       <a href="seo.php" class="<?= $activeNav === 'seo' ? 'active' : '' ?>">SEO</a>
       <a href="parametres.php" class="<?= $activeNav === 'parametres' ? 'active' : '' ?>">Réglages</a>
+      <a href="diagnostic.php" class="<?= $activeNav === 'diagnostic' ? 'active' : '' ?>">Diagnostic serveur</a>
       <a href="password.php" class="<?= $activeNav === 'password' ? 'active' : '' ?>">Mot de passe</a>
     </nav>
     <div class="admin-sidebar__foot">
