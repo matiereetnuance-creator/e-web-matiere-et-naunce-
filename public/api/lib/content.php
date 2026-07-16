@@ -158,12 +158,29 @@ function upload_error_message(?string $code): string
 {
     $maxMb = (int) (MN_UPLOAD_MAX_BYTES / 1024 / 1024);
     return match ($code) {
-        'heic_unsupported' => "Ce fichier est au format HEIC (photo iPhone) et ce serveur ne peut pas le convertir automatiquement. Merci de l'exporter en JPG avant de l'envoyer : dans l'app Photos de l'iPhone, partagez la photo puis choisissez « Options » > « Le plus compatible », ou allez dans Réglages > Appareil photo > Formats et sélectionnez « Le plus compatible » avant de reprendre la photo.",
-        'too_large' => "Ce fichier est trop volumineux (limite : {$maxMb} Mo). Les photos directement issues d'un iPhone dépassent rarement cette taille — vérifiez qu'il ne s'agit pas d'une vidéo ou d'un fichier RAW/ProRAW.",
+        'raw_unsupported' => 'Cette photo semble avoir été prise en Apple ProRAW. Les photos RAW ne sont pas destinées à une publication web. Désactivez simplement RAW dans l\'application Appareil photo puis reprenez la photo.',
+        'heic_unsupported' => 'Votre serveur ne permet actuellement pas la conversion HEIC. Activez Imagick dans PHP ou utilisez un JPG.',
+        'too_large' => "Ce fichier est trop volumineux (limite : {$maxMb} Mo). Une photo iPhone classique (HEIC ou JPG) dépasse rarement cette taille : il s'agit probablement d'une vidéo ou d'un format RAW.",
         'unsupported_format' => 'Format de fichier non reconnu. Formats acceptés : JPG, PNG, WebP, ainsi que HEIC (photos iPhone, converties automatiquement si le serveur le permet).',
         'write_failed' => "Une erreur technique est survenue lors de l'enregistrement de l'image. Merci de réessayer.",
         default => "Ce fichier n'a pas pu être traité.",
     };
+}
+
+/**
+ * Message d'erreur complet (clair + détail technique) à partir du résultat
+ * de optimize_and_store_upload(). Le détail technique (taille réelle,
+ * MIME détecté, limites serveur…) permet de vérifier en un coup d'œil si
+ * un blocage vient de ce site ou de la configuration PHP de l'hébergeur —
+ * usage admin uniquement (voir upload_technical_details()).
+ */
+function upload_error_with_details(array $result): string
+{
+    $message = upload_error_message($result['error'] ?? null);
+    if (!empty($result['details'])) {
+        $message .= ' [' . $result['details'] . ']';
+    }
+    return $message;
 }
 
 /**
@@ -185,22 +202,93 @@ function is_heic_upload(array $file): bool
 }
 
 /**
+ * true si le fichier est un format RAW (Apple ProRAW/.dng, et RAW
+ * d'appareils photo classiques par cohérence) ou JPEG-XL — jamais adapté
+ * à une publication web, quelle que soit sa taille. Détection par
+ * extension en priorité (fiable), le type MIME envoyé par le navigateur
+ * pour ces formats étant souvent générique ou absent.
+ */
+function is_raw_or_jxl_upload(array $file): bool
+{
+    $ext = strtolower((string) pathinfo((string) ($file['name'] ?? ''), PATHINFO_EXTENSION));
+    $mime = strtolower((string) ($file['type'] ?? ''));
+    $rawExtensions = ['dng', 'proraw', 'raw', 'cr2', 'cr3', 'nef', 'arw', 'orf', 'rw2', 'jxl'];
+    $rawMimes = ['image/x-adobe-dng', 'image/dng', 'application/x-dng', 'image/jxl'];
+    return in_array($ext, $rawExtensions, true) || in_array($mime, $rawMimes, true);
+}
+
+/**
+ * Détail technique d'un envoi (taille reçue, type MIME réel détecté par
+ * lecture du fichier, extension, réglages serveur effectifs) — utile pour
+ * distinguer un blocage applicatif (ce CMS) d'un blocage PHP/serveur.
+ * Réservé à l'administration : jamais affiché sur le site public.
+ */
+function upload_technical_details(array $file): string
+{
+    $sizeBytes = (int) ($file['size'] ?? 0);
+    $sizeMb = round($sizeBytes / 1024 / 1024, 2);
+    $ext = strtolower((string) pathinfo((string) ($file['name'] ?? ''), PATHINFO_EXTENSION));
+    $declaredMime = (string) ($file['type'] ?? '?');
+
+    $realMime = '?';
+    $tmpName = (string) ($file['tmp_name'] ?? '');
+    if ($tmpName !== '' && is_file($tmpName) && function_exists('finfo_open')) {
+        $finfo = finfo_open(FILEINFO_MIME_TYPE);
+        if ($finfo) {
+            $detected = finfo_file($finfo, $tmpName);
+            if ($detected !== false) {
+                $realMime = $detected;
+            }
+            finfo_close($finfo);
+        }
+    }
+
+    return sprintf(
+        'Détail technique — taille reçue : %s Mo (%s octets) · type MIME déclaré par le navigateur : %s · type MIME réel (finfo) : %s · extension : .%s · limite de ce site : %d Mo · upload_max_filesize (PHP) : %s · post_max_size (PHP) : %s · memory_limit (PHP) : %s',
+        $sizeMb,
+        $sizeBytes,
+        $declaredMime !== '' ? $declaredMime : '?',
+        $realMime,
+        $ext !== '' ? $ext : '?',
+        (int) (MN_UPLOAD_MAX_BYTES / 1024 / 1024),
+        ini_get('upload_max_filesize') ?: '?',
+        ini_get('post_max_size') ?: '?',
+        ini_get('memory_limit') ?: '?'
+    );
+}
+
+/**
  * Optimise une image envoyée (redimensionnement + compression), l'enregistre
  * en JPEG + WebP, et génère une miniature (JPEG + WebP) à côté. Convertit
  * automatiquement les photos HEIC/HEIF (iPhone) si le serveur le permet.
  * Nécessite l'extension GD (présente par défaut sur o2switch).
  *
- * @return array{ok:bool, filename:?string, error:?string} filename ex. "photo-1.jpg"
+ * @return array{ok:bool, filename:?string, error:?string, details:?string} filename ex. "photo-1.jpg" ; details = diagnostic technique (admin uniquement)
  */
 function optimize_and_store_upload(array $file, string $destDir, string $destBaseName, int $maxWidth = 1600, int $quality = 82): array
 {
-    $fail = static fn (string $code) => ['ok' => false, 'filename' => null, 'error' => $code];
+    $fail = static fn (string $code) => ['ok' => false, 'filename' => null, 'error' => $code, 'details' => upload_technical_details($file)];
 
-    if (!isset($file['tmp_name']) || !is_uploaded_file($file['tmp_name'])) {
-        return $fail('unsupported_format');
+    // RAW/JPEG-XL : détecté EN PREMIER, sur le seul nom de fichier — donc
+    // même si le fichier est si volumineux que PHP l'a déjà tronqué côté
+    // serveur (upload_max_filesize dépassé, cas le plus fréquent pour un
+    // vrai fichier ProRAW de 25 à 100 Mo : $file['name'] reste renseigné
+    // même quand tmp_name/size sont vidés par PHP). Sans cette priorité,
+    // le cas réel le plus courant afficherait "fichier trop volumineux"
+    // au lieu du message ProRAW explicite demandé.
+    if (is_raw_or_jxl_upload($file)) {
+        return $fail('raw_unsupported');
     }
+    // Le code d'erreur PHP est vérifié ensuite, avant toute autre
+    // inspection : quand upload_max_filesize/post_max_size sont dépassés
+    // côté serveur, tmp_name/size/type arrivent vides ou à zéro, et
+    // is_uploaded_file('') aurait autrement fait tomber ce cas dans
+    // 'unsupported_format' (message trompeur) au lieu de 'too_large'.
     if (($file['error'] ?? UPLOAD_ERR_NO_FILE) !== UPLOAD_ERR_OK) {
         return $fail(in_array($file['error'] ?? null, [UPLOAD_ERR_INI_SIZE, UPLOAD_ERR_FORM_SIZE], true) ? 'too_large' : 'unsupported_format');
+    }
+    if (!isset($file['tmp_name']) || !is_uploaded_file($file['tmp_name'])) {
+        return $fail('unsupported_format');
     }
     if (($file['size'] ?? 0) > MN_UPLOAD_MAX_BYTES) {
         return $fail('too_large');
@@ -336,7 +424,7 @@ function optimize_and_store_upload(array $file, string $destDir, string $destBas
 
     imagedestroy($src);
 
-    return $ok ? ['ok' => true, 'filename' => $filename, 'error' => null] : $fail('write_failed');
+    return $ok ? ['ok' => true, 'filename' => $filename, 'error' => null, 'details' => null] : $fail('write_failed');
 }
 
 /** URL de la miniature associée à un fichier photo de réalisation (ex. "photo-1.jpg" -> "…/photo-1-thumb.jpg"), si elle existe, sinon l'image d'origine. */

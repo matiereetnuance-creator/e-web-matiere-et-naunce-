@@ -86,7 +86,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $values['image_main_alt'] = suggest_alt($values['title'], $values['ville']);
                 }
             } else {
-                $errors[] = "Image principale : " . upload_error_message($result['error']);
+                $errors[] = "Image principale : " . upload_error_with_details($result);
             }
         }
         if (!empty($_FILES['avant']['name'])) {
@@ -97,7 +97,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $values['avant_alt'] = suggest_alt($values['title'], $values['ville'], 'avant travaux');
                 }
             } else {
-                $errors[] = "Photo « avant » : " . upload_error_message($result['error']);
+                $errors[] = "Photo « avant » : " . upload_error_with_details($result);
             }
         }
         if (!empty($_FILES['apres']['name'])) {
@@ -108,7 +108,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $values['apres_alt'] = suggest_alt($values['title'], $values['ville'], 'après travaux');
                 }
             } else {
-                $errors[] = "Photo « après » : " . upload_error_message($result['error']);
+                $errors[] = "Photo « après » : " . upload_error_with_details($result);
             }
         }
 
@@ -132,9 +132,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if (!empty($_FILES['gallery']['name'][0])) {
             $count = count($_FILES['gallery']['name']);
             for ($i = 0; $i < $count; $i++) {
-                $originalName = $_FILES['gallery']['name'][$i] ?? ('fichier ' . ($i + 1));
-                if (($_FILES['gallery']['error'][$i] ?? UPLOAD_ERR_NO_FILE) !== UPLOAD_ERR_OK) {
+                $originalName = (string) ($_FILES['gallery']['name'][$i] ?? '');
+                // Un slot réellement vide (aucun fichier choisi à cet index) est
+                // ignoré silencieusement. Toute autre erreur PHP (fichier trop
+                // volumineux pour upload_max_filesize/post_max_size, envoi
+                // interrompu…) doit au contraire passer par
+                // optimize_and_store_upload() pour être classée correctement
+                // (RAW/ProRAW, trop volumineux…) et remontée en avertissement —
+                // un fichier ProRAW mêlé à un envoi groupé ne doit jamais
+                // disparaître sans explication.
+                if ($originalName === '' && ($_FILES['gallery']['error'][$i] ?? UPLOAD_ERR_NO_FILE) === UPLOAD_ERR_NO_FILE) {
                     continue;
+                }
+                if ($originalName === '') {
+                    $originalName = 'fichier ' . ($i + 1);
                 }
                 $single = [
                     'name' => $_FILES['gallery']['name'][$i],
@@ -148,7 +159,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $n = count($values['gallery']) + 1;
                     $values['gallery'][] = ['file' => $result['filename'], 'alt' => suggest_alt($values['title'], $values['ville'], 'photo ' . $n)];
                 } else {
-                    $galleryWarnings[] = $originalName . ' : ' . upload_error_message($result['error']);
+                    $galleryWarnings[] = $originalName . ' : ' . upload_error_with_details($result);
                 }
             }
         }

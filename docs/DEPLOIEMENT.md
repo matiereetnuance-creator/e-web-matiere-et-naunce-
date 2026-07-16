@@ -312,3 +312,77 @@ Deux méthodes possibles :
 - **Mot de passe oublié** : demandez à votre développeur de réinitialiser
   `api/data/content/admin-secrets.json` (ou de le supprimer pour revenir
   au mot de passe initial défini dans `config.php`).
+
+## 12. Diagnostic : photo iPhone 16 Pro refusée à l'import
+
+Incident constaté : certains imports de photos depuis un iPhone 16 Pro
+(réglage Apple ProRAW activé) affichaient « Ce fichier est trop
+volumineux (limite : 20 Mo) » — message correct dans son principe, mais
+peu clair sur la cause réelle et pouvant laisser penser à un problème de
+serveur. Investigation et correctifs apportés :
+
+**Cause exacte.** Une photo prise avec Apple ProRAW activé n'est pas un
+HEIC : c'est un fichier **DNG** (25 à 100 Mo selon le modèle), un format
+de travail non destiné à la publication web, quelle que soit sa taille.
+Le CMS ne faisait pas cette distinction et traitait tout fichier trop
+volumineux de la même façon, sans dire qu'il s'agissait probablement
+d'un fichier RAW plutôt que d'une vraie photo HEIC trop lourde.
+
+**Deux bugs réels identifiés en creusant, corrigés :**
+
+1. Quand un fichier dépasse `upload_max_filesize` ou `post_max_size`
+   côté PHP, le serveur vide `tmp_name`/`size`/`type` avant même que le
+   code du site s'exécute. L'ordre des vérifications faisait qu'un
+   contrôle de sécurité (`is_uploaded_file()`) s'exécutait avant la
+   lecture du code d'erreur PHP, ce qui affichait un message générique
+   (« format non reconnu ») au lieu du bon message (« trop volumineux »).
+   Corrigé en lisant le code d'erreur PHP en tout premier.
+2. Dans un envoi groupé (plusieurs photos de galerie à la fois), un
+   fichier en erreur au niveau PHP était ignoré silencieusement, sans
+   aucun message — un fichier ProRAW mêlé à un lot de 10 photos
+   disparaissait sans explication. Corrigé pour que chaque fichier,
+   y compris en erreur, passe par la même analyse et remonte un
+   avertissement nommé.
+
+**Comportement désormais en place :**
+
+- Un fichier **`.dng`** (Apple ProRAW), **`.jxl`** (JPEG-XL) ou autre
+  format RAW d'appareil photo est détecté par son extension et refusé
+  avec un message dédié : *« Cette photo semble avoir été prise en Apple
+  ProRAW. Les photos RAW ne sont pas destinées à une publication web.
+  Désactivez simplement RAW dans l'application Appareil photo puis
+  reprenez la photo. »* — y compris si le fichier est si volumineux que
+  PHP l'a déjà tronqué avant que le site ne le reçoive (cas le plus
+  fréquent en pratique pour un vrai fichier ProRAW).
+- Un **HEIC classique** (photo iPhone normale, RAW désactivé) est
+  accepté et converti automatiquement si Imagick + libheif sont
+  disponibles sur le serveur (voir `/admin/diagnostic.php`).
+- Si Imagick est absent, le message est : *« Votre serveur ne permet
+  actuellement pas la conversion HEIC. Activez Imagick dans PHP ou
+  utilisez un JPG. »*
+- Toute erreur d'envoi affiche désormais, entre crochets, un **détail
+  technique** (taille reçue, type MIME déclaré par le navigateur, type
+  MIME réel détecté par lecture du fichier, extension, limites PHP
+  effectives) — de quoi vérifier immédiatement si un blocage vient de ce
+  site ou de la configuration serveur, sans avoir besoin d'un accès SSH.
+- La page **`/admin/diagnostic.php`** (menu « Diagnostic serveur »)
+  affiche en lecture seule : Imagick installé, support HEIC effectif,
+  formats Imagick supportés, formats GD disponibles, ainsi que
+  `upload_max_filesize`, `post_max_size`, `max_file_uploads` et
+  `memory_limit` tels qu'appliqués réellement par le serveur.
+
+**Sur Safari iOS spécifiquement** : la sélection d'une photo (y compris
+une Live Photo) dans le sélecteur natif de l'iPhone ne transmet que
+l'image fixe au champ `<input type="file">` — la partie vidéo d'une Live
+Photo n'est jamais envoyée par un simple champ d'upload d'image, aucun
+traitement particulier n'était donc nécessaire de ce côté. Le JPEG-XL
+n'est à ce jour pas un format produit par l'appareil photo de l'iPhone ;
+sa détection est incluse par précaution plutôt qu'en réponse à un cas
+observé.
+
+**Ce qui n'a délibérément pas changé** : la limite de 20 Mo par photo
+n'a pas été augmentée. Une vraie photo HEIC ou JPEG issue d'un iPhone,
+même en haute résolution, ne l'atteint pratiquement jamais ; le
+symptôme observé venait de fichiers RAW envoyés par erreur, désormais
+identifiés et expliqués clairement plutôt que masqués par une limite
+plus haute.

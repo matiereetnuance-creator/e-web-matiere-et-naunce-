@@ -47,6 +47,9 @@ $thumbWidth = MN_THUMB_WIDTH;
 $phpUploadMax = ini_get('upload_max_filesize') ?: '?';
 $phpPostMax = ini_get('post_max_size') ?: '?';
 $phpMaxFiles = ini_get('max_file_uploads') ?: '?';
+$phpMemoryLimit = ini_get('memory_limit') ?: '?';
+
+sort($imagickFormats);
 
 function pill(bool $ok, string $yes = 'Oui', string $no = 'Non'): string
 {
@@ -68,8 +71,15 @@ require __DIR__ . '/includes/header.php';
     <?php if ($imagickOk): ?>
     <tr><td>Version ImageMagick</td><td><?= htmlspecialchars($imagickVersion ?? '—') ?></td></tr>
     <tr><td>Formats HEIC/HEIF reconnus par Imagick</td><td><?= pill(count(array_intersect(['HEIC', 'HEIF'], $imagickFormats)) > 0) ?></td></tr>
+    <tr><td>Formats RAW (DNG/ProRAW)</td><td><span class="pill pill-warn">Volontairement non traités</span></td></tr>
     <?php endif; ?>
   </table>
+  <?php if ($imagickOk && $imagickFormats): ?>
+  <details style="margin-top:12px">
+    <summary style="cursor:pointer;font-size:12.5px;color:var(--ink-soft)">Voir les <?= count($imagickFormats) ?> formats Imagick supportés par ce serveur</summary>
+    <div class="help" style="margin-top:8px;line-height:1.8"><?= htmlspecialchars(implode(', ', $imagickFormats)) ?></div>
+  </details>
+  <?php endif; ?>
   <?php if (!$heicOk): ?>
     <div class="help" style="margin-top:12px">
       <?php if (!$imagickOk): ?>
@@ -82,6 +92,7 @@ require __DIR__ . '/includes/header.php';
   <?php else: ?>
     <div class="help" style="margin-top:12px">Les photos HEIC envoyées depuis l'administration sont converties automatiquement — aucune action n'est nécessaire côté iPhone.</div>
   <?php endif; ?>
+  <div class="help" style="margin-top:12px">Les fichiers <strong>Apple ProRAW (.dng)</strong> et <strong>JPEG-XL (.jxl)</strong> sont refusés volontairement, quelle que soit leur taille : ce sont des formats de travail, pas des formats de publication web. Un message dédié invite à désactiver RAW dans l'app Appareil photo — ce n'est pas une limitation du serveur.</div>
 </div>
 
 <div class="card">
@@ -104,6 +115,7 @@ require __DIR__ . '/includes/header.php';
     <tr><td><code>upload_max_filesize</code> (serveur PHP)</td><td><?= htmlspecialchars($phpUploadMax) ?></td></tr>
     <tr><td><code>post_max_size</code> (serveur PHP)</td><td><?= htmlspecialchars($phpPostMax) ?></td></tr>
     <tr><td><code>max_file_uploads</code> (serveur PHP)</td><td><?= htmlspecialchars((string) $phpMaxFiles) ?></td></tr>
+    <tr><td><code>memory_limit</code> (serveur PHP)</td><td><?= htmlspecialchars((string) $phpMemoryLimit) ?></td></tr>
   </table>
   <div class="help" style="margin-top:12px">Si <code>upload_max_filesize</code> ou <code>post_max_size</code> affichent une valeur plus basse que celle attendue (voir <code>admin/.user.ini</code>), le réglage n'a pas encore été pris en compte par le serveur — cela peut prendre quelques minutes après la mise en ligne (mise en cache de PHP-FPM), ou nécessiter que l'hébergeur autorise ce fichier de configuration.</div>
 </div>

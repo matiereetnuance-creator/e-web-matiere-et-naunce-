@@ -41,7 +41,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $result = optimize_and_store_upload($_FILES['photo'], MN_UPLOADS_DIR, $slot);
         $_SESSION['flash'] = $result['ok']
             ? ['type' => 'ok', 'message' => 'Photo mise à jour : ' . $allSlots[$slot] . '.']
-            : ['type' => 'error', 'message' => upload_error_message($result['error'])];
+            : ['type' => 'error', 'message' => upload_error_with_details($result)];
     }
     header('Location: photos.php');
     exit;
