@@ -425,3 +425,40 @@ purgé automatiquement si aucune réponse n'est donnée.
 `upload_max_filesize` (`.user.ini`) est réglé à 50 Mo — volontairement
 au-dessus du seuil de 45 Mo, sinon PHP tronquerait le fichier avant même
 que le site ne puisse proposer sa conversion.
+
+## 14. Conversion HEIC automatique, invisible, côté navigateur
+
+Le diagnostic serveur (§7) a confirmé qu'Imagick est absent sur
+l'hébergement o2switch utilisé — la conversion HEIC côté serveur (celle
+qui dépend d'Imagick) n'y fonctionne donc pas. Plutôt que de dépendre
+d'une extension PHP qu'un hébergement mutualisé n'active pas toujours,
+la conversion HEIC → JPEG se fait désormais **dans le navigateur**,
+avant l'envoi, via la bibliothèque [heic2any](https://github.com/alexcorvi/heic2any)
+(MIT, auto-hébergée dans `admin/assets/vendor/`, aucun appel réseau
+externe à l'exécution).
+
+**Totalement invisible** : dès qu'une photo HEIC/HEIF est sélectionnée
+dans un champ d'envoi de l'administration (image principale, avant,
+après, galerie, photos du site), elle est convertie en JPEG (qualité
+92 %) automatiquement — aucun bouton, aucune confirmation, aucun élément
+d'interface visible. Le serveur ne reçoit jamais le fichier HEIC
+d'origine ; il applique son traitement habituel (redimensionnement,
+WebP, miniature) sur le JPEG déjà reçu, exactement comme pour n'importe
+quelle autre photo.
+
+- **JPG, PNG, WebP** : non touchés, envoyés tels quels (aucune
+  reconversion, aucune perte de qualité).
+- **RAW/ProRAW (.dng) et JPEG-XL (.jxl)** : non concernés par cette
+  conversion — la détection et le message dédié (§12) ainsi que la
+  proposition de conversion RAW (§13) restent inchangés.
+- **Si la conversion échoue** (variante HEIC exotique, JavaScript
+  désactivé, navigateur ancien) : le fichier d'origine part tel quel, et
+  le serveur reprend la main avec son propre traitement (conversion via
+  Imagick si disponible, sinon le message HEIC habituel) — l'utilisateur
+  n'est jamais bloqué.
+- **`/admin/diagnostic.php`** vérifie en direct (dans le navigateur qui
+  charge la page, pas de simple supposition) que la bibliothèque se
+  charge correctement et que les API nécessaires sont disponibles.
+
+Aucune configuration serveur requise pour cette méthode : elle
+fonctionne quel que soit l'état d'Imagick sur l'hébergement.

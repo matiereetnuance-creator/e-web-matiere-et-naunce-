@@ -251,6 +251,8 @@ function render_raw_prompt(string $field, array $pending, string $csrf): void
     <?php
 }
 ?>
+<script src="assets/vendor/heic2any.min.js" defer></script>
+<script src="assets/heic-convert.js" defer></script>
 <script src="assets/dropzone.js" defer></script>
 
 <?php if ($errors): ?>

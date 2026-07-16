@@ -83,6 +83,8 @@ $pageTitle = 'Photos du site';
 $activeNav = 'photos';
 require __DIR__ . '/includes/header.php';
 ?>
+<script src="assets/vendor/heic2any.min.js" defer></script>
+<script src="assets/heic-convert.js" defer></script>
 <script src="assets/dropzone.js" defer></script>
 
 <?php foreach ($slots as $group => $items): ?>

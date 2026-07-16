@@ -67,8 +67,9 @@ require __DIR__ . '/includes/header.php';
   <h2>Support des photos iPhone (HEIC)</h2>
   <p class="help" style="margin-top:0">Cette section répond directement à la question « le problème vient-il du serveur ? » pour un envoi de photo qui échoue.</p>
   <table>
-    <tr><td>Conversion automatique HEIC → JPEG</td><td><?= pill($heicOk, 'Disponible', 'Indisponible') ?></td></tr>
-    <tr><td>Extension Imagick</td><td><?= pill($imagickOk, 'Installée', 'Absente') ?></td></tr>
+    <tr><td>Conversion HEIC → JPEG côté navigateur (méthode principale)</td><td id="js-heic-status"><span class="pill pill-warn">Vérification…</span></td></tr>
+    <tr><td>Conversion HEIC → JPEG côté serveur (repli si JavaScript indisponible)</td><td><?= pill($heicOk, 'Disponible', 'Indisponible') ?></td></tr>
+    <tr><td>Extension Imagick (nécessaire uniquement pour le repli serveur)</td><td><?= pill($imagickOk, 'Installée', 'Absente') ?></td></tr>
     <?php if ($imagickOk): ?>
     <tr><td>Version ImageMagick</td><td><?= htmlspecialchars($imagickVersion ?? '—') ?></td></tr>
     <tr><td>Formats HEIC/HEIF reconnus par Imagick</td><td><?= pill(count(array_intersect(['HEIC', 'HEIF'], $imagickFormats)) > 0) ?></td></tr>
@@ -81,6 +82,7 @@ require __DIR__ . '/includes/header.php';
     <div class="help" style="margin-top:8px;line-height:1.8"><?= htmlspecialchars(implode(', ', $imagickFormats)) ?></div>
   </details>
   <?php endif; ?>
+  <div class="help" style="margin-top:12px">Dans l'immense majorité des cas, la photo HEIC est déjà convertie en JPEG <strong>dans le navigateur</strong> avant même d'être envoyée (voir la première ligne) — invisible pour vous, et indépendant du serveur. Les lignes ci-dessous ne concernent que le <strong>repli</strong> si JavaScript est indisponible sur le poste utilisé.</div>
   <?php if (!$heicOk): ?>
     <div class="help" style="margin-top:12px">
       <?php if (!$imagickOk): ?>
@@ -88,10 +90,10 @@ require __DIR__ . '/includes/header.php';
       <?php else: ?>
         Imagick est installé mais ne sait pas décoder le HEIC/HEIF sur ce serveur (délégué libheif absent du binaire ImageMagick). Cela se configure côté hébergeur, pas depuis ce site — contactez le support o2switch en leur indiquant ce diagnostic.
       <?php endif; ?>
-      En attendant, l'administration affiche un message clair à l'envoi d'une photo HEIC, demandant de l'exporter en JPG depuis l'iPhone.
+      Sans JavaScript, l'administration affiche alors un message clair à l'envoi d'une photo HEIC, demandant de l'exporter en JPG depuis l'iPhone.
     </div>
   <?php else: ?>
-    <div class="help" style="margin-top:12px">Les photos HEIC envoyées depuis l'administration sont converties automatiquement — aucune action n'est nécessaire côté iPhone.</div>
+    <div class="help" style="margin-top:12px">Les photos HEIC envoyées depuis l'administration sont de toute façon converties automatiquement côté serveur si besoin — aucune action n'est nécessaire côté iPhone, avec ou sans JavaScript.</div>
   <?php endif; ?>
   <div class="help" style="margin-top:12px">
     <?php if ($rawOk): ?>
@@ -143,4 +145,18 @@ require __DIR__ . '/includes/header.php';
   <div class="help" style="margin-top:12px">Cette page est en lecture seule : elle ne modifie aucun réglage. Elle observe uniquement ce que le serveur propose actuellement.</div>
 </div>
 
+<script src="assets/vendor/heic2any.min.js" defer></script>
+<script>
+// Vérification réelle (pas supposée) que la conversion HEIC côté
+// navigateur peut fonctionner sur ce poste : bibliothèque chargée +
+// API navigateur nécessaires disponibles (DataTransfer/File).
+document.addEventListener('DOMContentLoaded', function () {
+  var cell = document.getElementById('js-heic-status');
+  if (!cell) return;
+  var ok = typeof heic2any === 'function' && typeof DataTransfer !== 'undefined' && typeof File !== 'undefined';
+  cell.innerHTML = ok
+    ? '<span class="pill pill-ok">Active</span>'
+    : '<span class="pill pill-danger">Indisponible sur ce navigateur</span>';
+});
+</script>
 <?php require __DIR__ . '/includes/footer.php'; ?>
