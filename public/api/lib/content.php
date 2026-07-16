@@ -159,10 +159,15 @@ function upload_error_message(?string $code): string
     $maxMb = (int) (MN_UPLOAD_MAX_BYTES / 1024 / 1024);
     return match ($code) {
         'raw_unsupported' => 'Cette photo semble avoir été prise en Apple ProRAW. Les photos RAW ne sont pas destinées à une publication web. Désactivez simplement RAW dans l\'application Appareil photo puis reprenez la photo.',
+        // Cas d'un RAW convertible détecté dans un envoi groupé (galerie) : la
+        // conversion n'y est volontairement pas proposée (voir realisation-edit.php) ;
+        // le message oriente vers le champ photo unique qui, lui, la propose.
+        'raw_convertible' => 'Cette photo semble avoir été prise en Apple ProRAW. Renvoyez-la seule via « Image principale », « Avant » ou « Après » pour qu\'une conversion automatique en JPEG vous soit proposée — ce n\'est pas possible dans un envoi groupé.',
         'heic_unsupported' => 'Votre serveur ne permet actuellement pas la conversion HEIC. Activez Imagick dans PHP ou utilisez un JPG.',
         'too_large' => "Ce fichier est trop volumineux (limite : {$maxMb} Mo). Une photo iPhone classique (HEIC ou JPG) dépasse rarement cette taille : il s'agit probablement d'une vidéo ou d'un format RAW.",
         'unsupported_format' => 'Format de fichier non reconnu. Formats acceptés : JPG, PNG, WebP, ainsi que HEIC (photos iPhone, converties automatiquement si le serveur le permet).',
         'write_failed' => "Une erreur technique est survenue lors de l'enregistrement de l'image. Merci de réessayer.",
+        'raw_expired' => "Le délai pour confirmer la conversion de cette photo RAW est dépassé (30 minutes). Merci de la renvoyer.",
         default => "Ce fichier n'a pas pu être traité.",
     };
 }
@@ -181,6 +186,14 @@ function upload_error_with_details(array $result): string
         $message .= ' [' . $result['details'] . ']';
     }
     return $message;
+}
+
+/** Texte de la proposition de conversion automatique d'un RAW mis en attente (accepte les clés 'name'/'original_name' et 'size'). */
+function raw_convert_prompt(array $meta): string
+{
+    $name = htmlspecialchars((string) ($meta['name'] ?? $meta['original_name'] ?? 'ce fichier'), ENT_QUOTES, 'UTF-8');
+    $sizeMb = round((int) ($meta['size'] ?? 0) / 1024 / 1024, 1);
+    return "Cette photo ({$name}, {$sizeMb} Mo) semble être un fichier Apple ProRAW (.dng). Voulez-vous convertir cette photo en JPEG optimisé ?";
 }
 
 /**
@@ -258,73 +271,22 @@ function upload_technical_details(array $file): string
 }
 
 /**
- * Optimise une image envoyée (redimensionnement + compression), l'enregistre
- * en JPEG + WebP, et génère une miniature (JPEG + WebP) à côté. Convertit
- * automatiquement les photos HEIC/HEIF (iPhone) si le serveur le permet.
- * Nécessite l'extension GD (présente par défaut sur o2switch).
+ * Cœur du pipeline d'optimisation : à partir d'un chemin de fichier déjà
+ * lisible par GD (JPEG/PNG/WebP — y compris un fichier temporaire issu
+ * d'une conversion HEIC ou RAW préalable via Imagick), redimensionne,
+ * corrige l'orientation EXIF, enregistre le JPEG + WebP final et sa
+ * miniature. Partagé par l'envoi direct et par la confirmation de
+ * conversion RAW, pour ne pas dupliquer cette logique.
  *
- * @return array{ok:bool, filename:?string, error:?string, details:?string} filename ex. "photo-1.jpg" ; details = diagnostic technique (admin uniquement)
+ * @return array{ok:bool, filename:?string, error:?string, details:?string}
  */
-function optimize_and_store_upload(array $file, string $destDir, string $destBaseName, int $maxWidth = 1600, int $quality = 82): array
+function gd_finish_pipeline(string $sourcePath, string $destDir, string $destBaseName, int $maxWidth, int $quality): array
 {
-    $fail = static fn (string $code) => ['ok' => false, 'filename' => null, 'error' => $code, 'details' => upload_technical_details($file)];
-
-    // RAW/JPEG-XL : détecté EN PREMIER, sur le seul nom de fichier — donc
-    // même si le fichier est si volumineux que PHP l'a déjà tronqué côté
-    // serveur (upload_max_filesize dépassé, cas le plus fréquent pour un
-    // vrai fichier ProRAW de 25 à 100 Mo : $file['name'] reste renseigné
-    // même quand tmp_name/size sont vidés par PHP). Sans cette priorité,
-    // le cas réel le plus courant afficherait "fichier trop volumineux"
-    // au lieu du message ProRAW explicite demandé.
-    if (is_raw_or_jxl_upload($file)) {
-        return $fail('raw_unsupported');
-    }
-    // Le code d'erreur PHP est vérifié ensuite, avant toute autre
-    // inspection : quand upload_max_filesize/post_max_size sont dépassés
-    // côté serveur, tmp_name/size/type arrivent vides ou à zéro, et
-    // is_uploaded_file('') aurait autrement fait tomber ce cas dans
-    // 'unsupported_format' (message trompeur) au lieu de 'too_large'.
-    if (($file['error'] ?? UPLOAD_ERR_NO_FILE) !== UPLOAD_ERR_OK) {
-        return $fail(in_array($file['error'] ?? null, [UPLOAD_ERR_INI_SIZE, UPLOAD_ERR_FORM_SIZE], true) ? 'too_large' : 'unsupported_format');
-    }
-    if (!isset($file['tmp_name']) || !is_uploaded_file($file['tmp_name'])) {
-        return $fail('unsupported_format');
-    }
-    if (($file['size'] ?? 0) > MN_UPLOAD_MAX_BYTES) {
-        return $fail('too_large');
-    }
-
-    $sourcePath = $file['tmp_name'];
-    $heicTempFile = null;
+    $fail = static fn (string $code) => ['ok' => false, 'filename' => null, 'error' => $code, 'details' => null, 'stage_token' => null];
 
     $info = @getimagesize($sourcePath);
     if (!$info) {
-        if (is_heic_upload($file)) {
-            if (!heic_conversion_available()) {
-                return $fail('heic_unsupported');
-            }
-            try {
-                $im = new \Imagick($sourcePath);
-                $im->setImageFormat('jpeg');
-                $im->setImageCompressionQuality(92);
-                $heicTempFile = tempnam(sys_get_temp_dir(), 'heic') . '.jpg';
-                $im->writeImage($heicTempFile);
-                $im->clear();
-            } catch (\Throwable $e) {
-                if ($heicTempFile && is_file($heicTempFile)) {
-                    @unlink($heicTempFile);
-                }
-                return $fail('heic_unsupported');
-            }
-            $sourcePath = $heicTempFile;
-            $info = @getimagesize($sourcePath);
-            if (!$info) {
-                @unlink($heicTempFile);
-                return $fail('heic_unsupported');
-            }
-        } else {
-            return $fail('unsupported_format');
-        }
+        return $fail('unsupported_format');
     }
     [$width, $height, $type] = $info;
 
@@ -339,15 +301,9 @@ function optimize_and_store_upload(array $file, string $destDir, string $destBas
             $src = function_exists('imagecreatefromwebp') ? @imagecreatefromwebp($sourcePath) : false;
             break;
         default:
-            if ($heicTempFile) {
-                @unlink($heicTempFile);
-            }
             return $fail('unsupported_format');
     }
     if (!$src) {
-        if ($heicTempFile) {
-            @unlink($heicTempFile);
-        }
         return $fail('unsupported_format');
     }
 
@@ -364,10 +320,6 @@ function optimize_and_store_upload(array $file, string $destDir, string $destBas
             $src = imagerotate($src, 90, 0);
             [$width, $height] = [$height, $width];
         }
-    }
-
-    if ($heicTempFile) {
-        @unlink($heicTempFile);
     }
 
     if ($width > $maxWidth) {
@@ -424,7 +376,242 @@ function optimize_and_store_upload(array $file, string $destDir, string $destBas
 
     imagedestroy($src);
 
-    return $ok ? ['ok' => true, 'filename' => $filename, 'error' => null, 'details' => null] : $fail('write_failed');
+    return $ok ? ['ok' => true, 'filename' => $filename, 'error' => null, 'details' => null, 'stage_token' => null] : $fail('write_failed');
+}
+
+const MN_RAW_STAGING_DIR_NAME = 'raw-staging';
+/** Taille max. d'un RAW pour lequel on propose la conversion automatique (plutôt que le refus immédiat). */
+const MN_RAW_CONVERT_MAX_BYTES = 45 * 1024 * 1024;
+/** Durée de conservation d'un RAW mis en attente de confirmation. */
+const MN_RAW_STAGING_TTL = 1800;
+
+function raw_staging_dir(): string
+{
+    return MN_CONTENT_DIR . '/' . MN_RAW_STAGING_DIR_NAME;
+}
+
+/** true si le serveur peut décoder un DNG (Apple ProRAW) — Imagick avec le délégué RAW (dcraw/libraw). */
+function raw_conversion_available(): bool
+{
+    return class_exists('Imagick') && in_array('DNG', \Imagick::queryFormats(), true);
+}
+
+/** Purge les envois RAW en attente de confirmation plus vieux que MN_RAW_STAGING_TTL. */
+function raw_staging_gc(): void
+{
+    $dir = raw_staging_dir();
+    foreach (glob($dir . '/*.json') ?: [] as $metaPath) {
+        $meta = json_decode((string) file_get_contents($metaPath), true);
+        $token = basename($metaPath, '.json');
+        if (!is_array($meta) || time() - ($meta['created_at'] ?? 0) > MN_RAW_STAGING_TTL) {
+            @unlink($metaPath);
+            @unlink($dir . '/' . $token . '.raw');
+        }
+    }
+}
+
+/**
+ * Met de côté un fichier RAW en attente de confirmation ("voulez-vous le
+ * convertir en JPEG ?") au lieu de le refuser immédiatement. Le fichier
+ * temporaire PHP est déplacé (il serait sinon supprimé à la fin de la
+ * requête) vers un stockage propre à l'admin, hors du dossier public.
+ *
+ * @return string|null jeton à renvoyer pour confirmer, ou null si l'envoi a échoué
+ */
+function stage_raw_upload(array $file, string $destDir, string $destBaseName): ?string
+{
+    $dir = raw_staging_dir();
+    if (!is_dir($dir)) {
+        mkdir($dir, 0775, true);
+    }
+    raw_staging_gc();
+
+    $tmpName = (string) ($file['tmp_name'] ?? '');
+    if ($tmpName === '' || !is_uploaded_file($tmpName)) {
+        return null;
+    }
+
+    $token = bin2hex(random_bytes(16));
+    $rawPath = $dir . '/' . $token . '.raw';
+    if (!move_uploaded_file($tmpName, $rawPath)) {
+        return null;
+    }
+
+    file_put_contents($dir . '/' . $token . '.json', json_encode([
+        'original_name' => $file['name'] ?? '',
+        'size' => $file['size'] ?? 0,
+        'dest_dir' => $destDir,
+        'dest_base_name' => $destBaseName,
+        'created_at' => time(),
+    ]));
+
+    return $token;
+}
+
+/** Relit les métadonnées d'un RAW en attente, ou null si le jeton est invalide/expiré. */
+function get_staged_raw(string $token): ?array
+{
+    if (!preg_match('/^[a-f0-9]{32}$/', $token)) {
+        return null;
+    }
+    $dir = raw_staging_dir();
+    $metaPath = $dir . '/' . $token . '.json';
+    $rawPath = $dir . '/' . $token . '.raw';
+    if (!is_file($metaPath) || !is_file($rawPath)) {
+        return null;
+    }
+    $meta = json_decode((string) file_get_contents($metaPath), true);
+    if (!is_array($meta)) {
+        return null;
+    }
+    if (time() - ($meta['created_at'] ?? 0) > MN_RAW_STAGING_TTL) {
+        @unlink($metaPath);
+        @unlink($rawPath);
+        return null;
+    }
+    $meta['raw_path'] = $rawPath;
+    return $meta;
+}
+
+/** Supprime un RAW en attente (confirmé, annulé, ou son jeton n'est plus utile). */
+function discard_staged_raw(string $token): void
+{
+    if (!preg_match('/^[a-f0-9]{32}$/', $token)) {
+        return;
+    }
+    $dir = raw_staging_dir();
+    @unlink($dir . '/' . $token . '.raw');
+    @unlink($dir . '/' . $token . '.json');
+}
+
+/**
+ * Convertit un RAW précédemment mis en attente (stage_raw_upload) en JPEG
+ * optimisé + WebP + miniature, à l'endroit prévu au moment de la mise en
+ * attente. Le fichier temporaire est supprimé quoi qu'il arrive.
+ *
+ * @return array{ok:bool, filename:?string, error:?string, details:?string}
+ */
+function confirm_raw_conversion(string $token, int $maxWidth = 1600, int $quality = 82): array
+{
+    $fail = static fn (string $code) => ['ok' => false, 'filename' => null, 'error' => $code, 'details' => null, 'stage_token' => null];
+
+    $meta = get_staged_raw($token);
+    if ($meta === null) {
+        return $fail('raw_expired');
+    }
+    if (!raw_conversion_available()) {
+        discard_staged_raw($token);
+        return $fail('heic_unsupported');
+    }
+
+    $tempJpeg = tempnam(sys_get_temp_dir(), 'raw') . '.jpg';
+    try {
+        $im = new \Imagick($meta['raw_path']);
+        $im->setImageFormat('jpeg');
+        $im->setImageCompressionQuality(95);
+        $im->writeImage($tempJpeg);
+        $im->clear();
+    } catch (\Throwable $e) {
+        @unlink($tempJpeg);
+        discard_staged_raw($token);
+        return $fail('raw_unsupported');
+    }
+
+    discard_staged_raw($token);
+    $result = gd_finish_pipeline($tempJpeg, $meta['dest_dir'], $meta['dest_base_name'], $maxWidth, $quality);
+    @unlink($tempJpeg);
+
+    return $result;
+}
+
+/**
+ * Optimise une image envoyée (redimensionnement + compression), l'enregistre
+ * en JPEG + WebP, et génère une miniature (JPEG + WebP) à côté. Convertit
+ * automatiquement les photos HEIC/HEIF (iPhone) si le serveur le permet.
+ * Nécessite l'extension GD (présente par défaut sur o2switch).
+ *
+ * Un RAW (.dng/.jxl…) de taille raisonnable (≤ MN_RAW_CONVERT_MAX_BYTES)
+ * n'est pas refusé directement si le serveur sait le décoder : il est mis
+ * en attente ('raw_convertible', avec un jeton) pour que l'admin confirme
+ * explicitement la conversion — voir confirm_raw_conversion().
+ *
+ * @return array{ok:bool, filename:?string, error:?string, details:?string, stage_token:?string} filename ex. "photo-1.jpg" ; details = diagnostic technique (admin uniquement)
+ */
+function optimize_and_store_upload(array $file, string $destDir, string $destBaseName, int $maxWidth = 1600, int $quality = 82): array
+{
+    $fail = static fn (string $code) => ['ok' => false, 'filename' => null, 'error' => $code, 'details' => upload_technical_details($file), 'stage_token' => null];
+
+    // RAW/JPEG-XL : détecté EN PREMIER, sur le seul nom de fichier — donc
+    // même si le fichier est si volumineux que PHP l'a déjà tronqué côté
+    // serveur (upload_max_filesize dépassé, cas le plus fréquent pour un
+    // vrai fichier ProRAW de 25 à 100 Mo : $file['name'] reste renseigné
+    // même quand tmp_name/size sont vidés par PHP). Sans cette priorité,
+    // le cas réel le plus courant afficherait "fichier trop volumineux"
+    // au lieu du message ProRAW explicite demandé.
+    if (is_raw_or_jxl_upload($file)) {
+        $ext = strtolower((string) pathinfo((string) ($file['name'] ?? ''), PATHINFO_EXTENSION));
+        $sizeOk = ($file['size'] ?? 0) > 0 && ($file['size'] ?? 0) <= MN_RAW_CONVERT_MAX_BYTES;
+        $tmpOk = !empty($file['tmp_name']) && is_uploaded_file((string) $file['tmp_name']);
+        if ($ext === 'dng' && $sizeOk && $tmpOk && raw_conversion_available()) {
+            $token = stage_raw_upload($file, $destDir, $destBaseName);
+            if ($token !== null) {
+                return ['ok' => false, 'filename' => null, 'error' => 'raw_convertible', 'details' => upload_technical_details($file), 'stage_token' => $token];
+            }
+        }
+        return $fail('raw_unsupported');
+    }
+    // Le code d'erreur PHP est vérifié ensuite, avant toute autre
+    // inspection : quand upload_max_filesize/post_max_size sont dépassés
+    // côté serveur, tmp_name/size/type arrivent vides ou à zéro, et
+    // is_uploaded_file('') aurait autrement fait tomber ce cas dans
+    // 'unsupported_format' (message trompeur) au lieu de 'too_large'.
+    if (($file['error'] ?? UPLOAD_ERR_NO_FILE) !== UPLOAD_ERR_OK) {
+        return $fail(in_array($file['error'] ?? null, [UPLOAD_ERR_INI_SIZE, UPLOAD_ERR_FORM_SIZE], true) ? 'too_large' : 'unsupported_format');
+    }
+    if (!isset($file['tmp_name']) || !is_uploaded_file($file['tmp_name'])) {
+        return $fail('unsupported_format');
+    }
+    if (($file['size'] ?? 0) > MN_UPLOAD_MAX_BYTES) {
+        return $fail('too_large');
+    }
+
+    $sourcePath = $file['tmp_name'];
+    $heicTempFile = null;
+
+    $info = @getimagesize($sourcePath);
+    if (!$info) {
+        if (is_heic_upload($file)) {
+            if (!heic_conversion_available()) {
+                return $fail('heic_unsupported');
+            }
+            try {
+                $im = new \Imagick($sourcePath);
+                $im->setImageFormat('jpeg');
+                $im->setImageCompressionQuality(92);
+                $heicTempFile = tempnam(sys_get_temp_dir(), 'heic') . '.jpg';
+                $im->writeImage($heicTempFile);
+                $im->clear();
+            } catch (\Throwable $e) {
+                if ($heicTempFile && is_file($heicTempFile)) {
+                    @unlink($heicTempFile);
+                }
+                return $fail('heic_unsupported');
+            }
+            $sourcePath = $heicTempFile;
+        } else {
+            return $fail('unsupported_format');
+        }
+    }
+
+    $result = gd_finish_pipeline($sourcePath, $destDir, $destBaseName, $maxWidth, $quality);
+    if ($heicTempFile) {
+        @unlink($heicTempFile);
+    }
+    if (!$result['ok'] && $result['error'] === 'unsupported_format' && $heicTempFile) {
+        // La conversion HEIC a réussi mais le JPEG produit reste illisible : cas quasi impossible, message dédié tout de même.
+        return $fail('heic_unsupported');
+    }
+    return $result['ok'] ? $result : $fail($result['error'] ?? 'write_failed');
 }
 
 /** URL de la miniature associée à un fichier photo de réalisation (ex. "photo-1.jpg" -> "…/photo-1-thumb.jpg"), si elle existe, sinon l'image d'origine. */

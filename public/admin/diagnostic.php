@@ -38,6 +38,7 @@ if ($imagickOk) {
     }
 }
 $heicOk = heic_conversion_available();
+$rawOk = raw_conversion_available();
 
 $exifOk = extension_loaded('exif');
 
@@ -71,7 +72,7 @@ require __DIR__ . '/includes/header.php';
     <?php if ($imagickOk): ?>
     <tr><td>Version ImageMagick</td><td><?= htmlspecialchars($imagickVersion ?? '—') ?></td></tr>
     <tr><td>Formats HEIC/HEIF reconnus par Imagick</td><td><?= pill(count(array_intersect(['HEIC', 'HEIF'], $imagickFormats)) > 0) ?></td></tr>
-    <tr><td>Formats RAW (DNG/ProRAW)</td><td><span class="pill pill-warn">Volontairement non traités</span></td></tr>
+    <tr><td>Conversion automatique RAW (Apple ProRAW/.dng) → JPEG</td><td><?= pill($rawOk, 'Proposée', 'Indisponible') ?></td></tr>
     <?php endif; ?>
   </table>
   <?php if ($imagickOk && $imagickFormats): ?>
@@ -92,7 +93,15 @@ require __DIR__ . '/includes/header.php';
   <?php else: ?>
     <div class="help" style="margin-top:12px">Les photos HEIC envoyées depuis l'administration sont converties automatiquement — aucune action n'est nécessaire côté iPhone.</div>
   <?php endif; ?>
-  <div class="help" style="margin-top:12px">Les fichiers <strong>Apple ProRAW (.dng)</strong> et <strong>JPEG-XL (.jxl)</strong> sont refusés volontairement, quelle que soit leur taille : ce sont des formats de travail, pas des formats de publication web. Un message dédié invite à désactiver RAW dans l'app Appareil photo — ce n'est pas une limitation du serveur.</div>
+  <div class="help" style="margin-top:12px">
+    <?php if ($rawOk): ?>
+      Un fichier <strong>Apple ProRAW (.dng)</strong> de moins de <?= (int) (MN_RAW_CONVERT_MAX_BYTES / 1024 / 1024) ?> Mo propose sa conversion automatique en JPEG optimisé (l'admin doit confirmer). Au-delà, ou pour un <strong>JPEG-XL (.jxl)</strong>, le fichier est refusé : ce sont des formats de travail, pas des formats de publication web.
+    <?php elseif (!$imagickOk): ?>
+      Les fichiers <strong>Apple ProRAW (.dng)</strong> et <strong>JPEG-XL (.jxl)</strong> sont refusés sur ce serveur, quelle que soit leur taille : Imagick n'est pas installé (voir ci-dessus). Un message dédié invite à désactiver RAW dans l'app Appareil photo — ce n'est pas un bug de ce site.
+    <?php else: ?>
+      Les fichiers <strong>Apple ProRAW (.dng)</strong> et <strong>JPEG-XL (.jxl)</strong> sont refusés sur ce serveur, quelle que soit leur taille : Imagick est installé mais sans le délégué RAW nécessaire (dcraw/libraw) pour les décoder — à demander au support o2switch. Un message dédié invite à désactiver RAW dans l'app Appareil photo — ce n'est pas un bug de ce site.
+    <?php endif; ?>
+  </div>
 </div>
 
 <div class="card">

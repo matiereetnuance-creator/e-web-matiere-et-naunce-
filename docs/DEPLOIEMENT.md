@@ -347,13 +347,14 @@ d'un fichier RAW plutôt que d'une vraie photo HEIC trop lourde.
 **Comportement désormais en place :**
 
 - Un fichier **`.dng`** (Apple ProRAW), **`.jxl`** (JPEG-XL) ou autre
-  format RAW d'appareil photo est détecté par son extension et refusé
-  avec un message dédié : *« Cette photo semble avoir été prise en Apple
-  ProRAW. Les photos RAW ne sont pas destinées à une publication web.
-  Désactivez simplement RAW dans l'application Appareil photo puis
-  reprenez la photo. »* — y compris si le fichier est si volumineux que
-  PHP l'a déjà tronqué avant que le site ne le reçoive (cas le plus
-  fréquent en pratique pour un vrai fichier ProRAW).
+  format RAW d'appareil photo est détecté par son extension. S'il dépasse
+  45 Mo, ou si le serveur ne sait pas le décoder, ou s'il s'agit d'un
+  `.jxl`, il est refusé avec un message dédié : *« Cette photo semble
+  avoir été prise en Apple ProRAW. Les photos RAW ne sont pas destinées à
+  une publication web. Désactivez simplement RAW dans l'application
+  Appareil photo puis reprenez la photo. »* — y compris si le fichier est
+  si volumineux que PHP l'a déjà tronqué avant que le site ne le reçoive.
+  Sinon, une **conversion automatique en JPEG est proposée** (voir §13).
 - Un **HEIC classique** (photo iPhone normale, RAW désactivé) est
   accepté et converti automatiquement si Imagick + libheif sont
   disponibles sur le serveur (voir `/admin/diagnostic.php`).
@@ -386,3 +387,41 @@ même en haute résolution, ne l'atteint pratiquement jamais ; le
 symptôme observé venait de fichiers RAW envoyés par erreur, désormais
 identifiés et expliqués clairement plutôt que masqués par une limite
 plus haute.
+
+## 13. Proposition de conversion automatique d'un RAW
+
+Plutôt que de toujours refuser un fichier Apple ProRAW (`.dng`),
+l'administration propose désormais sa conversion automatique en JPEG
+optimisé quand c'est possible :
+
+- Le fichier doit faire **45 Mo ou moins** (au-delà, conversion trop
+  coûteuse pour un hébergement mutualisé — refus direct).
+- Le serveur doit savoir décoder le DNG : Imagick installé **avec le
+  délégué RAW** (dcraw ou libraw) — visible sur `/admin/diagnostic.php`,
+  ligne « Conversion automatique RAW ». C'est un délégué différent de
+  celui utilisé pour le HEIC (libheif) : les deux peuvent être présents
+  ou absents indépendamment l'un de l'autre.
+
+Si ces deux conditions sont réunies, l'écran affiche : *« Cette photo
+(nom du fichier, taille) semble être un fichier Apple ProRAW (.dng).
+Voulez-vous convertir cette photo en JPEG optimisé ? »* avec deux
+boutons, **Convertir en JPEG** et **Annuler**. Rien n'est décodé avant
+cette confirmation explicite. Le fichier original est mis de côté
+(hors du dossier public, protégé par `.htaccess`) pendant 30 minutes,
+purgé automatiquement si aucune réponse n'est donnée.
+
+- Disponible pour **l'image principale**, **avant** et **après** d'une
+  réalisation, ainsi que pour les **photos du site** (menu « Photos du
+  site »). Pour une réalisation, les autres champs du formulaire (titre,
+  ville, description…) restent conservés pendant l'attente de
+  confirmation — rien n'est perdu, mais la réalisation n'est enregistrée
+  qu'une fois chaque proposition résolue (converti ou annulé).
+- **Non proposé dans l'envoi groupé de la galerie** (plusieurs photos à
+  la fois) : la complexité de gérer plusieurs confirmations simultanées
+  n'en valait pas la peine pour l'instant. Un RAW détecté dans un lot est
+  signalé en avertissement, avec l'invitation à le renvoyer seul via
+  l'image principale ou avant/après pour bénéficier de la conversion.
+
+`upload_max_filesize` (`.user.ini`) est réglé à 50 Mo — volontairement
+au-dessus du seuil de 45 Mo, sinon PHP tronquerait le fichier avant même
+que le site ne puisse proposer sa conversion.

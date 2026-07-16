@@ -6,6 +6,10 @@ public/api/data/*.json
 public/api/data/content/backups/
 public/api/data/content/admin-secrets.json
 
+# Fichiers RAW (Apple ProRAW) mis en attente de confirmation de conversion,
+# purgés automatiquement au bout de 30 minutes — jamais du contenu à versionner
+public/api/data/content/raw-staging/
+
 # Photos envoyées depuis l'administration (contenu du client, pas du code)
 public/assets/img/uploads/*
 !public/assets/img/uploads/.gitkeep

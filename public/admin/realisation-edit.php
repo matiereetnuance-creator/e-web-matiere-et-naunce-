@@ -5,6 +5,68 @@ require __DIR__ . '/../api/lib/admin_auth.php';
 require __DIR__ . '/../api/lib/content.php';
 admin_require_login();
 
+/**
+ * Traite l'envoi (ou la confirmation/annulation) d'un champ photo unique
+ * (image_main / avant / apres). Trois cas :
+ *  - le bouton "Convertir en JPEG" a été cliqué pour ce champ : on
+ *    convertit le RAW mis en attente et on l'enregistre ;
+ *  - le bouton "Annuler" a été cliqué : on jette le fichier en attente ;
+ *  - un nouveau fichier a été choisi : traitement normal, qui peut
+ *    lui-même déboucher sur une nouvelle proposition de conversion RAW.
+ * Si une proposition reste sans réponse dans cette soumission (ex. clic
+ * sur "Enregistrer" sans avoir répondu), elle est conservée telle quelle
+ * plutôt que silencieusement abandonnée — l'enregistrement de la
+ * réalisation reste bloqué tant qu'elle n'est pas résolue.
+ *
+ * @return string|null message d'erreur, ou null si rien à signaler
+ */
+function process_photo_field(string $field, string $dir, string $baseNamePrefix, array &$values, array &$pendingRaw, string $altContext = ''): ?string
+{
+    if (isset($_POST['confirm_raw_' . $field]) && !empty($_POST['raw_token_' . $field])) {
+        $result = confirm_raw_conversion((string) $_POST['raw_token_' . $field]);
+        if ($result['ok']) {
+            $values[$field] = $result['filename'];
+            if ($values[$field . '_alt'] === '') {
+                $values[$field . '_alt'] = suggest_alt($values['title'], $values['ville'], $altContext);
+            }
+            return null;
+        }
+        return upload_error_with_details($result);
+    }
+    if (isset($_POST['cancel_raw_' . $field])) {
+        if (!empty($_POST['raw_token_' . $field])) {
+            discard_staged_raw((string) $_POST['raw_token_' . $field]);
+        }
+        return null;
+    }
+    if (!empty($_FILES[$field]['name'])) {
+        $result = optimize_and_store_upload($_FILES[$field], $dir, $baseNamePrefix . '-' . time());
+        if ($result['ok']) {
+            $values[$field] = $result['filename'];
+            if ($values[$field . '_alt'] === '') {
+                $values[$field . '_alt'] = suggest_alt($values['title'], $values['ville'], $altContext);
+            }
+            return null;
+        }
+        if (($result['error'] ?? null) === 'raw_convertible') {
+            $pendingRaw[$field] = ['token' => $result['stage_token'], 'name' => $_FILES[$field]['name'], 'size' => $_FILES[$field]['size']];
+            return null;
+        }
+        return upload_error_with_details($result);
+    }
+    // Une proposition de conversion faite lors d'une soumission précédente
+    // (le jeton voyage dans un champ caché du formulaire) et non résolue
+    // ici (ni confirmée, ni annulée, ex. clic sur "Enregistrer") reste
+    // affichée plutôt que d'être perdue silencieusement.
+    if (!empty($_POST['raw_token_' . $field])) {
+        $meta = get_staged_raw((string) $_POST['raw_token_' . $field]);
+        if ($meta !== null) {
+            $pendingRaw[$field] = ['token' => $_POST['raw_token_' . $field], 'name' => $meta['original_name'] ?? '', 'size' => $meta['size'] ?? 0];
+        }
+    }
+    return null;
+}
+
 $realisations = load_content('realisations', []);
 $editId = clean_text((string) ($_GET['id'] ?? ($_POST['current_id'] ?? '')), 80);
 $existing = null;
@@ -19,6 +81,7 @@ foreach ($realisations as $k => $r) {
 $isNew = $existing === null;
 
 $errors = [];
+$pendingRaw = [];
 $values = $existing ?? [
     'id' => '', 'title' => '', 'ville' => '', 'description' => '', 'prestations' => '',
     'tags' => '', 'date' => '', 'fallback_slot' => '', 'image_main' => '', 'gallery' => [],
@@ -78,38 +141,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         $dir = realisation_photo_dir($values['id']);
 
-        if (!empty($_FILES['image_main']['name'])) {
-            $result = optimize_and_store_upload($_FILES['image_main'], $dir, 'principale-' . time());
-            if ($result['ok']) {
-                $values['image_main'] = $result['filename'];
-                if ($values['image_main_alt'] === '') {
-                    $values['image_main_alt'] = suggest_alt($values['title'], $values['ville']);
-                }
-            } else {
-                $errors[] = "Image principale : " . upload_error_with_details($result);
-            }
+        if ($err = process_photo_field('image_main', $dir, 'principale', $values, $pendingRaw)) {
+            $errors[] = "Image principale : " . $err;
         }
-        if (!empty($_FILES['avant']['name'])) {
-            $result = optimize_and_store_upload($_FILES['avant'], $dir, 'avant-' . time());
-            if ($result['ok']) {
-                $values['avant'] = $result['filename'];
-                if ($values['avant_alt'] === '') {
-                    $values['avant_alt'] = suggest_alt($values['title'], $values['ville'], 'avant travaux');
-                }
-            } else {
-                $errors[] = "Photo « avant » : " . upload_error_with_details($result);
-            }
+        if ($err = process_photo_field('avant', $dir, 'avant', $values, $pendingRaw, 'avant travaux')) {
+            $errors[] = "Photo « avant » : " . $err;
         }
-        if (!empty($_FILES['apres']['name'])) {
-            $result = optimize_and_store_upload($_FILES['apres'], $dir, 'apres-' . time());
-            if ($result['ok']) {
-                $values['apres'] = $result['filename'];
-                if ($values['apres_alt'] === '') {
-                    $values['apres_alt'] = suggest_alt($values['title'], $values['ville'], 'après travaux');
-                }
-            } else {
-                $errors[] = "Photo « après » : " . upload_error_with_details($result);
-            }
+        if ($err = process_photo_field('apres', $dir, 'apres', $values, $pendingRaw, 'après travaux')) {
+            $errors[] = "Photo « après » : " . $err;
         }
 
         // Galerie : mise à jour des textes ALT existants
@@ -128,19 +167,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         // sélectionnées d'un coup sur iPhone). Une photo en échec (HEIC non
         // convertible, format inconnu…) n'empêche pas l'enregistrement des
         // autres : elle est simplement listée en avertissement, à renvoyer.
+        // Un RAW convertible dans un envoi groupé n'est pas proposé à la
+        // conversion individuellement (trop complexe pour un lot de photos) :
+        // il est listé en avertissement, à renvoyer seul si on veut le convertir.
         $galleryWarnings = [];
         if (!empty($_FILES['gallery']['name'][0])) {
             $count = count($_FILES['gallery']['name']);
             for ($i = 0; $i < $count; $i++) {
                 $originalName = (string) ($_FILES['gallery']['name'][$i] ?? '');
-                // Un slot réellement vide (aucun fichier choisi à cet index) est
-                // ignoré silencieusement. Toute autre erreur PHP (fichier trop
-                // volumineux pour upload_max_filesize/post_max_size, envoi
-                // interrompu…) doit au contraire passer par
-                // optimize_and_store_upload() pour être classée correctement
-                // (RAW/ProRAW, trop volumineux…) et remontée en avertissement —
-                // un fichier ProRAW mêlé à un envoi groupé ne doit jamais
-                // disparaître sans explication.
                 if ($originalName === '' && ($_FILES['gallery']['error'][$i] ?? UPLOAD_ERR_NO_FILE) === UPLOAD_ERR_NO_FILE) {
                     continue;
                 }
@@ -159,13 +193,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $n = count($values['gallery']) + 1;
                     $values['gallery'][] = ['file' => $result['filename'], 'alt' => suggest_alt($values['title'], $values['ville'], 'photo ' . $n)];
                 } else {
+                    if (($result['error'] ?? null) === 'raw_convertible' && !empty($result['stage_token'])) {
+                        discard_staged_raw($result['stage_token']);
+                    }
                     $galleryWarnings[] = $originalName . ' : ' . upload_error_with_details($result);
                 }
             }
         }
         $values['gallery'] = array_values($values['gallery']);
 
-        if (!$errors) {
+        if (!$errors && !$pendingRaw) {
             if ($isNew) {
                 $realisations[] = $values;
             } else {
@@ -182,6 +219,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             header('Location: realisations.php');
             exit;
         }
+        // Sauvegarde différée : au moins une conversion RAW reste à confirmer.
+        // Le formulaire se réaffiche avec les valeurs déjà saisies et les
+        // photos déjà traitées ; rien n'est écrit dans realisations.json tant
+        // que chaque proposition de conversion n'a pas été confirmée ou
+        // annulée (le champ caché raw_token_* fait voyager la proposition
+        // jusqu'à la prochaine soumission).
     }
 }
 
@@ -192,6 +235,21 @@ require __DIR__ . '/includes/header.php';
 $suggestedSlug = $values['id'] !== '' ? $values['id'] : '(généré automatiquement à partir du titre)';
 $suggestedMetaTitle = realisation_meta_title($values);
 $suggestedMetaDesc = realisation_meta_description($values);
+
+/** Affiche la proposition de conversion RAW pour un champ, avec ses boutons Confirmer/Annuler. */
+function render_raw_prompt(string $field, array $pending, string $csrf): void
+{
+    ?>
+    <div style="background:var(--warn-soft);border:1px solid #ecd5a3;border-radius:8px;padding:14px">
+      <div style="font-size:13px;color:var(--warn);margin-bottom:10px"><?= htmlspecialchars(raw_convert_prompt($pending)) ?></div>
+      <input type="hidden" name="raw_token_<?= htmlspecialchars($field) ?>" value="<?= htmlspecialchars($pending['token']) ?>">
+      <div style="display:flex;gap:8px">
+        <button type="submit" name="confirm_raw_<?= htmlspecialchars($field) ?>" value="1" class="btn" style="padding:6px 12px;font-size:12.5px">Convertir en JPEG</button>
+        <button type="submit" name="cancel_raw_<?= htmlspecialchars($field) ?>" value="1" class="btn btn-ghost" style="padding:6px 12px;font-size:12.5px">Annuler</button>
+      </div>
+    </div>
+    <?php
+}
 ?>
 <script src="assets/dropzone.js" defer></script>
 
@@ -261,15 +319,19 @@ $suggestedMetaDesc = realisation_meta_description($values);
     <?php if ($values['image_main'] || $values['fallback_slot']): ?>
       <img class="thumb" style="width:160px;height:110px;margin-bottom:12px" src="../<?= htmlspecialchars(realisation_main_image_url($values)) ?>" alt="">
     <?php endif; ?>
-    <label class="dropzone" data-dropzone>
-      <input type="file" name="image_main" accept="image/jpeg,image/png,image/webp,image/heic,image/heif,.heic,.heif">
-      <span data-dz-label>Cliquez ou glissez-déposez une photo ici</span>
-    </label>
+    <?php if (isset($pendingRaw['image_main'])): ?>
+      <?php render_raw_prompt('image_main', $pendingRaw['image_main'], $csrf); ?>
+    <?php else: ?>
+      <label class="dropzone" data-dropzone>
+        <input type="file" name="image_main" accept="image/jpeg,image/png,image/webp,image/heic,image/heif,.heic,.heif,.dng">
+        <span data-dz-label>Cliquez ou glissez-déposez une photo ici</span>
+      </label>
+    <?php endif; ?>
     <div class="field" style="margin-top:12px">
       <label for="image_main_alt">Texte alternatif (ALT)</label>
       <input type="text" id="image_main_alt" name="image_main_alt" value="<?= htmlspecialchars($values['image_main_alt']) ?>" placeholder="<?= htmlspecialchars(suggest_alt($values['title'] ?: 'Réalisation', $values['ville'])) ?>">
     </div>
-    <div class="help">Photo directement depuis un iPhone acceptée telle quelle (HEIC compris) : redimensionnement, compression et conversion JPEG + WebP automatiques.</div>
+    <div class="help">Photo directement depuis un iPhone acceptée telle quelle (HEIC compris) : redimensionnement, compression et conversion JPEG + WebP automatiques. Un RAW (Apple ProRAW) de taille raisonnable propose sa conversion en JPEG plutôt que d'être refusé.</div>
   </div>
 
   <div class="card">
@@ -278,19 +340,27 @@ $suggestedMetaDesc = realisation_meta_description($values);
       <div class="field">
         <label>Avant</label>
         <?php if ($values['avant']): ?><img class="thumb" style="width:140px;height:96px;margin-bottom:8px" src="<?= htmlspecialchars(realisation_thumb_url($values['id'], $values['avant'])) ?>" alt=""><?php endif; ?>
-        <label class="dropzone" data-dropzone>
-          <input type="file" name="avant" accept="image/jpeg,image/png,image/webp,image/heic,image/heif,.heic,.heif">
-          <span data-dz-label>Photo « avant »</span>
-        </label>
+        <?php if (isset($pendingRaw['avant'])): ?>
+          <?php render_raw_prompt('avant', $pendingRaw['avant'], $csrf); ?>
+        <?php else: ?>
+          <label class="dropzone" data-dropzone>
+            <input type="file" name="avant" accept="image/jpeg,image/png,image/webp,image/heic,image/heif,.heic,.heif,.dng">
+            <span data-dz-label>Photo « avant »</span>
+          </label>
+        <?php endif; ?>
         <input type="text" name="avant_alt" value="<?= htmlspecialchars($values['avant_alt']) ?>" placeholder="Texte alternatif" style="margin-top:8px">
       </div>
       <div class="field">
         <label>Après</label>
         <?php if ($values['apres']): ?><img class="thumb" style="width:140px;height:96px;margin-bottom:8px" src="<?= htmlspecialchars(realisation_thumb_url($values['id'], $values['apres'])) ?>" alt=""><?php endif; ?>
-        <label class="dropzone" data-dropzone>
-          <input type="file" name="apres" accept="image/jpeg,image/png,image/webp,image/heic,image/heif,.heic,.heif">
-          <span data-dz-label>Photo « après »</span>
-        </label>
+        <?php if (isset($pendingRaw['apres'])): ?>
+          <?php render_raw_prompt('apres', $pendingRaw['apres'], $csrf); ?>
+        <?php else: ?>
+          <label class="dropzone" data-dropzone>
+            <input type="file" name="apres" accept="image/jpeg,image/png,image/webp,image/heic,image/heif,.heic,.heif,.dng">
+            <span data-dz-label>Photo « après »</span>
+          </label>
+        <?php endif; ?>
         <input type="text" name="apres_alt" value="<?= htmlspecialchars($values['apres_alt']) ?>" placeholder="Texte alternatif" style="margin-top:8px">
       </div>
     </div>
@@ -313,7 +383,7 @@ $suggestedMetaDesc = realisation_meta_description($values);
       <input type="file" name="gallery[]" accept="image/jpeg,image/png,image/webp,image/heic,image/heif,.heic,.heif" multiple>
       <span data-dz-label>📷 Sélectionnez plusieurs photos d'un coup depuis votre iPhone (10 ou plus) — toutes sont optimisées, converties en WebP et classées automatiquement</span>
     </label>
-    <div class="help">Un texte alternatif est proposé automatiquement à l'ajout — modifiable ici à tout moment. En cas de fichier illisible (ex. HEIC non convertible), les autres photos sont tout de même ajoutées ; le détail s'affiche après l'enregistrement.</div>
+    <div class="help">Un texte alternatif est proposé automatiquement à l'ajout — modifiable ici à tout moment. En cas de fichier illisible (ex. HEIC non convertible), les autres photos sont tout de même ajoutées ; le détail s'affiche après l'enregistrement. Un RAW dans un lot est signalé mais pas proposé à la conversion — renvoyez-le seul via l'image principale ou avant/après pour cela.</div>
   </div>
 
   <div class="btn-row">
