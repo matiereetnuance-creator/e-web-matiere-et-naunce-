@@ -118,15 +118,20 @@ require __DIR__ . '/includes/header.php';
 
 <div class="card">
   <h2>Limites d'envoi</h2>
+  <p class="help" style="margin-top:0">Trois limites distinctes, à ne pas confondre : deux réglages de ce site (lignes 1 et 2, volontairement différents), et le plafond réel appliqué par le serveur PHP (lignes 3 à 6) — qui doit rester au-dessus des deux premiers, sans quoi le fichier n'atteint même pas le code du site.</p>
   <table>
-    <tr><td>Taille max. par photo (réglage de ce site)</td><td><strong><?= $appMaxMb ?> Mo</strong></td></tr>
+    <tr><td>① Photo classique (JPEG, PNG, WebP, HEIC) — taille max. acceptée</td><td><strong><?= $appMaxMb ?> Mo</strong></td></tr>
+    <tr><td>② RAW (Apple ProRAW/.dng) — taille max. éligible à la proposition de conversion</td><td><strong><?= (int) (MN_RAW_CONVERT_MAX_BYTES / 1024 / 1024) ?> Mo</strong></td></tr>
     <tr><td>Largeur des miniatures générées</td><td><strong><?= $thumbWidth ?> px</strong></td></tr>
-    <tr><td><code>upload_max_filesize</code> (serveur PHP)</td><td><?= htmlspecialchars($phpUploadMax) ?></td></tr>
+    <tr><td>③ <code>upload_max_filesize</code> (serveur PHP, doit être ≥ ① et ②)</td><td><?= htmlspecialchars($phpUploadMax) ?></td></tr>
     <tr><td><code>post_max_size</code> (serveur PHP)</td><td><?= htmlspecialchars($phpPostMax) ?></td></tr>
     <tr><td><code>max_file_uploads</code> (serveur PHP)</td><td><?= htmlspecialchars((string) $phpMaxFiles) ?></td></tr>
     <tr><td><code>memory_limit</code> (serveur PHP)</td><td><?= htmlspecialchars((string) $phpMemoryLimit) ?></td></tr>
   </table>
-  <div class="help" style="margin-top:12px">Si <code>upload_max_filesize</code> ou <code>post_max_size</code> affichent une valeur plus basse que celle attendue (voir <code>admin/.user.ini</code>), le réglage n'a pas encore été pris en compte par le serveur — cela peut prendre quelques minutes après la mise en ligne (mise en cache de PHP-FPM), ou nécessiter que l'hébergeur autorise ce fichier de configuration.</div>
+  <div class="help" style="margin-top:12px">
+    ① reste volontairement à 20 Mo, pas plus : une vraie photo iPhone (HEIC ou JPEG), même en haute résolution, ne l'atteint pratiquement jamais — ce n'est <strong>pas</strong> la même limite que ③, et l'augmenter ne changerait rien pour un RAW (voir ②, qui s'applique à ce cas précis).
+    Si ③ ou <code>post_max_size</code> affichent une valeur plus basse que celle attendue (voir <code>admin/.user.ini</code>), le réglage n'a pas encore été pris en compte par le serveur — cela peut prendre quelques minutes après la mise en ligne (mise en cache de PHP-FPM), ou nécessiter que l'hébergeur autorise ce fichier de configuration.
+  </div>
 </div>
 
 <div class="card">
