@@ -187,7 +187,7 @@ input:focus,textarea:focus,select:focus{outline:none;border-color:var(--taupe-2)
 /* ============ Avant / Après ============ */
 [data-ba]{position:relative;overflow:hidden;cursor:ew-resize;user-select:none}
 [data-ba-top]{position:absolute;inset:0}
-[data-ba-line]{position:absolute;top:0;bottom:0;background:var(--cream);box-shadow:0 0 0 .5px rgba(43,41,38,.25)}
+[data-ba-line]{position:absolute;top:0;bottom:0;background:var(--cream);box-shadow:0 0 0 1px rgba(43,41,38,.4)}
 
 /* ============ Menu mobile ============ */
 .mn-burger-wrap{display:none}
