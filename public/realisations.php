@@ -43,20 +43,28 @@ require __DIR__ . '/includes/seo-head.php';
       <h2 class="mn-h2--md" style="font:400 40px/1.1 'Instrument Serif',serif;color:#2b2926;margin:0;font-weight:400">La <em style="font-style:italic;color:#8a7a63">métamorphose</em></h2>
       <span style="font:500 12px 'Instrument Sans',sans-serif;letter-spacing:.2em;color:#a6947c">GLISSEZ POUR COMPARER</span>
     </div>
+    <?php
+      // Calque de base (toujours visible) = APRÈS. Calque du dessus, découpé
+      // par clip-path pour ne montrer que sa partie gauche (voir setP() dans
+      // main.js) = AVANT. Résultat : AVANT à gauche, APRÈS à droite — ne pas
+      // permuter l'un sans l'autre, ni sans les étiquettes ci-dessous.
+    ?>
     <div data-mn-reveal data-ba style="height:600px;margin-top:44px">
       <div style="position:absolute;inset:0">
-        <?= render_photo(photo_src('ba-avant'), 'Pièce avant travaux de rénovation', 'width="1200" height="600" loading="lazy"') ?>
-      </div>
-      <div data-ba-top style="clip-path:inset(0 45% 0 0)">
         <?= render_photo(photo_src('ba-apres'), 'Même pièce après travaux de peinture et plâtrerie', 'width="1200" height="600" loading="lazy"') ?>
       </div>
-      <div data-ba-line style="left:55%;width:1px">
-        <div style="position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:52px;height:52px;border-radius:50%;background:#f7f3ec;border:1px solid #a6947c;display:flex;align-items:center;justify-content:center">
+      <div data-ba-top style="clip-path:inset(0 45% 0 0)">
+        <?= render_photo(photo_src('ba-avant'), 'Pièce avant travaux de rénovation', 'width="1200" height="600" loading="lazy"') ?>
+      </div>
+      <div data-ba-line style="left:55%;width:2px">
+        <div style="position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:60px;height:60px;border-radius:50%;background:#f7f3ec;border:1px solid #a6947c;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 10px rgba(43,41,38,.2)">
+          <span aria-hidden="true" style="position:absolute;right:calc(100% + 9px);top:50%;transform:translateY(-50%);font:400 14px 'Instrument Serif',serif;color:#a6947c">‹</span>
           <img src="/assets/img/esperluette-beige.svg" alt="" style="height:24px">
+          <span aria-hidden="true" style="position:absolute;left:calc(100% + 9px);top:50%;transform:translateY(-50%);font:400 14px 'Instrument Serif',serif;color:#a6947c">›</span>
         </div>
       </div>
-      <div style="position:absolute;left:24px;bottom:20px;font:500 11px 'Instrument Sans',sans-serif;letter-spacing:.22em;color:#f7f3ec;background:rgba(43,41,38,.55);padding:8px 14px;backdrop-filter:blur(4px)">APRÈS</div>
-      <div style="position:absolute;right:24px;bottom:20px;font:500 11px 'Instrument Sans',sans-serif;letter-spacing:.22em;color:#f7f3ec;background:rgba(43,41,38,.55);padding:8px 14px;backdrop-filter:blur(4px)">AVANT</div>
+      <div style="position:absolute;left:24px;bottom:20px;font:500 11px 'Instrument Sans',sans-serif;letter-spacing:.22em;color:#f7f3ec;background:rgba(43,41,38,.55);padding:8px 14px;backdrop-filter:blur(4px)">AVANT</div>
+      <div style="position:absolute;right:24px;bottom:20px;font:500 11px 'Instrument Sans',sans-serif;letter-spacing:.22em;color:#f7f3ec;background:rgba(43,41,38,.55);padding:8px 14px;backdrop-filter:blur(4px)">APRÈS</div>
     </div>
   </div>
 </section>
