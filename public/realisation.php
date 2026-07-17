@@ -146,7 +146,7 @@ $extraJsonLd = '<script type="application/ld+json">' . json_encode($jsonLd, JSON
       <div data-ba-line style="left:55%;width:2px">
         <div class="mn-ba-handle">
           <span class="mn-ba-arrow mn-ba-arrow--l" aria-hidden="true">‹</span>
-          <img src="/assets/img/esperluette-beige.svg" alt="" style="height:26px">
+          <img src="/assets/img/esperluette-beige.svg" alt="" style="height:29px">
           <span class="mn-ba-arrow mn-ba-arrow--r" aria-hidden="true">›</span>
         </div>
       </div>
