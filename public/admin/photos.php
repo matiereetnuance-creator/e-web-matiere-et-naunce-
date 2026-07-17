@@ -12,7 +12,6 @@ $slots = [
         'sf-platrerie' => 'Carte « Plâtrerie »',
         'sf-peinture' => 'Carte « Peinture »',
         'sf-beton' => 'Carte « Béton ciré »',
-        'entreprise-portrait' => 'Portrait (section entreprise)',
         'zone-carte' => 'Carte de zone d\'intervention',
     ],
     'Savoir-faire' => [
@@ -21,7 +20,7 @@ $slots = [
         'sf-page-beton' => 'Béton ciré — photo pleine page',
     ],
     'L\'entreprise' => [
-        'ent-portrait' => 'Portrait du fondateur',
+        'ent-portrait' => 'Portrait du fondateur — utilisé à la fois sur la page d\'accueil (aperçu) et sur la page « L\'entreprise »',
         'ent-garanties' => 'Détail — outils, nuancier',
     ],
     'Réalisations — comparateur avant/après' => [

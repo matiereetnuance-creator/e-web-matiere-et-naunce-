@@ -141,7 +141,7 @@ $extraJsonLd = '<script type="application/ld+json">' . json_encode([
 <section id="entreprise" style="padding:110px 64px;position:relative;overflow:hidden">
   <div class="mn-entreprise-grid container" style="padding:0;max-width:1280px;display:grid;grid-template-columns:1fr 1.25fr;gap:72px;align-items:center;position:relative">
     <div data-mn-reveal style="height:520px;position:relative">
-      <?= render_photo(photo_src('entreprise-portrait'), 'L\'équipe Matière & Nuance sur un chantier de rénovation', 'width="520" height="520" loading="lazy"') ?>
+      <?= render_photo(photo_src('ent-portrait'), 'Portrait du fondateur de Matière & Nuance', 'width="520" height="520" loading="lazy"') ?>
     </div>
     <div>
       <div data-mn-reveal style="font:500 12px 'Instrument Sans',sans-serif;letter-spacing:.28em;color:#a6947c">L'ENTREPRISE</div>

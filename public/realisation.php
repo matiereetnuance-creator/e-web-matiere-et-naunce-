@@ -132,18 +132,18 @@ $extraJsonLd = '<script type="application/ld+json">' . json_encode($jsonLd, JSON
     </div>
     <div data-mn-reveal data-ba style="height:560px;margin-top:32px">
       <div style="position:absolute;inset:0">
-        <img class="mn-ph" src="<?= htmlspecialchars(realisation_photo_url($r['id'], $r['avant'])) ?>" alt="<?= htmlspecialchars($r['avant_alt'] ?: suggest_alt($r['title'] ?? '', $r['ville'] ?? '', 'avant travaux')) ?>" width="1200" height="560" loading="lazy">
+        <img class="mn-ph" src="<?= htmlspecialchars(realisation_photo_url($r['id'], $r['apres'])) ?>" alt="<?= htmlspecialchars($r['apres_alt'] ?: suggest_alt($r['title'] ?? '', $r['ville'] ?? '', 'après travaux')) ?>" width="1200" height="560" loading="lazy">
       </div>
       <div data-ba-top style="clip-path:inset(0 45% 0 0)">
-        <img class="mn-ph" src="<?= htmlspecialchars(realisation_photo_url($r['id'], $r['apres'])) ?>" alt="<?= htmlspecialchars($r['apres_alt'] ?: suggest_alt($r['title'] ?? '', $r['ville'] ?? '', 'après travaux')) ?>" width="1200" height="560" loading="lazy">
+        <img class="mn-ph" src="<?= htmlspecialchars(realisation_photo_url($r['id'], $r['avant'])) ?>" alt="<?= htmlspecialchars($r['avant_alt'] ?: suggest_alt($r['title'] ?? '', $r['ville'] ?? '', 'avant travaux')) ?>" width="1200" height="560" loading="lazy">
       </div>
       <div data-ba-line style="left:55%;width:1px">
         <div style="position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:52px;height:52px;border-radius:50%;background:#f7f3ec;border:1px solid #a6947c;display:flex;align-items:center;justify-content:center">
           <img src="/assets/img/esperluette-beige.svg" alt="" style="height:24px">
         </div>
       </div>
-      <div style="position:absolute;left:24px;bottom:20px;font:500 11px 'Instrument Sans',sans-serif;letter-spacing:.22em;color:#f7f3ec;background:rgba(43,41,38,.55);padding:8px 14px;backdrop-filter:blur(4px)">APRÈS</div>
-      <div style="position:absolute;right:24px;bottom:20px;font:500 11px 'Instrument Sans',sans-serif;letter-spacing:.22em;color:#f7f3ec;background:rgba(43,41,38,.55);padding:8px 14px;backdrop-filter:blur(4px)">AVANT</div>
+      <div style="position:absolute;left:24px;bottom:20px;font:500 11px 'Instrument Sans',sans-serif;letter-spacing:.22em;color:#f7f3ec;background:rgba(43,41,38,.55);padding:8px 14px;backdrop-filter:blur(4px)">AVANT</div>
+      <div style="position:absolute;right:24px;bottom:20px;font:500 11px 'Instrument Sans',sans-serif;letter-spacing:.22em;color:#f7f3ec;background:rgba(43,41,38,.55);padding:8px 14px;backdrop-filter:blur(4px)">APRÈS</div>
     </div>
   </div>
 </section>

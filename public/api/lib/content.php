@@ -103,6 +103,14 @@ function photo_src(string $slot): string
                     continue;
                 }
                 $base = pathinfo($f, PATHINFO_FILENAME);
+                $ext = strtolower(pathinfo($f, PATHINFO_EXTENSION));
+                // Un même slot produit toujours {base}.jpg ET {base}.webp : on
+                // garde le .jpg comme référence (celui attendu par render_photo()
+                // pour construire la paire <picture> WebP+JPEG), quel que soit
+                // l'ordre alphabétique renvoyé par scandir().
+                if (isset($cache[$base]) && $ext !== 'jpg') {
+                    continue;
+                }
                 $cache[$base] = $f;
             }
         }
