@@ -193,27 +193,48 @@
     if (!ba) return;
     var top = ba.querySelector('[data-ba-top]');
     var line = ba.querySelector('[data-ba-line]');
-    function setP(clientX) {
-      var r = ba.getBoundingClientRect();
-      var p = Math.max(4, Math.min(96, ((clientX - r.left) / r.width) * 100));
+    // Le rectangle est figé au pointerdown (pas relu à chaque pointermove) :
+    // getBoundingClientRect() force un recalcul de layout, coûteux si on
+    // l'appelle à chaque frame pendant le glissement.
+    var rect = null;
+    var pendingX = null;
+    var rafId = null;
+
+    function apply() {
+      rafId = null;
+      if (pendingX === null || !rect) return;
+      var p = Math.max(4, Math.min(96, ((pendingX - rect.left) / rect.width) * 100));
       top.style.clipPath = 'inset(0 ' + (100 - p) + '% 0 0)';
       line.style.left = p + '%';
     }
+
+    // Une seule écriture DOM par frame, alignée sur le rafraîchissement de
+    // l'écran (60 fps) : plusieurs pointermove entre deux frames ne
+    // produisent qu'une seule mise à jour, sans jamais prendre de retard.
+    function queue(clientX) {
+      pendingX = clientX;
+      if (rafId === null) {
+        rafId = requestAnimationFrame(apply);
+      }
+    }
+
     var dragging = false;
     ba.addEventListener('pointerdown', function (e) {
       dragging = true;
+      rect = ba.getBoundingClientRect();
+      ba.classList.add('is-dragging');
       ba.setPointerCapture(e.pointerId);
-      setP(e.clientX);
+      queue(e.clientX);
     });
     ba.addEventListener('pointermove', function (e) {
-      if (dragging) setP(e.clientX);
+      if (dragging) queue(e.clientX);
     });
-    ba.addEventListener('pointerup', function () {
+    function stopDrag() {
       dragging = false;
-    });
-    ba.addEventListener('pointercancel', function () {
-      dragging = false;
-    });
+      ba.classList.remove('is-dragging');
+    }
+    ba.addEventListener('pointerup', stopDrag);
+    ba.addEventListener('pointercancel', stopDrag);
   }
 
   /* ---------- Menu mobile ---------- */

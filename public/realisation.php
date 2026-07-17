@@ -144,10 +144,10 @@ $extraJsonLd = '<script type="application/ld+json">' . json_encode($jsonLd, JSON
         <img class="mn-ph" src="<?= htmlspecialchars(realisation_photo_url($r['id'], $r['avant'])) ?>" alt="<?= htmlspecialchars($r['avant_alt'] ?: suggest_alt($r['title'] ?? '', $r['ville'] ?? '', 'avant travaux')) ?>" width="1200" height="560" loading="lazy">
       </div>
       <div data-ba-line style="left:55%;width:2px">
-        <div style="position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:60px;height:60px;border-radius:50%;background:#f7f3ec;border:1px solid #a6947c;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 10px rgba(43,41,38,.2)">
-          <span aria-hidden="true" style="position:absolute;right:calc(100% + 9px);top:50%;transform:translateY(-50%);font:400 14px 'Instrument Serif',serif;color:#a6947c">‹</span>
-          <img src="/assets/img/esperluette-beige.svg" alt="" style="height:24px">
-          <span aria-hidden="true" style="position:absolute;left:calc(100% + 9px);top:50%;transform:translateY(-50%);font:400 14px 'Instrument Serif',serif;color:#a6947c">›</span>
+        <div class="mn-ba-handle">
+          <span class="mn-ba-arrow mn-ba-arrow--l" aria-hidden="true">‹</span>
+          <img src="/assets/img/esperluette-beige.svg" alt="" style="height:26px">
+          <span class="mn-ba-arrow mn-ba-arrow--r" aria-hidden="true">›</span>
         </div>
       </div>
       <div style="position:absolute;left:24px;bottom:20px;font:500 11px 'Instrument Sans',sans-serif;letter-spacing:.22em;color:#f7f3ec;background:rgba(43,41,38,.55);padding:8px 14px;backdrop-filter:blur(4px)">AVANT</div>
