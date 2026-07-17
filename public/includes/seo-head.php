@@ -27,6 +27,11 @@ if (($canonicalPath ?? '') === '') {
 }
 $ogImage = $ogImage ?? ($siteUrl . '/assets/img/og-cover.png');
 $robots = $robots ?? 'index, follow';
+// style.css est servi avec Cache-Control: immutable (1 an) par .htaccess :
+// sans ce paramètre de version, un navigateur ayant déjà visité le site
+// pourrait continuer à servir l'ancienne feuille de style pendant un an
+// après toute modification, quel que soit le contenu réellement déployé.
+$cssVersion = @filemtime(__DIR__ . '/../assets/css/style.css') ?: time();
 ?>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -49,6 +54,6 @@ $robots = $robots ?? 'index, follow';
 <link rel="icon" type="image/svg+xml" href="/assets/favicon.svg">
 <link rel="preload" href="/assets/fonts/instrument-sans-latin.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="/assets/fonts/instrument-serif-latin.woff2" as="font" type="font/woff2" crossorigin>
-<link rel="stylesheet" href="/assets/css/style.css">
+<link rel="stylesheet" href="/assets/css/style.css?v=<?= $cssVersion ?>">
 <?php require __DIR__ . '/analytics.php'; ?>
 <?php if (!empty($extraJsonLd)) { echo $extraJsonLd; } ?>

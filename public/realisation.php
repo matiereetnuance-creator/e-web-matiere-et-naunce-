@@ -82,7 +82,7 @@ $extraJsonLd = '<script type="application/ld+json">' . json_encode($jsonLd, JSON
 <link rel="icon" type="image/svg+xml" href="/assets/favicon.svg">
 <link rel="preload" href="/assets/fonts/instrument-sans-latin.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="/assets/fonts/instrument-serif-latin.woff2" as="font" type="font/woff2" crossorigin>
-<link rel="stylesheet" href="/assets/css/style.css">
+<link rel="stylesheet" href="/assets/css/style.css?v=<?= @filemtime(__DIR__ . '/assets/css/style.css') ?: time() ?>">
 <?php require __DIR__ . '/includes/analytics.php'; ?>
 <?= $extraJsonLd ?>
 </head>
