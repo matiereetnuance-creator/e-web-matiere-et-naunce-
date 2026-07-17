@@ -219,12 +219,12 @@ $extraJsonLd = '<script type="application/ld+json">' . json_encode([
 
 <!-- ======================= ZONE + CONTACT ======================= -->
 <section id="contact" style="padding:96px 64px 0;border-top:1px solid #e8e1d3">
-  <div class="mn-contact-grid container" style="padding:0;max-width:1280px;display:grid;grid-template-columns:1fr 1fr;gap:28px;padding-bottom:96px">
+  <div class="mn-contact-grid container" style="padding:0;max-width:1280px;display:grid;grid-template-columns:4fr 5fr;gap:28px;padding-bottom:96px">
     <div data-mn-reveal>
       <h2 class="mn-h2--md" style="font:400 40px/1.15 'Instrument Serif',serif;color:#2b2926;margin:0;font-weight:400;display:flex;align-items:baseline;gap:14px;flex-wrap:wrap">Ouest lyonnais <img src="/assets/img/esperluette-beige.svg" alt="&amp;" style="height:30px;align-self:center" width="30" height="30"> Beaujolais</h2>
       <p style="font:400 15px/1.85 'Instrument Sans',sans-serif;color:#6c665c;margin:20px 0 0;max-width:440px"><?= t($textes, 'home_zone_text', "Nous accompagnons nos clients dans l'ensemble de l'Ouest lyonnais et du Beaujolais avec une même exigence : être disponibles, réactifs et présents du premier rendez-vous jusqu'aux dernières finitions.") ?></p>
-      <div class="mn-ph-contain mn-ph-contain--home" style="height:240px;margin-top:32px;position:relative">
-        <?= render_photo(photo_src('zone-carte'), 'Carte de la zone d\'intervention Matière & Nuance — Ouest lyonnais et Beaujolais', 'width="600" height="240" loading="lazy"') ?>
+      <div class="mn-ph-contain mn-ph-contain--home" style="height:300px;margin-top:32px;position:relative">
+        <?= render_photo(photo_src('zone-carte'), 'Carte de la zone d\'intervention Matière & Nuance — Ouest lyonnais et Beaujolais', 'width="600" height="300" loading="lazy"') ?>
       </div>
     </div>
     <div data-mn-reveal data-mn-grain style="background:#2b2926;padding:56px 56px 48px;display:flex;flex-direction:column;justify-content:space-between;position:relative;overflow:hidden">
