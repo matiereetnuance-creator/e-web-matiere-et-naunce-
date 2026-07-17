@@ -59,7 +59,7 @@ require __DIR__ . '/includes/seo-head.php';
       <div data-ba-line style="left:55%;width:2px">
         <div class="mn-ba-handle">
           <span class="mn-ba-arrow mn-ba-arrow--l" aria-hidden="true">‹</span>
-          <img src="/assets/img/esperluette-beige.svg" alt="" draggable="false" style="height:32px">
+          <img src="/assets/img/esperluette-beige.svg" alt="" draggable="false" style="height:35px">
           <span class="mn-ba-arrow mn-ba-arrow--r" aria-hidden="true">›</span>
         </div>
       </div>

@@ -172,6 +172,10 @@ figure.mn-fig:hover .mn-fig__overlay{opacity:1}
 
 /* ============ Placeholder image util ============ */
 .mn-ph{width:100%;height:100%;object-fit:cover;display:block;background:#e6ddc9}
+/* Carte de zone d'intervention : image affichée entière (contain), sans
+   recadrage ni déformation — conteneur inchangé, portée strictement
+   limitée à ce composant (n'affecte aucune autre photo .mn-ph). */
+.mn-ph-contain .mn-ph{object-fit:contain}
 
 /* ============ Formulaire contact ============ */
 .mn-field label{font:500 11.5px var(--font-sans);letter-spacing:.18em;color:var(--taupe)}
@@ -193,8 +197,8 @@ input:focus,textarea:focus,select:focus{outline:none;border-color:var(--taupe-2)
 [data-ba].is-dragging [data-ba-line]{will-change:left}
 .mn-ba-handle{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:64px;height:64px;border-radius:50%;background:var(--cream);border:1px solid var(--taupe-2);display:flex;align-items:center;justify-content:center;box-shadow:0 1px 2px rgba(43,41,38,.08),0 10px 26px -6px rgba(43,41,38,.24),inset 0 0 0 1px rgba(255,255,255,.5)}
 .mn-ba-handle::before{content:'';position:absolute;inset:-12px;border-radius:50%}
-.mn-ba-handle img{filter:drop-shadow(0 1px 1.5px rgba(43,41,38,.22))}
-.mn-ba-arrow{position:absolute;top:50%;transform:translateY(-50%);font:400 12px 'Instrument Serif',serif;color:var(--taupe-2);opacity:.4;pointer-events:none}
+.mn-ba-handle img{filter:drop-shadow(0 1px 2px rgba(43,41,38,.3)) contrast(1.15)}
+.mn-ba-arrow{position:absolute;top:50%;transform:translateY(-50%);font:400 11px 'Instrument Serif',serif;color:var(--taupe-2);opacity:.3;pointer-events:none}
 .mn-ba-arrow--l{right:calc(100% + 11px)}
 .mn-ba-arrow--r{left:calc(100% + 11px)}
 

@@ -111,7 +111,7 @@ if ($phoneTel !== '' && $phoneTel[0] === '0') {
           </div>
         </div>
       </div>
-      <div data-mn-reveal style="height:280px;overflow:hidden">
+      <div data-mn-reveal class="mn-ph-contain" style="height:280px;overflow:hidden">
         <?= render_photo(photo_src('contact-carte'), "Carte de la zone d'intervention — Ouest lyonnais et Beaujolais", 'width="500" height="280" loading="lazy"') ?>
       </div>
     </div>
