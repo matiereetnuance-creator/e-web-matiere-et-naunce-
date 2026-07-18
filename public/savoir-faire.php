@@ -44,7 +44,7 @@ $extraJsonLd = '<script type="application/ld+json">' . json_encode([
     <div>
       <div data-mn-reveal style="font:400 18px 'Instrument Serif',serif;font-style:italic;color:#a6947c">01</div>
       <h2 class="mn-h2" data-mn-reveal style="font:400 46px/1.12 'Instrument Serif',serif;color:#2b2926;margin:14px 0 0;font-weight:400">Plâtrerie <em style="font-style:italic;color:#8a7a63">— le volume</em></h2>
-      <p data-mn-reveal class="mn-body-lg" style="font:400 15.5px/1.9 'Instrument Sans',sans-serif;color:#6c665c;margin:24px 0 0">Avant la couleur, il y a la forme. Cloisons, plafonds, redressements, courbes : nous préparons des volumes justes, des angles francs et des surfaces planes, prêtes à recevoir peinture ou béton ciré dans les règles de l'art.</p>
+      <p data-mn-reveal class="mn-body-lg" style="font:400 15.5px/1.9 'Instrument Sans',sans-serif;color:#6c665c;margin:24px 0 0">Avant la couleur, il y a la forme. Comme plâtrier dans l'Ouest lyonnais, nous préparons cloisons, plafonds, redressements et courbes : des volumes justes, des angles francs et des surfaces planes, prêtes à recevoir peinture ou béton ciré dans les règles de l'art.</p>
       <div data-mn-reveal style="margin-top:34px;display:grid;gap:14px;font:400 14px 'Instrument Sans',sans-serif;color:#4c463d">
         <div style="display:flex;gap:14px;align-items:baseline"><span style="color:#a6947c">—</span>Cloisons &amp; doublages</div>
         <div style="display:flex;gap:14px;align-items:baseline"><span style="color:#a6947c">—</span>Faux plafonds</div>
@@ -60,7 +60,7 @@ $extraJsonLd = '<script type="application/ld+json">' . json_encode([
     <div>
       <div data-mn-reveal style="font:400 18px 'Instrument Serif',serif;font-style:italic;color:#a6947c">02</div>
       <h2 class="mn-h2" data-mn-reveal style="font:400 46px/1.12 'Instrument Serif',serif;color:#2b2926;margin:14px 0 0;font-weight:400">Peinture <em style="font-style:italic;color:#8a7a63">— la nuance</em></h2>
-      <p data-mn-reveal class="mn-body-lg" style="font:400 15.5px/1.9 'Instrument Sans',sans-serif;color:#6c665c;margin:24px 0 0">Notre cœur de métier. Une préparation méticuleuse — ponçage, ratissage, impression — puis des finitions tendues, mates ou satinées, dans des teintes essayées sur vos murs, pour un rendu impeccable et durable.</p>
+      <p data-mn-reveal class="mn-body-lg" style="font:400 15.5px/1.9 'Instrument Sans',sans-serif;color:#6c665c;margin:24px 0 0">Notre cœur de métier de peintre dans l'Ouest lyonnais. Une préparation méticuleuse — ponçage, ratissage, impression — puis des finitions tendues, mates ou satinées, dans des teintes essayées sur vos murs, pour un rendu impeccable et durable.</p>
       <div data-mn-reveal style="margin-top:34px;display:grid;gap:14px;font:400 14px 'Instrument Sans',sans-serif;color:#4c463d">
         <div style="display:flex;gap:14px;align-items:baseline"><span style="color:#a6947c">—</span>Peinture intérieure, murs &amp; plafonds</div>
         <div style="display:flex;gap:14px;align-items:baseline"><span style="color:#a6947c">—</span>Finitions mates profondes, velours, satinées</div>
@@ -87,7 +87,7 @@ $extraJsonLd = '<script type="application/ld+json">' . json_encode([
       <div data-mn-reveal style="font:400 18px 'Instrument Serif',serif;font-style:italic;color:#a6947c">03</div>
       <h2 class="mn-h2" data-mn-reveal style="font:400 46px/1.12 'Instrument Serif',serif;color:#2b2926;margin:14px 0 0;font-weight:400">Béton ciré <em style="font-style:italic;color:#8a7a63">— la matière</em></h2>
       <div data-mn-reveal style="font:500 11.5px 'Instrument Sans',sans-serif;letter-spacing:.2em;color:#a6947c;margin-top:14px">UNIQUEMENT PETITES PIÈCES &amp; MOBILIER</div>
-      <p data-mn-reveal class="mn-body-lg" style="font:400 15.5px/1.9 'Instrument Sans',sans-serif;color:#6c665c;margin:20px 0 0">Nous réservons le béton ciré à ce qu'il fait de mieux : les petites pièces et le mobilier — des surfaces minérales continues, appliquées à l'échelle du détail, pour un résultat lisse, minéral et intemporel.</p>
+      <p data-mn-reveal class="mn-body-lg" style="font:400 15.5px/1.9 'Instrument Sans',sans-serif;color:#6c665c;margin:20px 0 0">Dans l'Ouest lyonnais, nous réservons le béton ciré à ce qu'il fait de mieux : les petites pièces et le mobilier — des surfaces minérales continues, appliquées à l'échelle du détail, pour un résultat lisse, minéral et intemporel.</p>
       <div data-mn-reveal style="margin-top:34px;display:grid;gap:14px;font:400 14px 'Instrument Sans',sans-serif;color:#4c463d">
         <div style="display:flex;gap:14px;align-items:baseline"><span style="color:#a6947c">—</span>Petites pièces</div>
         <div style="display:flex;gap:14px;align-items:baseline"><span style="color:#a6947c">—</span>Crédences &amp; plans de travail</div>

@@ -56,7 +56,7 @@ $extraJsonLd = '<script type="application/ld+json">' . json_encode([
       <div data-mn-reveal style="width:300px;height:300px;position:relative;margin-bottom:-48px;flex:none">
         <?= render_photo(photo_src('hero-detail'), 'Détail de texture d\'un béton ciré réalisé par Matière & Nuance', 'width="300" height="300" loading="lazy"') ?>
       </div>
-      <p data-mn-reveal class="mn-body-lg" style="font:400 15px/1.85 'Instrument Sans',sans-serif;color:#6c665c;max-width:250px;margin:0 0 8px"><?= t($textes, 'home_intro', "Plâtrerie, peinture, béton ciré et rénovation intérieure haut de gamme. Des intérieurs préparés avec rigueur, finis avec précision.") ?></p>
+      <p data-mn-reveal class="mn-body-lg" style="font:400 15px/1.85 'Instrument Sans',sans-serif;color:#6c665c;max-width:250px;margin:0 0 8px"><?= t($textes, 'home_intro', "Plâtrerie, peinture et béton ciré : des projets de rénovation intérieure dans l'Ouest lyonnais, préparés avec rigueur et finis avec précision.") ?></p>
     </div>
   </div>
 </header>
