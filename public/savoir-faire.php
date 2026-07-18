@@ -4,14 +4,33 @@ require_once __DIR__ . '/api/lib/content.php';
 
 $pageKey = 'savoir-faire';
 $canonicalPath = 'savoir-faire';
-$extraJsonLd = '<script type="application/ld+json">' . json_encode([
+$faqItems = [
+    ['q' => 'Combien de temps dure un chantier de plâtrerie ou de peinture ?', 'a' => "Cela dépend de l'ampleur du projet : quelques jours pour une pièce, plusieurs semaines pour une rénovation complète. Un délai précis vous est toujours communiqué après la première visite, avant le début des travaux."],
+    ['q' => 'Quelle est la différence entre béton ciré et carrelage ?', 'a' => "Le béton ciré offre une surface continue, sans joint, pour un rendu minéral et épuré. Le carrelage reste plus résistant à grande échelle — c'est pourquoi nous réservons le béton ciré aux petites pièces et au mobilier, là où il exprime le mieux ses qualités."],
+    ['q' => 'Faut-il refaire les enduits avant de repeindre ?', 'a' => "Pas systématiquement. Un support sain et bien préparé suffit souvent : nous évaluons son état lors de la première visite et ne proposons des travaux de plâtrerie que s'ils sont réellement nécessaires."],
+    ['q' => "Le béton ciré résiste-t-il à l'eau et au quotidien ?", 'a' => "Correctement appliqué et protégé, oui : c'est un excellent choix pour une salle d'eau ou une crédence de cuisine. Sa résistance dépend surtout de la qualité de la pose et du traitement de finition."],
+    ['q' => "Intervenez-vous dans toute l'Ouest lyonnais et le Beaujolais ?", 'a' => "Oui. Nous intervenons notamment à Tassin-la-Demi-Lune, Écully, Charbonnières-les-Bains, Craponne, Francheville, Dardilly et dans les communes environnantes de l'Ouest lyonnais et du Beaujolais."],
+    ['q' => 'Proposez-vous un devis gratuit ?', 'a' => "Oui, sans engagement. La première visite permet d'évaluer précisément votre projet et de vous transmettre un devis détaillé sous 48h."],
+];
+$breadcrumbLd = [
     '@context' => 'https://schema.org',
     '@type' => 'BreadcrumbList',
     'itemListElement' => [
         ['@type' => 'ListItem', 'position' => 1, 'name' => 'Accueil', 'item' => 'https://www.matiereetnuance.fr/'],
         ['@type' => 'ListItem', 'position' => 2, 'name' => 'Savoir-faire', 'item' => 'https://www.matiereetnuance.fr/savoir-faire'],
     ],
-], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) . '</script>';
+];
+$faqLd = [
+    '@context' => 'https://schema.org',
+    '@type' => 'FAQPage',
+    'mainEntity' => array_map(static fn ($f) => [
+        '@type' => 'Question',
+        'name' => $f['q'],
+        'acceptedAnswer' => ['@type' => 'Answer', 'text' => $f['a']],
+    ], $faqItems),
+];
+$extraJsonLd = '<script type="application/ld+json">' . json_encode($breadcrumbLd, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) . '</script>'
+    . '<script type="application/ld+json">' . json_encode($faqLd, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) . '</script>';
 ?><!DOCTYPE html>
 <html lang="fr">
 <head>
@@ -93,6 +112,20 @@ $extraJsonLd = '<script type="application/ld+json">' . json_encode([
         <div style="display:flex;gap:14px;align-items:baseline"><span style="color:#a6947c">—</span>Crédences &amp; plans de travail</div>
         <div style="display:flex;gap:14px;align-items:baseline"><span style="color:#a6947c">—</span>Vasques, tablettes, mobilier sur mesure</div>
       </div>
+    </div>
+  </div>
+</section>
+
+<section id="faq" style="padding:90px 64px;border-top:1px solid #e8e1d3">
+  <div class="container" style="padding:0;max-width:760px">
+    <h2 class="mn-h2" data-mn-reveal style="font:400 40px/1.12 'Instrument Serif',serif;color:#2b2926;margin:0;font-weight:400">Questions <em style="font-style:italic;color:#8a7a63">fréquentes</em></h2>
+    <div style="margin-top:44px;display:grid;gap:36px">
+      <?php foreach ($faqItems as $f): ?>
+      <div data-mn-reveal>
+        <h3 style="font:400 19px 'Instrument Serif',serif;color:#2b2926;margin:0;font-weight:400"><?= htmlspecialchars($f['q']) ?></h3>
+        <p style="font:400 15px/1.8 'Instrument Sans',sans-serif;color:#6c665c;margin:10px 0 0"><?= htmlspecialchars($f['a']) ?></p>
+      </div>
+      <?php endforeach; ?>
     </div>
   </div>
 </section>
