@@ -24,7 +24,7 @@ $extraJsonLd = '<script type="application/ld+json">' . json_encode([
     'description' => 'Artisan plâtrier-peintre spécialisé en plâtrerie, peinture décorative et béton ciré haut de gamme dans l\'Ouest lyonnais et le Beaujolais.',
     'address' => ['@type' => 'PostalAddress', 'addressLocality' => 'Tassin-la-Demi-Lune', 'addressRegion' => 'Auvergne-Rhône-Alpes', 'postalCode' => '69160', 'addressCountry' => 'FR'],
     'geo' => ['@type' => 'GeoCoordinates', 'latitude' => 45.7683, 'longitude' => 4.7639],
-    'areaServed' => array_map(static fn ($c) => ['@type' => 'City', 'name' => $c], ['Grézieu-la-Varenne', 'Craponne', 'Tassin-la-Demi-Lune', 'Écully', 'Francheville', 'Charbonnières-les-Bains', 'Dardilly', 'Lyon']),
+    'areaServed' => array_map(static fn ($c) => ['@type' => 'City', 'name' => $c], ['Tassin-la-Demi-Lune', 'Écully', 'Charbonnières-les-Bains', 'Craponne', 'Francheville', 'Dardilly', 'Limonest', 'Champagne-au-Mont-d\'Or', 'Saint-Didier-au-Mont-d\'Or', 'La Tour-de-Salvagny', 'Marcy-l\'Étoile', 'Sainte-Consorce', 'Grézieu-la-Varenne', 'Brindas', 'Mornant', 'Villefranche-sur-Saône', 'Belleville-en-Beaujolais', 'Beaujeu', 'Lyon']),
     'sameAs' => [$instagram],
     'aggregateRating' => ['@type' => 'AggregateRating', 'ratingValue' => str_replace(',', '.', t_raw($textes, 'avis_score', '4.9')), 'reviewCount' => t_raw($textes, 'avis_count', '47')],
 ], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) . '</script>';
