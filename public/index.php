@@ -11,10 +11,17 @@ $instagram = $settings['instagram_url'] ?? 'https://www.instagram.com/matiere_et
 
 $pageKey = 'home';
 $canonicalPath = '';
+$businessId = 'https://www.matiereetnuance.fr/#business';
+$services = [
+    ['name' => 'Plâtrerie', 'description' => 'Cloisons, plafonds, redressements et enduits : préparation des volumes et des surfaces avant peinture ou béton ciré.'],
+    ['name' => 'Peinture intérieure', 'description' => 'Préparation méticuleuse des supports puis finitions mates, satinées ou veloutées, avec conseil couleur sur site.'],
+    ['name' => 'Béton ciré', 'description' => "Surfaces minérales continues pour petites pièces et mobilier : salles d'eau, crédences, plans de travail."],
+    ['name' => 'Rénovation intérieure', 'description' => "Accompagnement complet d'un projet de rénovation, de la préparation des supports aux finitions, pour particuliers et professionnels."],
+];
 $extraJsonLd = '<script type="application/ld+json">' . json_encode([
     '@context' => 'https://schema.org',
     '@type' => 'LocalBusiness',
-    '@id' => 'https://www.matiereetnuance.fr/#business',
+    '@id' => $businessId,
     'name' => 'Matière & Nuance',
     'image' => 'https://www.matiereetnuance.fr/assets/img/og-cover.png',
     'url' => 'https://www.matiereetnuance.fr/',
@@ -27,6 +34,19 @@ $extraJsonLd = '<script type="application/ld+json">' . json_encode([
     'areaServed' => array_map(static fn ($c) => ['@type' => 'City', 'name' => $c], ['Tassin-la-Demi-Lune', 'Écully', 'Charbonnières-les-Bains', 'Craponne', 'Francheville', 'Dardilly', 'Limonest', 'Champagne-au-Mont-d\'Or', 'Saint-Didier-au-Mont-d\'Or', 'La Tour-de-Salvagny', 'Marcy-l\'Étoile', 'Sainte-Consorce', 'Grézieu-la-Varenne', 'Brindas', 'Mornant', 'Villefranche-sur-Saône', 'Belleville-en-Beaujolais', 'Beaujeu', 'Lyon']),
     'sameAs' => [$instagram],
     'aggregateRating' => ['@type' => 'AggregateRating', 'ratingValue' => str_replace(',', '.', t_raw($textes, 'avis_score', '4.9')), 'reviewCount' => t_raw($textes, 'avis_count', '47')],
+    'hasOfferCatalog' => [
+        '@type' => 'OfferCatalog',
+        'name' => 'Prestations Matière & Nuance',
+        'itemListElement' => array_map(static fn ($s) => [
+            '@type' => 'Offer',
+            'itemOffered' => [
+                '@type' => 'Service',
+                'name' => $s['name'],
+                'description' => $s['description'],
+                'provider' => ['@id' => $businessId],
+            ],
+        ], $services),
+    ],
 ], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) . '</script>';
 ?><!DOCTYPE html>
 <html lang="fr">

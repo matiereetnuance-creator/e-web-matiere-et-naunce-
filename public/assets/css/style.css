@@ -188,10 +188,18 @@ figure.mn-fig:hover .mn-fig__overlay{opacity:1}
 .mn-field input,.mn-field select,.mn-field textarea{
   width:100%;box-sizing:border-box;margin-top:9px;padding:14px 16px;
   border:1px solid var(--border-2);background:var(--cream);font-size:14.5px;color:var(--ink);
-  transition:border-color .3s;font-family:var(--font-sans)
+  transition:border-color .3s,box-shadow .3s;font-family:var(--font-sans)
 }
 .mn-field textarea{resize:vertical}
-input:focus,textarea:focus,select:focus{outline:none;border-color:var(--taupe-2) !important}
+/* Focus clavier : anneau ton sur ton (contraste ≈3.8:1, conforme WCAG 1.4.11
+   non-text contrast) plutôt que le contour bleu par défaut du navigateur —
+   discret au repos, net dès qu'on tabule. */
+input:focus,textarea:focus,select:focus{
+  outline:2px solid var(--taupe);
+  outline-offset:3px;
+  border-color:var(--taupe-2) !important;
+  box-shadow:0 0 0 6px rgba(138,122,99,.12)
+}
 .mn-hp{position:absolute;left:-9999px;width:1px;height:1px;opacity:0}
 
 /* ============ Avant / Après ============ */
