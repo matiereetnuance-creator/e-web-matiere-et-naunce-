@@ -19,7 +19,13 @@
       }
     }
 
-    zone.addEventListener('click', function () { input.click(); });
+    // Pas de zone.addEventListener('click', () => input.click()) ici : zone
+    // est un <label> qui enveloppe déjà nativement l'input (.dropzone
+    // input{display:none} dans admin/includes/header.php) — le navigateur
+    // déclenche déjà l'input au clic sur le label, sans JS. Un second
+    // input.click() programmatique cassait Safari iOS : le sélecteur de
+    // photos s'ouvrait, la sélection se faisait, mais l'évènement change ne
+    // partait jamais (perte du suivi d'activation utilisateur par WebKit).
     input.addEventListener('change', showNames);
 
     ['dragenter', 'dragover'].forEach(function (evt) {
