@@ -80,6 +80,10 @@ tr:last-child td{border-bottom:none}
 .dropzone input{display:none}
 .gallery-grid{display:flex;flex-wrap:wrap;gap:10px;margin-top:10px}
 .gallery-grid img{width:88px;height:64px;object-fit:cover;border-radius:6px;border:1px solid var(--line)}
+.gallery-grid [data-mn-gallery-handle]{cursor:grab;touch-action:none;-webkit-user-drag:none;user-drag:none}
+.gallery-grid [data-mn-gallery-item]{transition:opacity .15s}
+.gallery-grid [data-mn-gallery-item].is-dragging{opacity:.45;cursor:grabbing}
+.gallery-grid [data-mn-gallery-item].is-dragging [data-mn-gallery-handle]{cursor:grabbing}
 .empty{color:var(--ink-soft);font-size:13.5px;padding:20px 0;text-align:center}
 @media (max-width:900px){
   .admin-shell{flex-direction:column}

@@ -254,6 +254,7 @@ function render_raw_prompt(string $field, array $pending, string $csrf): void
 <script src="assets/vendor/heic2any.min.js" defer></script>
 <script src="assets/heic-convert.js" defer></script>
 <script src="assets/dropzone.js" defer></script>
+<?php if (!empty($values['gallery'])): ?><script src="assets/gallery-reorder.js" defer></script><?php endif; ?>
 
 <?php if ($errors): ?>
   <div class="flash flash-error"><?= htmlspecialchars(implode(' ', $errors)) ?></div>
@@ -371,15 +372,16 @@ function render_raw_prompt(string $field, array $pending, string $csrf): void
   <div class="card">
     <h2>Galerie photos</h2>
     <?php if (!empty($values['gallery'])): ?>
-      <div class="gallery-grid">
+      <div class="gallery-grid" data-mn-gallery-grid>
         <?php foreach ($values['gallery'] as $g): ?>
-          <div style="text-align:center;font-size:11px;width:110px">
-            <img src="<?= htmlspecialchars(realisation_thumb_url($values['id'], $g['file'])) ?>" alt="" style="width:110px;height:76px">
+          <div style="text-align:center;font-size:11px;width:110px" data-mn-gallery-item data-mn-gallery-file="<?= htmlspecialchars($g['file']) ?>">
+            <img data-mn-gallery-handle src="<?= htmlspecialchars(realisation_thumb_url($values['id'], $g['file'])) ?>" alt="" style="width:110px;height:76px">
             <input type="text" name="gallery_alt[<?= htmlspecialchars($g['file']) ?>]" value="<?= htmlspecialchars($g['alt']) ?>" placeholder="Texte alternatif" style="width:100%;margin-top:4px;padding:4px 6px;font-size:11px">
             <label style="display:block;margin-top:4px"><input type="checkbox" name="remove_gallery[]" value="<?= htmlspecialchars($g['file']) ?>"> retirer</label>
           </div>
         <?php endforeach; ?>
       </div>
+      <div class="help">Glissez une vignette pour réordonner la galerie — l'ordre est enregistré automatiquement.</div>
     <?php endif; ?>
     <label class="dropzone" data-dropzone style="margin-top:12px">
       <input type="file" name="gallery[]" accept="image/jpeg,image/png,image/webp,image/heic,image/heif,.heic,.heif" multiple>
