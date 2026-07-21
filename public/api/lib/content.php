@@ -685,6 +685,55 @@ function unique_slug(string $desired, array $existingIds, string $ignoreId = '')
     return $slug;
 }
 
+/**
+ * Dernier cache d'avis Google écrit par api/cron/sync-google-reviews.php,
+ * ou null si aucune synchronisation n'a encore eu lieu (ou API non
+ * configurée) — jamais d'appel réseau ici, uniquement une lecture disque.
+ *
+ * @return array{success:bool,configured:bool,rating:?float,total:?int,google_url:?string,reviews:array,fetched_at:?string}|null
+ */
+function google_reviews_snapshot(): ?array
+{
+    $path = __DIR__ . '/../data/reviews-cache.json';
+    if (!is_file($path)) {
+        return null;
+    }
+    $data = json_decode((string) file_get_contents($path), true);
+    return is_array($data) && !empty($data['configured']) ? $data : null;
+}
+
+/**
+ * Valeurs d'avis Google prêtes à afficher côté serveur (score, nombre,
+ * lien) : cache Google Business en priorité, texte éditable de secours
+ * (textes.json) tant que la synchronisation n'a pas encore eu lieu.
+ * Réutilisée par index.php et avis.php pour rester identique aux deux
+ * endroits (aucune duplication de la logique de repli).
+ *
+ * @return array{score:string,count:string,score_raw:?float,count_raw:?int,google_url:?string,fetched_at:?string}
+ */
+function avis_display_snapshot(array $textes): array
+{
+    $snapshot = google_reviews_snapshot();
+    $scoreRaw = isset($snapshot['rating']) ? (float) $snapshot['rating'] : null;
+    $countRaw = isset($snapshot['total']) ? (int) $snapshot['total'] : null;
+
+    $googleUrl = $snapshot['google_url'] ?? null;
+    if ($googleUrl === null) {
+        $config = require __DIR__ . '/../config.php';
+        $placeId = $config['google_place_id'] ?? '';
+        $googleUrl = $placeId !== '' ? ('https://search.google.com/local/writereview?placeid=' . rawurlencode($placeId)) : null;
+    }
+
+    return [
+        'score' => $scoreRaw !== null ? str_replace('.', ',', (string) $scoreRaw) : t($textes, 'avis_score', '4,9'),
+        'count' => $countRaw !== null ? (string) $countRaw : t($textes, 'avis_count', '47'),
+        'score_raw' => $scoreRaw,
+        'count_raw' => $countRaw,
+        'google_url' => $googleUrl,
+        'fetched_at' => $snapshot['fetched_at'] ?? null,
+    ];
+}
+
 /** Titre/description SEO d'une réalisation : valeur saisie, sinon suggestion automatique. */
 function realisation_meta_title(array $r): string
 {

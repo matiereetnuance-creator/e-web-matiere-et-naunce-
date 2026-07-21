@@ -151,3 +151,28 @@ function clean_text(string $value, int $maxLength = 2000): string
     $value = preg_replace('/[\x00-\x08\x0B\x0C\x0E-\x1F]/', '', $value) ?? '';
     return mb_substr($value, 0, $maxLength);
 }
+
+/** Récupère une URL en HTTPS via cURL si dispo, sinon file_get_contents. */
+function fetch_url(string $url): ?string
+{
+    if (function_exists('curl_init')) {
+        $ch = curl_init($url);
+        curl_setopt_array($ch, [
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_TIMEOUT => 8,
+            CURLOPT_SSL_VERIFYPEER => true,
+        ]);
+        $result = curl_exec($ch);
+        $ok = curl_errno($ch) === 0;
+        curl_close($ch);
+        return $ok && is_string($result) ? $result : null;
+    }
+
+    if (ini_get('allow_url_fopen')) {
+        $context = stream_context_create(['http' => ['timeout' => 8]]);
+        $result = @file_get_contents($url, false, $context);
+        return $result !== false ? $result : null;
+    }
+
+    return null;
+}

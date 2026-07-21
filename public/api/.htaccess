@@ -10,6 +10,7 @@
   RewriteEngine On
   RewriteRule ^lib/ - [F,L]
   RewriteRule ^data/ - [F,L]
+  RewriteRule ^cron/ - [F,L]
 </IfModule>
 
 Options -Indexes

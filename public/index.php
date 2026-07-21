@@ -7,6 +7,7 @@ $settings = load_content('settings', []);
 $realisations = load_content('realisations', []);
 $teaser = array_slice($realisations, 0, 4);
 $avisEnabled = $settings['avis_section_enabled'] ?? true;
+$avis = avis_display_snapshot($textes);
 $instagram = $settings['instagram_url'] ?? 'https://www.instagram.com/matiere_et_nuance';
 
 $pageKey = 'home';
@@ -33,7 +34,7 @@ $extraJsonLd = '<script type="application/ld+json">' . json_encode([
     'geo' => ['@type' => 'GeoCoordinates', 'latitude' => 45.7683, 'longitude' => 4.7639],
     'areaServed' => array_map(static fn ($c) => ['@type' => 'City', 'name' => $c], ['Tassin-la-Demi-Lune', 'Écully', 'Charbonnières-les-Bains', 'Craponne', 'Francheville', 'Dardilly', 'Limonest', 'Champagne-au-Mont-d\'Or', 'Saint-Didier-au-Mont-d\'Or', 'La Tour-de-Salvagny', 'Marcy-l\'Étoile', 'Sainte-Consorce', 'Grézieu-la-Varenne', 'Brindas', 'Mornant', 'Villefranche-sur-Saône', 'Belleville-en-Beaujolais', 'Beaujeu', 'Lyon']),
     'sameAs' => [$instagram],
-    'aggregateRating' => ['@type' => 'AggregateRating', 'ratingValue' => str_replace(',', '.', t_raw($textes, 'avis_score', '4.9')), 'reviewCount' => t_raw($textes, 'avis_count', '47')],
+    'aggregateRating' => ['@type' => 'AggregateRating', 'ratingValue' => $avis['score_raw'] !== null ? (string) $avis['score_raw'] : str_replace(',', '.', t_raw($textes, 'avis_score', '4.9')), 'reviewCount' => $avis['count_raw'] !== null ? (string) $avis['count_raw'] : t_raw($textes, 'avis_count', '47')],
     'hasOfferCatalog' => [
         '@type' => 'OfferCatalog',
         'name' => 'Prestations Matière & Nuance',
@@ -208,9 +209,9 @@ $extraJsonLd = '<script type="application/ld+json">' . json_encode([
     <div data-mn-reveal style="display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:20px">
       <h2 class="mn-h2" style="font:400 46px/1.1 'Instrument Serif',serif;color:#2b2926;margin:0;font-weight:400">Ils nous ont confié leurs <em style="font-style:italic;color:#8a7a63">projets .</em></h2>
       <div class="mn-rating" data-mn-google-rating>
-        <span class="mn-rating__score" data-mn-rating-score><?= t($textes, 'avis_score', '4,9') ?></span>
+        <span class="mn-rating__score" data-mn-rating-score><?= $avis['score'] ?></span>
         <span class="mn-rating__stars" aria-hidden="true">★★★★★</span>
-        <span class="mn-rating__count" data-mn-rating-count><?= t($textes, 'avis_count', '47') ?> AVIS GOOGLE</span>
+        <span class="mn-rating__count" data-mn-rating-count><?= $avis['count'] ?> AVIS GOOGLE</span>
       </div>
     </div>
     <div class="mn-grid-3" style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:28px;margin-top:56px" data-mn-reviews-grid>

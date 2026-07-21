@@ -8,6 +8,7 @@ if (!($settings['avis_section_enabled'] ?? true)) {
     exit;
 }
 $textes = load_content('textes', []);
+$avis = avis_display_snapshot($textes);
 $pageKey = 'avis';
 $canonicalPath = 'avis';
 $extraJsonLd = '<script type="application/ld+json">' . json_encode([
@@ -40,9 +41,9 @@ $extraJsonLd = '<script type="application/ld+json">' . json_encode([
       <p data-mn-reveal class="mn-body-lg" style="font:400 15px/1.85 'Instrument Sans',sans-serif;color:#6c665c;margin:24px 0 0;max-width:540px"><?= t($textes, 'avis_zone_note', "Ces avis proviennent de particuliers et de professionnels qui nous ont confié leurs projets dans l'ensemble de l'Ouest lyonnais et du Beaujolais.") ?></p>
     </div>
     <div data-mn-reveal class="mn-rating" style="align-items:baseline;gap:18px;padding-bottom:10px" data-mn-google-rating>
-      <span style="font:400 64px 'Instrument Serif',serif;color:#2b2926" data-mn-rating-score><?= t($textes, 'avis_score', '4,9') ?></span>
+      <span style="font:400 64px 'Instrument Serif',serif;color:#2b2926" data-mn-rating-score><?= $avis['score'] ?></span>
       <span style="color:#c8b394;font-size:24px;letter-spacing:5px" aria-hidden="true">★★★★★</span>
-      <span style="font:500 12px 'Instrument Sans',sans-serif;letter-spacing:.16em;color:#8a7a63" data-mn-rating-count><?= t($textes, 'avis_count', '47') ?> AVIS GOOGLE</span>
+      <span style="font:500 12px 'Instrument Sans',sans-serif;letter-spacing:.16em;color:#8a7a63" data-mn-rating-count><?= $avis['count'] ?> AVIS GOOGLE</span>
     </div>
   </div>
 </header>
@@ -81,7 +82,7 @@ $extraJsonLd = '<script type="application/ld+json">' . json_encode([
     </blockquote>
   </div>
   <div data-mn-reveal style="text-align:center;margin-top:52px">
-    <a class="link-underline" data-mn-google-link href="https://search.google.com/local/writereview?placeid=" target="_blank" rel="noopener">VOIR TOUS LES AVIS SUR GOOGLE →</a>
+    <a class="link-underline" data-mn-google-link href="<?= htmlspecialchars($avis['google_url'] ?? 'https://www.google.com/search?q=Mati%C3%A8re+%26+Nuance+avis', ENT_QUOTES, 'UTF-8') ?>" target="_blank" rel="noopener">VOIR TOUS LES AVIS SUR GOOGLE →</a>
   </div>
 </section>
 
