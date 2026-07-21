@@ -161,14 +161,16 @@ $extraJsonLd = '<script type="application/ld+json">' . json_encode($jsonLd, JSON
 <section style="padding:0 64px 90px">
   <div class="container" style="padding:0;max-width:1280px">
     <h2 class="mn-h2--md" data-mn-reveal style="font:400 32px/1.1 'Instrument Serif',serif;color:#2b2926;margin:0 0 32px;font-weight:400">Galerie</h2>
-    <div class="mn-grid-3" style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:20px">
-      <?php foreach ($r['gallery'] as $g): $galleryItem = is_array($g) ? $g : ['file' => $g, 'alt' => '']; ?>
+    <div class="mn-grid-3" style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:20px" data-mn-lightbox>
+      <?php foreach ($r['gallery'] as $gi => $g): $galleryItem = is_array($g) ? $g : ['file' => $g, 'alt' => '']; $galleryAlt = $galleryItem['alt'] ?: suggest_alt($r['title'] ?? '', $r['ville'] ?? ''); ?>
         <figure class="mn-fig" data-mn-reveal style="margin:0">
-          <div class="mn-fig__img" style="height:260px">
-            <div class="mn-fig__img-inner">
-              <img class="mn-ph" src="<?= htmlspecialchars(realisation_photo_url($r['id'], $galleryItem['file'])) ?>" alt="<?= htmlspecialchars($galleryItem['alt'] ?: suggest_alt($r['title'] ?? '', $r['ville'] ?? '')) ?>" width="400" height="260" loading="lazy">
+          <button type="button" class="mn-fig__trigger" data-mn-lightbox-item aria-label="Agrandir la photo <?= $gi + 1 ?> — <?= htmlspecialchars($galleryAlt) ?>">
+            <div class="mn-fig__img" style="height:260px">
+              <div class="mn-fig__img-inner">
+                <img class="mn-ph" src="<?= htmlspecialchars(realisation_photo_url($r['id'], $galleryItem['file'])) ?>" alt="<?= htmlspecialchars($galleryAlt) ?>" width="400" height="260" loading="lazy">
+              </div>
             </div>
-          </div>
+          </button>
         </figure>
       <?php endforeach; ?>
     </div>
@@ -205,5 +207,6 @@ $extraJsonLd = '<script type="application/ld+json">' . json_encode($jsonLd, JSON
 <?php require __DIR__ . '/includes/footer.php'; ?>
 
 <script src="/assets/js/main.js" defer></script>
+<?php if (!empty($r['gallery'])): ?><script src="/assets/js/lightbox.js" defer></script><?php endif; ?>
 </body>
 </html>
