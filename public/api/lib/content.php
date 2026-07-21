@@ -734,6 +734,60 @@ function avis_display_snapshot(array $textes): array
     ];
 }
 
+/**
+ * Horodatage/version de la dernière livraison, si renseigné (voir
+ * api/data/deploy-info.json — régénéré à chaque reconstruction du ZIP de
+ * déploiement). Retourne null si le fichier n'existe pas encore.
+ *
+ * @return array{deployed_at:?string,version:?string}|null
+ */
+function deploy_info_snapshot(): ?array
+{
+    $path = __DIR__ . '/../data/deploy-info.json';
+    if (!is_file($path)) {
+        return null;
+    }
+    $data = json_decode((string) file_get_contents($path), true);
+    return is_array($data) ? $data : null;
+}
+
+/**
+ * État sommaire des mécanismes SEO du site (présence structurelle, sans
+ * appel réseau) : sitemap, robots.txt, données structurées, OpenGraph.
+ * Réutilisée par le tableau de bord admin (Mission 5) et la vérification
+ * SEO (Mission 6).
+ *
+ * @return array{sitemap:bool,robots:bool,schema:bool,opengraph:bool}
+ */
+function seo_health_snapshot(): array
+{
+    $publicDir = __DIR__ . '/../..';
+
+    $robotsPath = $publicDir . '/robots.txt';
+    $robotsOk = false;
+    if (is_file($robotsPath)) {
+        $robots = (string) file_get_contents($robotsPath);
+        $robotsOk = str_contains($robots, 'Disallow: /admin/') && str_contains($robots, 'Sitemap:');
+    }
+
+    $seo = load_content('seo', []);
+    $expectedPages = ['home', 'savoir-faire', 'realisations', 'entreprise', 'avis', 'contact'];
+    $schemaOk = true;
+    foreach ($expectedPages as $key) {
+        if (empty($seo[$key]['title'])) {
+            $schemaOk = false;
+            break;
+        }
+    }
+
+    return [
+        'sitemap' => is_file($publicDir . '/sitemap.php'),
+        'robots' => $robotsOk,
+        'schema' => $schemaOk,
+        'opengraph' => is_file($publicDir . '/assets/img/og-cover.png'),
+    ];
+}
+
 /** Titre/description SEO d'une réalisation : valeur saisie, sinon suggestion automatique. */
 function realisation_meta_title(array $r): string
 {
