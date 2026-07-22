@@ -25,6 +25,7 @@ $extraJsonLd = '<script type="application/ld+json">' . json_encode([
     '@id' => $businessId,
     'name' => 'Matière & Nuance',
     'image' => 'https://www.matiereetnuance.fr/assets/img/og-cover.png',
+    'logo' => 'https://www.matiereetnuance.fr/assets/img/logo-carre.png',
     'url' => 'https://www.matiereetnuance.fr/',
     'telephone' => '+33760033820',
     'email' => 'matiereetnuance@hotmail.com',

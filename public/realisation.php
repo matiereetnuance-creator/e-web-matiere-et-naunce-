@@ -51,7 +51,7 @@ $articleLd = [
     'description' => $metaDescription,
     'about' => $r['prestations'] ?? '',
     'author' => ['@type' => 'Organization', 'name' => 'Matière & Nuance'],
-    'publisher' => ['@type' => 'Organization', 'name' => 'Matière & Nuance', 'logo' => ['@type' => 'ImageObject', 'url' => 'https://www.matiereetnuance.fr/assets/img/logo-noir.png']],
+    'publisher' => ['@type' => 'Organization', 'name' => 'Matière & Nuance', 'logo' => ['@type' => 'ImageObject', 'url' => 'https://www.matiereetnuance.fr/assets/img/logo-carre.png', 'width' => 512, 'height' => 512]],
 ];
 if (!empty($r['date'])) {
     $articleLd['datePublished'] = $r['date'];
@@ -80,6 +80,8 @@ $extraJsonLd = '<script type="application/ld+json">' . json_encode($jsonLd, JSON
 <meta name="twitter:description" content="<?= htmlspecialchars($metaDescription) ?>">
 <meta name="twitter:image" content="<?= htmlspecialchars($ogImage) ?>">
 <link rel="icon" type="image/svg+xml" href="/assets/favicon.svg">
+<link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/assets/favicon-180.png">
 <link rel="preload" href="/assets/fonts/instrument-sans-latin.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="/assets/fonts/instrument-serif-latin.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="/assets/css/style.css?v=<?= @filemtime(__DIR__ . '/assets/css/style.css') ?: time() ?>">
