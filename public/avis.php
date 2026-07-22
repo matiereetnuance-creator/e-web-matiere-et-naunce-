@@ -78,7 +78,7 @@ $extraJsonLd = '<script type="application/ld+json">' . json_encode([
 
 <?php require __DIR__ . '/includes/footer.php'; ?>
 
-<script src="/assets/js/main.js" defer></script>
-<script src="/assets/js/google-reviews.js" defer></script>
+<script src="/assets/js/main.js?v=<?= asset_version('assets/js/main.js') ?>" defer></script>
+<script src="/assets/js/google-reviews.js?v=<?= asset_version('assets/js/google-reviews.js') ?>" defer></script>
 </body>
 </html>

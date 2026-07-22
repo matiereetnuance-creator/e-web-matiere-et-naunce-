@@ -106,6 +106,6 @@ require __DIR__ . '/includes/seo-head.php';
 
 <?php require __DIR__ . '/includes/footer.php'; ?>
 
-<script src="/assets/js/main.js" defer></script>
+<script src="/assets/js/main.js?v=<?= asset_version('assets/js/main.js') ?>" defer></script>
 </body>
 </html>

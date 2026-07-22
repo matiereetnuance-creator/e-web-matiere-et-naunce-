@@ -259,7 +259,7 @@ $extraJsonLd = '<script type="application/ld+json">' . json_encode([
 </section>
 </main>
 
-<script src="/assets/js/main.js" defer></script>
-<?php if ($avisEnabled): ?><script src="/assets/js/google-reviews.js" defer></script><?php endif; ?>
+<script src="/assets/js/main.js?v=<?= asset_version('assets/js/main.js') ?>" defer></script>
+<?php if ($avisEnabled): ?><script src="/assets/js/google-reviews.js?v=<?= asset_version('assets/js/google-reviews.js') ?>" defer></script><?php endif; ?>
 </body>
 </html>

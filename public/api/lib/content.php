@@ -17,6 +17,23 @@ function content_path(string $name): string
     return MN_CONTENT_DIR . '/' . $name . '.json';
 }
 
+/**
+ * Horodatage d'un fichier CSS/JS pour le paramètre ?v= de cache-busting —
+ * même principe que $cssVersion dans includes/seo-head.php, généralisé aux
+ * autres fichiers statiques. Nécessaire car .htaccess sert ces fichiers
+ * avec Cache-Control: immutable (1 an) : sans ce paramètre, un navigateur
+ * ayant déjà visité le site continuerait de servir l'ancienne version
+ * indéfiniment après toute mise à jour, quel que soit le contenu réellement
+ * déployé — jusqu'ici seul style.css en bénéficiait, pas les scripts JS.
+ *
+ * @param string $publicRelativePath chemin depuis la racine de public/, ex. "assets/js/main.js"
+ */
+function asset_version(string $publicRelativePath): int
+{
+    $path = __DIR__ . '/../../' . ltrim($publicRelativePath, '/');
+    return @filemtime($path) ?: time();
+}
+
 function load_content(string $name, array $default = []): array
 {
     $path = content_path($name);

@@ -252,9 +252,9 @@ function render_raw_prompt(string $field, array $pending, string $csrf): void
 }
 ?>
 <script src="assets/vendor/heic2any.min.js" defer></script>
-<script src="assets/heic-convert.js" defer></script>
-<script src="assets/dropzone.js" defer></script>
-<?php if (!empty($values['gallery'])): ?><script src="assets/gallery-reorder.js" defer></script><?php endif; ?>
+<script src="assets/heic-convert.js?v=<?= asset_version('admin/assets/heic-convert.js') ?>" defer></script>
+<script src="assets/dropzone.js?v=<?= asset_version('admin/assets/dropzone.js') ?>" defer></script>
+<?php if (!empty($values['gallery'])): ?><script src="assets/gallery-reorder.js?v=<?= asset_version('admin/assets/gallery-reorder.js') ?>" defer></script><?php endif; ?>
 
 <?php if ($errors): ?>
   <div class="flash flash-error"><?= htmlspecialchars(implode(' ', $errors)) ?></div>

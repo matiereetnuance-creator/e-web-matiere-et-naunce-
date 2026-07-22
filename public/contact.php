@@ -122,6 +122,6 @@ if ($phoneTel !== '' && $phoneTel[0] === '0') {
 
 <?php require __DIR__ . '/includes/footer.php'; ?>
 
-<script src="/assets/js/main.js" defer></script>
+<script src="/assets/js/main.js?v=<?= asset_version('assets/js/main.js') ?>" defer></script>
 </body>
 </html>

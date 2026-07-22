@@ -186,7 +186,7 @@ $extraJsonLd = '<script type="application/ld+json">' . json_encode($jsonLd, JSON
 
 <?php require __DIR__ . '/includes/footer.php'; ?>
 
-<script src="/assets/js/main.js" defer></script>
-<?php if (!empty($r['gallery'])): ?><script src="/assets/js/lightbox.js" defer></script><?php endif; ?>
+<script src="/assets/js/main.js?v=<?= asset_version('assets/js/main.js') ?>" defer></script>
+<?php if (!empty($r['gallery'])): ?><script src="/assets/js/lightbox.js?v=<?= asset_version('assets/js/lightbox.js') ?>" defer></script><?php endif; ?>
 </body>
 </html>

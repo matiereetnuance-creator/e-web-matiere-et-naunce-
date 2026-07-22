@@ -48,14 +48,27 @@
     // restaurée depuis le bfcache (back/forward cache), le DOM réapparaît
     // exactement tel qu'il était figé au moment de la navigation — donc
     // avec le voile de sortie encore totalement opaque (page qui semblait
-    // "blanche"), puisqu'aucun script ne se relance pour l'enlever. Le seul
-    // signal fiable pour ce cas est l'évènement pageshow avec persisted=true.
-    window.addEventListener('pageshow', function (e) {
-      if (!e.persisted) return;
+    // "blanche"), puisqu'aucun script ne se relance pour l'enlever.
+    //
+    // Un seul gestionnaire pageshow s'est révélé insuffisant en pratique
+    // (certains navigateurs figent l'instantané avant que ce gestionnaire
+    // n'ait fini de s'exécuter à la restauration). Recommandation officielle
+    // (web.dev/bfcache) : nettoyer aussi bien AVANT le gel (pagehide, pour
+    // qu'aucun voile opaque ne soit jamais figé dans l'instantané) qu'APRÈS
+    // la restauration (pageshow, filet de sécurité) — les deux évènements
+    // exposent persisted=true uniquement dans ce cas précis, jamais lors
+    // d'un chargement normal.
+    function resetVeilState() {
       leaving = false;
       document.querySelectorAll('.mn-veil').forEach(function (el) {
         el.remove();
       });
+    }
+    window.addEventListener('pagehide', function (e) {
+      if (e.persisted) resetVeilState();
+    });
+    window.addEventListener('pageshow', function (e) {
+      if (e.persisted) resetVeilState();
     });
   }
 
@@ -127,6 +140,14 @@
       }
       check();
     }, 1200);
+
+    // Restauration depuis le bfcache : un élément pas encore révélé au
+    // moment du départ (ex. clic très rapide sur un lien) resterait sinon
+    // invisible jusqu'au prochain passage du filet de sécurité (1200ms) —
+    // on force un contrôle immédiat pour ne jamais laisser un blanc, même bref.
+    window.addEventListener('pageshow', function (e) {
+      if (e.persisted) check();
+    });
   }
 
   /* ---------- Révélation cinématique du titre (Accueil) ---------- */
