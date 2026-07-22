@@ -50,36 +50,13 @@ $extraJsonLd = '<script type="application/ld+json">' . json_encode([
 
 <section style="padding:0 64px 90px">
   <div class="container mn-grid-3" style="padding:0;max-width:1280px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:28px" data-mn-reviews-grid>
-    <blockquote data-mn-reveal class="quote-card quote-card--alt">
-      <div class="quote-card__stars" aria-hidden="true">★★★★★</div>
-      <p class="quote-card__text">« Un chantier d'une propreté irréprochable et des murs parfaitement tendus. On sent le souci du détail à chaque étape. »</p>
-      <footer class="quote-card__meta">Claire M. — Écully <span>· il y a 2 mois</span></footer>
-    </blockquote>
-    <blockquote data-mn-reveal class="quote-card quote-card--alt">
-      <div class="quote-card__stars" aria-hidden="true">★★★★★</div>
-      <p class="quote-card__text">« Des conseils de teintes remarquables : la pièce a changé d'âme. Délais tenus, équipe discrète et précise. »</p>
-      <footer class="quote-card__meta">Bruno T. — Tassin-la-Demi-Lune <span>· il y a 4 mois</span></footer>
-    </blockquote>
-    <blockquote data-mn-reveal class="quote-card quote-card--alt">
-      <div class="quote-card__stars" aria-hidden="true">★★★★★</div>
-      <p class="quote-card__text">« Le béton ciré de notre salle d'eau est magnifique, la finition est digne d'un hôtel. Nous recommandons sans réserve. »</p>
-      <footer class="quote-card__meta">Sophie L. — Villefranche <span>· il y a 6 mois</span></footer>
-    </blockquote>
-    <blockquote data-mn-reveal class="quote-card quote-card--alt">
-      <div class="quote-card__stars" aria-hidden="true">★★★★★</div>
-      <p class="quote-card__text">« Rénovation complète de notre séjour : ponctuels, soigneux, de très bon conseil. Le rendu dépasse ce que nous imaginions. »</p>
-      <footer class="quote-card__meta">Hélène &amp; Marc D. — Charbonnières <span>· il y a 7 mois</span></footer>
-    </blockquote>
-    <blockquote data-mn-reveal class="quote-card quote-card--alt">
-      <div class="quote-card__stars" aria-hidden="true">★★★★★</div>
-      <p class="quote-card__text">« Devis clair, chantier protégé du sol au plafond, et un blanc absolument parfait. Une vraie maison de confiance. »</p>
-      <footer class="quote-card__meta">Julien R. — Craponne <span>· il y a 9 mois</span></footer>
-    </blockquote>
-    <blockquote data-mn-reveal class="quote-card quote-card--alt">
-      <div class="quote-card__stars" aria-hidden="true">★★★★★</div>
-      <p class="quote-card__text">« Le meuble vasque en béton ciré est une pièce unique. Un travail d'artisan, au sens le plus noble du terme. »</p>
-      <footer class="quote-card__meta">Anne S. — Sainte-Foy-lès-Lyon <span>· il y a 11 mois</span></footer>
-    </blockquote>
+    <?php foreach (fallback_avis() as $item): ?>
+      <blockquote data-mn-reveal class="quote-card quote-card--alt">
+        <div class="quote-card__stars" aria-hidden="true"><?= avis_star_string((int) ($item['rating'] ?? 5)) ?></div>
+        <p class="quote-card__text">« <?= htmlspecialchars($item['text'] ?? '') ?> »</p>
+        <footer class="quote-card__meta"><?= htmlspecialchars($item['author_name'] ?? '') ?> — <?= htmlspecialchars($item['commune'] ?? '') ?> <span>· <?= htmlspecialchars($item['relative_time'] ?? '') ?></span></footer>
+      </blockquote>
+    <?php endforeach; ?>
   </div>
   <div data-mn-reveal style="text-align:center;margin-top:52px">
     <a class="link-underline" data-mn-google-link href="<?= htmlspecialchars($avis['google_url'] ?? 'https://www.google.com/search?q=Mati%C3%A8re+%26+Nuance+avis', ENT_QUOTES, 'UTF-8') ?>" target="_blank" rel="noopener">VOIR TOUS LES AVIS SUR GOOGLE →</a>

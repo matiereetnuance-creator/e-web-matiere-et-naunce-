@@ -788,6 +788,27 @@ function seo_health_snapshot(): array
     ];
 }
 
+/**
+ * Avis de secours affichés tant que la synchronisation Google (Mission 2)
+ * n'est pas configurée — gérés depuis l'admin (admin/avis.php) plutôt que
+ * via le Gestionnaire de fichiers. Remplacés dynamiquement côté client par
+ * les vrais avis Google dès que google-reviews.js les a récupérés (voir
+ * data-mn-reviews-grid) ; ce fichier reste sinon la seule source affichée.
+ *
+ * @return array<int, array{id:string, author_name:string, commune:string, rating:int, text:string, relative_time:string}>
+ */
+function fallback_avis(): array
+{
+    return load_content('avis', []);
+}
+
+/** Étoiles pleines/vides pour une note 0-5 (même logique que google-reviews.js côté client). */
+function avis_star_string(int $rating): string
+{
+    $r = max(0, min(5, $rating));
+    return str_repeat('★', $r) . str_repeat('☆', 5 - $r);
+}
+
 /** Titre/description SEO d'une réalisation : valeur saisie, sinon suggestion automatique. */
 function realisation_meta_title(array $r): string
 {

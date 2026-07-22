@@ -216,21 +216,13 @@ $extraJsonLd = '<script type="application/ld+json">' . json_encode([
       </div>
     </div>
     <div class="mn-grid-3" style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:28px;margin-top:56px" data-mn-reviews-grid>
-      <blockquote data-mn-reveal class="quote-card">
-        <div class="quote-card__stars" aria-hidden="true">★★★★★</div>
-        <p class="quote-card__text">« Un chantier d'une propreté irréprochable et des murs parfaitement tendus. On sent le souci du détail à chaque étape. »</p>
-        <footer class="quote-card__meta">Claire M. — Écully <span>· il y a 2 mois</span></footer>
-      </blockquote>
-      <blockquote data-mn-reveal class="quote-card">
-        <div class="quote-card__stars" aria-hidden="true">★★★★★</div>
-        <p class="quote-card__text">« Des conseils de teintes remarquables : la pièce a changé d'âme. Délais tenus, équipe discrète et précise. »</p>
-        <footer class="quote-card__meta">Bruno T. — Tassin-la-Demi-Lune <span>· il y a 4 mois</span></footer>
-      </blockquote>
-      <blockquote data-mn-reveal class="quote-card">
-        <div class="quote-card__stars" aria-hidden="true">★★★★★</div>
-        <p class="quote-card__text">« Le béton ciré de notre salle d'eau est magnifique, la finition est digne d'un hôtel. Nous recommandons sans réserve. »</p>
-        <footer class="quote-card__meta">Sophie L. — Villefranche <span>· il y a 6 mois</span></footer>
-      </blockquote>
+      <?php foreach (array_slice(fallback_avis(), 0, 3) as $item): ?>
+        <blockquote data-mn-reveal class="quote-card">
+          <div class="quote-card__stars" aria-hidden="true"><?= avis_star_string((int) ($item['rating'] ?? 5)) ?></div>
+          <p class="quote-card__text">« <?= htmlspecialchars($item['text'] ?? '') ?> »</p>
+          <footer class="quote-card__meta"><?= htmlspecialchars($item['author_name'] ?? '') ?> — <?= htmlspecialchars($item['commune'] ?? '') ?> <span>· <?= htmlspecialchars($item['relative_time'] ?? '') ?></span></footer>
+        </blockquote>
+      <?php endforeach; ?>
     </div>
     <div data-mn-reveal style="text-align:center;margin-top:48px">
       <a class="link-underline" href="/avis">VOIR TOUS LES AVIS →</a>
