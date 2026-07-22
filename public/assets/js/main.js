@@ -43,6 +43,20 @@
         window.location.href = href;
       }, 900);
     }, true);
+
+    // Retour au clavier/geste "précédent" du navigateur : quand la page est
+    // restaurée depuis le bfcache (back/forward cache), le DOM réapparaît
+    // exactement tel qu'il était figé au moment de la navigation — donc
+    // avec le voile de sortie encore totalement opaque (page qui semblait
+    // "blanche"), puisqu'aucun script ne se relance pour l'enlever. Le seul
+    // signal fiable pour ce cas est l'évènement pageshow avec persisted=true.
+    window.addEventListener('pageshow', function (e) {
+      if (!e.persisted) return;
+      leaving = false;
+      document.querySelectorAll('.mn-veil').forEach(function (el) {
+        el.remove();
+      });
+    });
   }
 
   /* ---------- Révélation au scroll + esperluettes ---------- */
