@@ -86,8 +86,10 @@ $values = $existing ?? [
     'id' => '', 'title' => '', 'ville' => '', 'description' => '', 'prestations' => '',
     'tags' => '', 'date' => '', 'fallback_slot' => '', 'image_main' => '', 'gallery' => [],
     'avant' => '', 'apres' => '', 'meta_title' => '', 'meta_description' => '',
-    'image_main_alt' => '', 'avant_alt' => '', 'apres_alt' => '',
+    'image_main_alt' => '', 'avant_alt' => '', 'apres_alt' => '', 'type_bien' => '',
 ];
+// Compat : réalisations créées avant l'ajout du champ "Type de bien"
+$values['type_bien'] = $values['type_bien'] ?? '';
 // Compat : anciennes galeries stockées comme simples noms de fichiers
 foreach ($values['gallery'] as $gi => $g) {
     if (is_string($g)) {
@@ -100,6 +102,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     $values['title'] = clean_text((string) ($_POST['title'] ?? ''), 140);
     $values['ville'] = clean_text((string) ($_POST['ville'] ?? ''), 120);
+    $values['type_bien'] = clean_text((string) ($_POST['type_bien'] ?? ''), 40);
     $values['description'] = clean_text((string) ($_POST['description'] ?? ''), 3000);
     $values['prestations'] = clean_text((string) ($_POST['prestations'] ?? ''), 160);
     $values['tags'] = clean_text((string) ($_POST['tags'] ?? ''), 160);
@@ -115,6 +118,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
     if ($values['ville'] === '') {
         $errors[] = 'La ville est obligatoire.';
+    }
+    // Obligatoire uniquement à la création : une réalisation existante créée
+    // avant l'ajout de ce champ reste éditable pour toute autre raison sans
+    // être bloquée tant que son type de bien n'a pas encore été choisi.
+    if ($isNew && !in_array($values['type_bien'], realisation_type_bien_options(), true)) {
+        $errors[] = 'Le type de bien est obligatoire.';
     }
 
     // Slug / URL : personnalisable, unique
@@ -274,6 +283,22 @@ function render_raw_prompt(string $field, array $pending, string $csrf): void
       <div class="field">
         <label for="ville">Ville *</label>
         <input type="text" id="ville" name="ville" value="<?= htmlspecialchars($values['ville']) ?>" required placeholder="Tassin-la-Demi-Lune">
+      </div>
+    </div>
+    <div class="field">
+      <label for="type_bien">Type de bien <?= $isNew ? '*' : '' ?></label>
+      <select id="type_bien" name="type_bien" <?= $isNew ? 'required' : '' ?> style="max-width:320px">
+        <option value="" <?= $values['type_bien'] === '' ? 'selected' : '' ?> <?= $isNew ? 'disabled' : '' ?>>Choisir…</option>
+        <?php foreach (realisation_type_bien_options() as $option): ?>
+          <option value="<?= htmlspecialchars($option) ?>" <?= $values['type_bien'] === $option ? 'selected' : '' ?>><?= htmlspecialchars($option) ?></option>
+        <?php endforeach; ?>
+      </select>
+      <div class="help">
+        <?php if (!$isNew && $values['type_bien'] === ''): ?>
+          Pas encore renseigné pour cette réalisation créée avant l'ajout de ce champ — choisissez une valeur dès que possible.
+        <?php else: ?>
+          Liste fixe pour garder des intitulés homogènes sur tout le site.
+        <?php endif; ?>
       </div>
     </div>
     <div class="field-row">

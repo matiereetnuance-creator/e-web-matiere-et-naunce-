@@ -81,6 +81,7 @@ $extraJsonLd = '<script type="application/ld+json">' . json_encode($jsonLd, JSON
     <h1 class="mn-h1" data-mn-reveal style="font:400 62px/1.1 'Instrument Serif',serif;color:#2b2926;margin:26px 0 0;max-width:900px;font-weight:400;text-wrap:balance"><?= htmlspecialchars($r['title'] ?? '') ?></h1>
     <div data-mn-reveal style="display:flex;gap:22px;flex-wrap:wrap;align-items:center;margin-top:20px;font:500 12px 'Instrument Sans',sans-serif;letter-spacing:.1em;color:#8a7a63">
       <span><?= htmlspecialchars($r['ville'] ?? '') ?></span>
+      <?php if (!empty($r['type_bien'])): ?><span style="color:#a6947c">·</span><span>Type de bien : <?= htmlspecialchars($r['type_bien']) ?></span><?php endif; ?>
       <?php if (!empty($r['prestations'])): ?><span class="pill-like" style="color:#a6947c">·</span><span><?= htmlspecialchars($r['prestations']) ?></span><?php endif; ?>
       <?php if (!empty($r['date'])): ?><span style="color:#a6947c">·</span><span><?= htmlspecialchars(date('m/Y', strtotime($r['date']))) ?></span><?php endif; ?>
     </div>

@@ -831,6 +831,29 @@ function avis_star_string(int $rating): string
     return str_repeat('★', $r) . str_repeat('☆', 5 - $r);
 }
 
+/**
+ * Vocabulaire fermé pour le champ "Type de bien" d'une réalisation — une
+ * liste déroulante plutôt qu'un texte libre, pour des intitulés homogènes
+ * sur tout le site (pas de "Maison" / "maison" / "Maison individuelle").
+ * Source unique réutilisée par le formulaire admin et sa validation.
+ *
+ * @return string[]
+ */
+function realisation_type_bien_options(): array
+{
+    return [
+        'Maison individuelle',
+        'Appartement',
+        'Commerce',
+        'Bureau',
+        'Cabinet médical',
+        'Restaurant',
+        'Hôtel',
+        'Local professionnel',
+        'Autre',
+    ];
+}
+
 /** Titre/description SEO d'une réalisation : valeur saisie, sinon suggestion automatique. */
 function realisation_meta_title(array $r): string
 {
