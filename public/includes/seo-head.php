@@ -10,14 +10,17 @@ declare(strict_types=1);
  *   $ogImage             (string, optionnel) URL absolue de l'image OG (sinon og-cover.png)
  *   $extraJsonLd         (string, optionnel) bloc(s) <script type="application/ld+json"> supplémentaires, déjà formatés
  *   $robots               (string, optionnel) contenu de la balise meta robots (défaut "index, follow")
+ *   $title, $description (string, optionnels) forcent le titre/la description au lieu de seo.json[$pageKey]
+ *                         (utilisé par les pages dont le contenu est dynamique, ex. realisation.php)
+ *   $ogType               (string, optionnel) balise og:type (défaut "website")
  */
 require_once __DIR__ . '/../api/lib/content.php';
 
 $siteUrl = 'https://www.matiereetnuance.fr';
 $seoAll = load_content('seo', []);
 $seo = $seoAll[$pageKey] ?? [];
-$title = $seo['title'] ?? ($pageKey . ' | Matière & Nuance');
-$description = $seo['description'] ?? '';
+$title = $title ?? ($seo['title'] ?? ($pageKey . ' | Matière & Nuance'));
+$description = $description ?? ($seo['description'] ?? '');
 $ogTitle = $seo['og_title'] ?? $title;
 $ogDescription = $seo['og_description'] ?? $description;
 $canonical = $siteUrl . '/' . ltrim($canonicalPath ?? '', '/');
@@ -27,6 +30,7 @@ if (($canonicalPath ?? '') === '') {
 }
 $ogImage = $ogImage ?? ($siteUrl . '/assets/img/og-cover.png');
 $robots = $robots ?? 'index, follow';
+$ogType = $ogType ?? 'website';
 // style.css est servi avec Cache-Control: immutable (1 an) par .htaccess :
 // sans ce paramètre de version, un navigateur ayant déjà visité le site
 // pourrait continuer à servir l'ancienne feuille de style pendant un an
@@ -40,7 +44,7 @@ $cssVersion = @filemtime(__DIR__ . '/../assets/css/style.css') ?: time();
 <link rel="canonical" href="<?= htmlspecialchars($canonical) ?>">
 <meta name="robots" content="<?= htmlspecialchars($robots) ?>">
 <meta name="theme-color" content="#f7f3ec">
-<meta property="og:type" content="website">
+<meta property="og:type" content="<?= htmlspecialchars($ogType) ?>">
 <meta property="og:site_name" content="Matière &amp; Nuance">
 <meta property="og:locale" content="fr_FR">
 <meta property="og:title" content="<?= htmlspecialchars($ogTitle) ?>">

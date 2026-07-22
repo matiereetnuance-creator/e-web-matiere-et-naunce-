@@ -28,11 +28,14 @@ $caption = trim(($r['title'] ?? '') . ' — ' . ($r['ville'] ?? ''));
 $mainAlt = $r['image_main_alt'] ?: suggest_alt($r['title'] ?? '', $r['ville'] ?? '');
 $hasBeforeAfter = !empty($r['avant']) && !empty($r['apres']);
 
-$pageKey = '__realisation__'; // non utilisé : on construit le head manuellement ci-dessous
+$pageKey = 'realisation'; // ne correspond à aucune clé de seo.json : $title/$description ci-dessous priment (voir includes/seo-head.php)
 $canonicalPath = 'realisations/' . $r['id'];
 $metaTitle = realisation_meta_title($r);
 $metaDescription = realisation_meta_description($r);
 $ogImage = 'https://www.matiereetnuance.fr/' . realisation_main_image_url($r);
+$title = $metaTitle;
+$description = $metaDescription;
+$ogType = 'article';
 
 $jsonLd = [
     '@context' => 'https://schema.org',
@@ -61,38 +64,13 @@ $extraJsonLd = '<script type="application/ld+json">' . json_encode($jsonLd, JSON
 ?><!DOCTYPE html>
 <html lang="fr">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title><?= htmlspecialchars($metaTitle) ?></title>
-<meta name="description" content="<?= htmlspecialchars($metaDescription) ?>">
-<link rel="canonical" href="https://www.matiereetnuance.fr/realisations/<?= htmlspecialchars($r['id']) ?>">
-<meta name="robots" content="index, follow">
-<meta name="theme-color" content="#f7f3ec">
-<meta property="og:type" content="article">
-<meta property="og:site_name" content="Matière &amp; Nuance">
-<meta property="og:locale" content="fr_FR">
-<meta property="og:title" content="<?= htmlspecialchars($metaTitle) ?>">
-<meta property="og:description" content="<?= htmlspecialchars($metaDescription) ?>">
-<meta property="og:url" content="https://www.matiereetnuance.fr/realisations/<?= htmlspecialchars($r['id']) ?>">
-<meta property="og:image" content="<?= htmlspecialchars($ogImage) ?>">
-<meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="<?= htmlspecialchars($metaTitle) ?>">
-<meta name="twitter:description" content="<?= htmlspecialchars($metaDescription) ?>">
-<meta name="twitter:image" content="<?= htmlspecialchars($ogImage) ?>">
-<link rel="icon" type="image/svg+xml" href="/assets/favicon.svg">
-<link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32.png">
-<link rel="apple-touch-icon" sizes="180x180" href="/assets/favicon-180.png">
-<link rel="preload" href="/assets/fonts/instrument-sans-latin.woff2" as="font" type="font/woff2" crossorigin>
-<link rel="preload" href="/assets/fonts/instrument-serif-latin.woff2" as="font" type="font/woff2" crossorigin>
-<link rel="stylesheet" href="/assets/css/style.css?v=<?= @filemtime(__DIR__ . '/assets/css/style.css') ?: time() ?>">
-<?php require __DIR__ . '/includes/analytics.php'; ?>
-<?= $extraJsonLd ?>
+<?php require __DIR__ . '/includes/seo-head.php'; ?>
 </head>
 <body>
 
 <?php $activePage = 'realisations'; require __DIR__ . '/includes/nav.php'; ?>
 
-<main>
+<main id="main-content">
 
 <header style="padding:110px 64px 50px">
   <div class="container" style="padding:0;max-width:1280px">

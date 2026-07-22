@@ -26,7 +26,7 @@ if ($phoneTel !== '' && $phoneTel[0] === '0') {
 
 <?php $activePage = 'contact'; require __DIR__ . '/includes/nav.php'; ?>
 
-<main>
+<main id="main-content">
 
 <header style="padding:110px 64px 70px">
   <div class="container" style="padding:0;max-width:1280px">

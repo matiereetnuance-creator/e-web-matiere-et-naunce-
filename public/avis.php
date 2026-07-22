@@ -28,7 +28,7 @@ $extraJsonLd = '<script type="application/ld+json">' . json_encode([
 
 <?php $activePage = 'avis'; require __DIR__ . '/includes/nav.php'; ?>
 
-<main>
+<main id="main-content">
 
 <header style="padding:110px 64px 80px">
   <div class="container" style="padding:0;max-width:1280px;display:flex;justify-content:space-between;align-items:flex-end;gap:40px;flex-wrap:wrap">

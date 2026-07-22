@@ -49,6 +49,14 @@
       prevBtn = overlay.querySelector('[data-mn-lb-prev]');
       nextBtn = overlay.querySelector('[data-mn-lb-next]');
 
+      // Une seule photo : navigation et compteur n'ont pas d'utilité —
+      // les masquer évite des contrôles focusables qui ne feraient rien.
+      if (items.length < 2) {
+        prevBtn.hidden = true;
+        nextBtn.hidden = true;
+        counterEl.hidden = true;
+      }
+
       overlay.addEventListener('click', function (e) {
         if (e.target === overlay) close();
       });
@@ -67,7 +75,7 @@
     }
 
     function trapFocus(e) {
-      var focusables = [closeBtn, prevBtn, nextBtn];
+      var focusables = [closeBtn, prevBtn, nextBtn].filter(function (b) { return !b.hidden; });
       var first = focusables[0];
       var last = focusables[focusables.length - 1];
       if (e.shiftKey && document.activeElement === first) {

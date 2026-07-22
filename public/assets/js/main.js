@@ -246,10 +246,12 @@
     function open() {
       menu.classList.add('is-open');
       document.body.style.overflow = 'hidden';
+      burger.setAttribute('aria-expanded', 'true');
     }
     function close() {
       menu.classList.remove('is-open');
       document.body.style.overflow = '';
+      burger.setAttribute('aria-expanded', 'false');
     }
     burger.addEventListener('click', open);
     if (closeBtn) closeBtn.addEventListener('click', close);

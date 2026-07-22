@@ -96,6 +96,13 @@ button{font-family:var(--font-sans)}
 .mn-veil{position:fixed;inset:0;background:var(--cream);z-index:999;pointer-events:none;opacity:1;transition:opacity 1.5s ease}
 .mn-veil.mn-veil-out{transition:opacity .9s ease}
 
+/* ============ Accessibilité : lien d'évitement ============ */
+/* Hors écran tant qu'il n'a pas le focus clavier (Tab) ; devient visible
+   au-dessus de la navigation pour permettre d'atteindre le contenu
+   principal sans retraverser tous les liens du menu à chaque page. */
+.mn-skip-link{position:absolute;top:-48px;left:14px;z-index:999;background:var(--ink);color:var(--cream);font:500 12.5px var(--font-sans);letter-spacing:.06em;padding:12px 20px;border-radius:0 0 6px 6px;transition:top .2s ease}
+.mn-skip-link:focus{top:0;outline:2px solid var(--gold);outline-offset:2px}
+
 /* ============ Nav ============ */
 .mn-nav{position:sticky;top:0;z-index:50;display:flex;justify-content:space-between;align-items:center;padding:26px 64px;background:rgba(247,243,236,.92);backdrop-filter:blur(10px);border-bottom:1px solid var(--border)}
 .mn-nav__logo{height:44px;width:auto;display:block}

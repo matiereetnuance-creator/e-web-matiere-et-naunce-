@@ -59,7 +59,7 @@ $extraJsonLd = '<script type="application/ld+json">' . json_encode([
 
 <?php $activePage = ''; require __DIR__ . '/includes/nav.php'; ?>
 
-<main>
+<main id="main-content">
 
 <!-- ======================= HERO ======================= -->
 <header id="hero" class="mn-hero" style="position:relative;padding:96px 64px 88px;overflow:hidden">

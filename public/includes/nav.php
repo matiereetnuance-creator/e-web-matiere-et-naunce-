@@ -11,6 +11,7 @@ $navClass = static function (string $key) use ($activePage): string {
     return $activePage === $key ? 'is-active' : '';
 };
 ?>
+<a class="mn-skip-link" href="#main-content">Aller au contenu principal</a>
 <nav class="mn-nav" aria-label="Navigation principale">
   <a href="/" aria-label="Retour à l'accueil Matière &amp; Nuance"><img class="mn-nav__logo" src="/assets/img/logo-noir.png" alt="Matière &amp; Nuance" width="230" height="52"></a>
   <div class="mn-nav__links mn-nav__links--desktop">
@@ -27,11 +28,11 @@ $navClass = static function (string $key) use ($activePage): string {
     <a href="<?= htmlspecialchars($instagram) ?>" target="_blank" rel="noopener" aria-label="Instagram" style="display:flex;align-items:center;color:#2b2926;padding:8px">
       <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2.5" y="2.5" width="19" height="19" rx="5.5"></rect><circle cx="12" cy="12" r="4.2"></circle><circle cx="17.4" cy="6.6" r="1.1" fill="currentColor" stroke="none"></circle></svg>
     </a>
-    <button class="mn-burger" data-mn-burger aria-label="Ouvrir le menu"><span></span><span></span><span></span></button>
+    <button class="mn-burger" data-mn-burger aria-label="Ouvrir le menu" aria-expanded="false" aria-controls="mn-mobile-menu"><span></span><span></span><span></span></button>
   </div>
 </nav>
 
-<div class="mn-mobile-menu" data-mn-mobile-menu>
+<div class="mn-mobile-menu" id="mn-mobile-menu" data-mn-mobile-menu>
   <div style="display:flex;justify-content:space-between;align-items:center">
     <img src="/assets/img/logo-noir.png" alt="Matière &amp; Nuance" style="height:36px">
     <button data-mn-close aria-label="Fermer" style="background:none;border:none;cursor:pointer;font:400 26px 'Instrument Serif',serif;color:#2b2926;padding:6px 10px">×</button>
