@@ -12,6 +12,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     admin_csrf_check();
     $email = clean_text((string) ($_POST['contact_recipient'] ?? ''), 200);
     $instagram = clean_text((string) ($_POST['instagram_url'] ?? ''), 300);
+    $googleReviewsUrl = clean_text((string) ($_POST['google_reviews_url'] ?? ''), 300);
 
     if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
         $errors[] = "L'adresse e-mail de réception n'est pas valide.";
@@ -19,10 +20,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if ($instagram !== '' && !filter_var($instagram, FILTER_VALIDATE_URL)) {
         $errors[] = "Le lien Instagram n'est pas une URL valide.";
     }
+    if ($googleReviewsUrl !== '' && !filter_var($googleReviewsUrl, FILTER_VALIDATE_URL)) {
+        $errors[] = "L'URL des avis Google n'est pas valide.";
+    }
 
     if (!$errors) {
         $settings['contact_recipient'] = $email;
         $settings['instagram_url'] = $instagram;
+        $settings['google_reviews_url'] = $googleReviewsUrl;
         save_content('settings', $settings);
         $_SESSION['flash'] = ['type' => 'ok', 'message' => 'Réglages enregistrés.'];
         header('Location: parametres.php');
@@ -56,6 +61,15 @@ require __DIR__ . '/includes/header.php';
       <input type="text" id="instagram_url" name="instagram_url" value="<?= htmlspecialchars($settings['instagram_url'] ?? '') ?>" placeholder="https://www.instagram.com/matiere_et_nuance">
     </div>
     <div class="help">Le design validé n'a une icône que pour Instagram, dans l'en-tête et le pied de page. Ajouter d'autres réseaux visibles nécessitera un court passage par le design avant de les intégrer ici.</div>
+  </div>
+
+  <div class="card">
+    <h2>Avis Google</h2>
+    <div class="field">
+      <label for="google_reviews_url">URL des avis Google</label>
+      <input type="text" id="google_reviews_url" name="google_reviews_url" value="<?= htmlspecialchars($settings['google_reviews_url'] ?? '') ?>" placeholder="https://g.page/r/votre-fiche/review">
+    </div>
+    <div class="help">Utilisée par le bouton « Voir tous les avis Google » sur le site. Renseignez ici le lien exact de votre fiche (copié depuis Google Maps ou votre fiche Google Business Profile) pour le contrôler vous-même. Laissez vide pour revenir au lien détecté automatiquement (synchronisation Google, menu « Avis Google ») si elle est configurée.</div>
   </div>
 
   <div class="btn-row">

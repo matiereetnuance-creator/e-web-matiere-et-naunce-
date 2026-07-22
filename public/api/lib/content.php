@@ -734,7 +734,12 @@ function avis_display_snapshot(array $textes): array
     $scoreRaw = isset($snapshot['rating']) ? (float) $snapshot['rating'] : null;
     $countRaw = isset($snapshot['total']) ? (int) $snapshot['total'] : null;
 
-    $googleUrl = $snapshot['google_url'] ?? null;
+    // Priorité : lien saisi manuellement dans l'admin (Réglages) — contrôle
+    // total et immédiat pour le client — puis la synchronisation Google
+    // (Mission 2) si configurée, puis un lien construit depuis le Place ID,
+    // sinon aucun (le gabarit appelant applique alors son propre repli).
+    $settings = load_content('settings', []);
+    $googleUrl = !empty($settings['google_reviews_url']) ? $settings['google_reviews_url'] : ($snapshot['google_url'] ?? null);
     if ($googleUrl === null) {
         $config = require __DIR__ . '/../config.php';
         $placeId = $config['google_place_id'] ?? '';
