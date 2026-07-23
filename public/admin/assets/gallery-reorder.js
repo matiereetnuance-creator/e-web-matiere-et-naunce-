@@ -67,6 +67,11 @@
       if (!handle) return;
       dragEl = handle.closest('[data-mn-gallery-item]');
       if (!dragEl) return;
+      // Au toucher, empêche le navigateur de démarrer son propre geste de
+      // défilement sur la poignée dès l'appui — touch-action:none (CSS)
+      // seul suffit dans la plupart des cas, mais certains navigateurs
+      // mobiles n'arbitrent correctement qu'avec ce preventDefault explicite.
+      if (e.pointerType === 'touch') e.preventDefault();
       startX = e.clientX;
       startY = e.clientY;
       dragging = false;

@@ -400,7 +400,12 @@ function render_raw_prompt(string $field, array $pending, string $csrf): void
       <div class="gallery-grid" data-mn-gallery-grid>
         <?php foreach ($values['gallery'] as $g): ?>
           <div style="text-align:center;font-size:11px;width:110px" data-mn-gallery-item data-mn-gallery-file="<?= htmlspecialchars($g['file']) ?>">
-            <img data-mn-gallery-handle src="<?= htmlspecialchars(realisation_thumb_url($values['id'], $g['file'])) ?>" alt="" style="width:110px;height:76px">
+            <div class="gallery-grid__handle" data-mn-gallery-handle>
+              <img src="<?= htmlspecialchars(realisation_thumb_url($values['id'], $g['file'])) ?>" alt="" style="width:110px;height:76px">
+              <span class="gallery-grid__grip" aria-hidden="true">
+                <svg width="12" height="12" viewBox="0 0 12 12" fill="currentColor"><circle cx="3" cy="2" r="1.3"/><circle cx="9" cy="2" r="1.3"/><circle cx="3" cy="6" r="1.3"/><circle cx="9" cy="6" r="1.3"/><circle cx="3" cy="10" r="1.3"/><circle cx="9" cy="10" r="1.3"/></svg>
+              </span>
+            </div>
             <input type="text" name="gallery_alt[<?= htmlspecialchars($g['file']) ?>]" value="<?= htmlspecialchars($g['alt']) ?>" placeholder="Texte alternatif" style="width:100%;margin-top:4px;padding:4px 6px;font-size:11px">
             <label style="display:block;margin-top:4px"><input type="checkbox" name="remove_gallery[]" value="<?= htmlspecialchars($g['file']) ?>"> retirer</label>
           </div>

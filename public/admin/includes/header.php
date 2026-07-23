@@ -80,10 +80,16 @@ tr:last-child td{border-bottom:none}
 .dropzone input{display:none}
 .gallery-grid{display:flex;flex-wrap:wrap;gap:10px;margin-top:10px}
 .gallery-grid img{width:88px;height:64px;object-fit:cover;border-radius:6px;border:1px solid var(--line)}
-.gallery-grid [data-mn-gallery-handle]{cursor:grab;touch-action:none;-webkit-user-drag:none;user-drag:none}
-.gallery-grid [data-mn-gallery-item]{transition:opacity .15s}
-.gallery-grid [data-mn-gallery-item].is-dragging{opacity:.45;cursor:grabbing}
-.gallery-grid [data-mn-gallery-item].is-dragging [data-mn-gallery-handle]{cursor:grabbing}
+/* Poignée de glisser-déposer : toute la tuile (pas seulement les pixels de
+   la vignette) est saisissable, pour que le geste reste fiable même si le
+   clic/toucher tombe légèrement à côté de l'image — zone tactile fine
+   (110×76) sinon trop étroite pour un déplacement naturel au doigt. */
+.gallery-grid__handle{position:relative;display:block;cursor:grab;touch-action:none;-webkit-user-drag:none;user-drag:none;border-radius:6px;overflow:hidden;transition:transform .18s cubic-bezier(.22,1,.36,1),box-shadow .18s}
+.gallery-grid__handle img{display:block;pointer-events:none;border-radius:6px}
+.gallery-grid__grip{position:absolute;top:4px;right:4px;width:20px;height:20px;border-radius:5px;background:rgba(255,255,255,.88);color:var(--accent-dark);display:flex;align-items:center;justify-content:center;opacity:.8;box-shadow:0 1px 3px rgba(43,41,38,.18);pointer-events:none}
+.gallery-grid [data-mn-gallery-item]{transition:opacity .18s}
+.gallery-grid [data-mn-gallery-item].is-dragging{opacity:.92}
+.gallery-grid [data-mn-gallery-item].is-dragging .gallery-grid__handle{cursor:grabbing;transform:scale(1.06);box-shadow:0 10px 20px -6px rgba(43,41,38,.4)}
 .empty{color:var(--ink-soft);font-size:13.5px;padding:20px 0;text-align:center}
 .stat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:18px;margin-top:4px}
 .stat-tile{background:var(--bg);border:1px solid var(--line);border-radius:var(--radius);padding:26px 24px}
