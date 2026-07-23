@@ -1,0 +1,65 @@
+<?php
+declare(strict_types=1);
+/**
+ * En-tête <head> commun : SEO éditable depuis l'admin (api/data/content/seo.json),
+ * favicon, polices, feuille de style. Inclus par chaque page publique.
+ *
+ * Variables attendues avant l'include :
+ *   $pageKey            (string) clé dans seo.json : home | savoir-faire | realisations | entreprise | avis | contact
+ *   $canonicalPath       (string) chemin après le domaine, ex. '' pour l'accueil, 'contact' pour /contact
+ *   $ogImage             (string, optionnel) URL absolue de l'image OG (sinon og-cover.png)
+ *   $extraJsonLd         (string, optionnel) bloc(s) <script type="application/ld+json"> supplémentaires, déjà formatés
+ *   $robots               (string, optionnel) contenu de la balise meta robots (défaut "index, follow")
+ *   $title, $description (string, optionnels) forcent le titre/la description au lieu de seo.json[$pageKey]
+ *                         (utilisé par les pages dont le contenu est dynamique, ex. realisation.php)
+ *   $ogType               (string, optionnel) balise og:type (défaut "website")
+ */
+require_once __DIR__ . '/../api/lib/content.php';
+
+$siteUrl = 'https://www.matiereetnuance.fr';
+$seoAll = load_content('seo', []);
+$seo = $seoAll[$pageKey] ?? [];
+$title = $title ?? ($seo['title'] ?? ($pageKey . ' | Matière & Nuance'));
+$description = $description ?? ($seo['description'] ?? '');
+$ogTitle = $seo['og_title'] ?? $title;
+$ogDescription = $seo['og_description'] ?? $description;
+$canonical = $siteUrl . '/' . ltrim($canonicalPath ?? '', '/');
+$canonical = rtrim($canonical, '/');
+if (($canonicalPath ?? '') === '') {
+    $canonical .= '/';
+}
+$ogImage = $ogImage ?? ($siteUrl . '/assets/img/og-cover.png');
+$robots = $robots ?? 'index, follow';
+$ogType = $ogType ?? 'website';
+// style.css est servi avec Cache-Control: immutable (1 an) par .htaccess :
+// sans ce paramètre de version, un navigateur ayant déjà visité le site
+// pourrait continuer à servir l'ancienne feuille de style pendant un an
+// après toute modification, quel que soit le contenu réellement déployé.
+$cssVersion = @filemtime(__DIR__ . '/../assets/css/style.css') ?: time();
+?>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title><?= htmlspecialchars($title) ?></title>
+<meta name="description" content="<?= htmlspecialchars($description) ?>">
+<link rel="canonical" href="<?= htmlspecialchars($canonical) ?>">
+<meta name="robots" content="<?= htmlspecialchars($robots) ?>">
+<meta name="theme-color" content="#f7f3ec">
+<meta property="og:type" content="<?= htmlspecialchars($ogType) ?>">
+<meta property="og:site_name" content="Matière &amp; Nuance">
+<meta property="og:locale" content="fr_FR">
+<meta property="og:title" content="<?= htmlspecialchars($ogTitle) ?>">
+<meta property="og:description" content="<?= htmlspecialchars($ogDescription) ?>">
+<meta property="og:url" content="<?= htmlspecialchars($canonical) ?>">
+<meta property="og:image" content="<?= htmlspecialchars($ogImage) ?>">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="<?= htmlspecialchars($ogTitle) ?>">
+<meta name="twitter:description" content="<?= htmlspecialchars($ogDescription) ?>">
+<meta name="twitter:image" content="<?= htmlspecialchars($ogImage) ?>">
+<link rel="icon" type="image/svg+xml" href="/assets/favicon.svg">
+<link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/assets/favicon-180.png">
+<link rel="preload" href="/assets/fonts/instrument-sans-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="/assets/fonts/instrument-serif-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="/assets/css/style.css?v=<?= $cssVersion ?>">
+<?php require __DIR__ . '/analytics.php'; ?>
+<?php if (!empty($extraJsonLd)) { echo $extraJsonLd; } ?>

@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 800" role="img" aria-label="Plâtrerie — volume en cours">
+  <defs>
+    <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#eee8db"/>
+      <stop offset="1" stop-color="#ded2b8"/>
+    </linearGradient>
+    <pattern id="p" width="42" height="42" patternTransform="rotate(45)" patternUnits="userSpaceOnUse">
+      <line x1="0" y1="0" x2="0" y2="42" stroke="#c8b394" stroke-opacity="0.18" stroke-width="1"/>
+    </pattern>
+  </defs>
+  <rect width="1200" height="800" fill="url(#g)"/>
+  <rect width="1200" height="800" fill="url(#p)"/>
+  <g transform="translate(600,368)" text-anchor="middle">
+    <text y="0" font-family="Georgia, 'Times New Roman', serif" font-style="italic" font-size="64" fill="#a6947c">&amp;</text>
+  </g>
+  <g transform="translate(600,460)" text-anchor="middle">
+    <text y="0" font-family="Georgia, 'Times New Roman', serif" font-size="34" fill="#2b2926">Plâtrerie</text>
+    <text y="38" font-family="Arial, sans-serif" font-size="15" letter-spacing="2" fill="#8a7a63">VOLUME EN COURS</text>
+  </g>
+</svg>
