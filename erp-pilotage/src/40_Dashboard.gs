@@ -94,7 +94,7 @@ function buildDashboardGraphiques_(sheet) {
     .setPosition(DASHBOARD_CHART_ROW, colStartRepartition, 0, 0)
     .setOption('title', 'Répartition des charges fixes')
     .setOption('pieHole', 0.5)
-    .setOption('colors', [COLORS.ACCENT, COLORS.INK, COLORS.INK_MUTED, '#ded2ba', '#8f8577', '#d8cdb8', '#a89a7d', '#c4b8a0', '#736a5c', '#efe9dd'])
+    .setOption('colors', CHART_CATEGORY_COLORS)
     .setOption('width', tailleRepartition.width)
     .setOption('height', tailleRepartition.height)
     .setOption('backgroundColor', COLORS.WHITE)

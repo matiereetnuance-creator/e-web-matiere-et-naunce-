@@ -11,6 +11,8 @@ function onOpen() {
     .addItem('🔄 Actualiser les listes déroulantes', 'actualiserListes')
     .addItem('✅ Vérifier la structure Chantiers', 'verifierStructureChantiers')
     .addSeparator()
+    .addItem('🆕 Nouvel exercice…', 'assistantNouvelExercice')
+    .addSeparator()
     .addItem('🛠️ Installer / Réinitialiser la structure ERP', 'confirmerEtInstaller')
     .addToUi();
 }

@@ -35,6 +35,7 @@ erp-pilotage/
     ├── 40_Dashboard.gs
     ├── 50_Previsionnel.gs
     ├── 60_Analyse.gs
+    ├── 85_NouvelExercice.gs  Assistant "Nouvel exercice" (nouveau fichier par année)
     └── 99_Installation.gs    Orchestration de l'installation complète
 ```
 
@@ -126,11 +127,9 @@ formules, les validations et les protections sont reconstruites.
   produit Google, pas une police de document disponible via
   `setFontFamily()`) ; Roboto est la police Google réellement
   disponible dans Sheets la plus proche visuellement.
-- **Couleur d'accent** : le doré `#c8b394` utilisé pour l'esperluette
-  du logo Matière & Nuance sur le site public (`--gold` dans
-  `public/assets/css/style.css`), repris ici en attendant la couleur
-  officielle exacte de la charte — **à remplacer dans `COLORS.ACCENT`
-  (`00_Constantes.gs`) dès qu'elle est fournie.**
+- **Couleur d'accent** : le doré `#c8b394` (`--gold` du site public),
+  **confirmé par le client comme couleur d'accent définitive** — ce
+  n'est plus une valeur d'attente.
 - **Taille des graphiques** : calculée à l'installation à partir de la
   géométrie réelle de leur ancrage (somme des largeurs de colonnes et
   hauteurs de lignes couvertes, `computeChartSize_()` dans
@@ -140,7 +139,10 @@ formules, les validations et les protections sont reconstruites.
   réadapte à chaque réinstallation, pas en continu à l'écran.
 - **Plage de saisie Charges** étendue à 1000 lignes (`CHARGES_LAST_DATA_ROW`).
 - **Mapping Chantiers configurable sans toucher au code** : voir la
-  section dédiée ci-dessus et `ARCHITECTURE.md` §7.
+  section dédiée ci-dessus et `ARCHITECTURE.md` §8.
+- **Catégories de charges** : liste définitive validée par le client —
+  Véhicules, Assurances, Administration, Logiciels, Personnel, Autres
+  (`PARAM_LISTES.CATEGORIES` dans `00_Constantes.gs`).
 - **Cellules calculées protégées** en mode "avertissement" (l'édition
   reste possible en cas de besoin réel, mais un message prévient
   qu'il s'agit d'une cellule calculée) plutôt qu'un verrouillage dur
@@ -159,12 +161,39 @@ formules, les validations et les protections sont reconstruites.
   et réutilisée telle quelle pour le graphique "Charges par catégorie"
   de Analyse, afin d'éviter de dupliquer le même calcul.
 
+## Nouvel exercice (menu Pilotage ▸ 🆕 Nouvel exercice…)
+
+Le modèle retenu est **un fichier Google Sheets par exercice**. Le menu
+**Pilotage ▸ Nouvel exercice…** (`85_NouvelExercice.gs`) :
+
+1. Ne modifie **jamais** le fichier actuel.
+2. Crée une copie complète du classeur (`Spreadsheet.copy()` — qui
+   duplique déjà tout : feuilles, formules, plages nommées, graphiques,
+   protections) pour l'exercice suivant.
+3. Dans cette copie uniquement, ajuste ce qui doit changer d'une année
+   sur l'autre :
+   - `Exercice`, `Date début`, `Date fin` → avancés à l'année suivante ;
+   - `Objectif CA HT` → remis à zéro (à ressaisir) ;
+   - `Objectif Marge`, `Salaire mensuel souhaité`, mapping Chantiers
+     (B12:B15) → **conservés tels quels** ;
+   - `Chantiers` → lignes de données vidées (nouvelle liste de
+     chantiers pour la nouvelle année), en-tête et mise en forme
+     intacts ;
+   - `Charges` → **conservées telles quelles** (charges fixes
+     récurrentes, aucune raison de les vider en début d'année).
+
+Rien d'autre n'est reconstruit : Dashboard, Prévisionnel et Analyse ne
+contiennent que des formules pointant vers des plages nommées propres
+à chaque fichier — copiées avec lui, elles se recalculent
+automatiquement sur le nouvel exercice et un Chantiers vide, sans
+qu'aucun `build*_()` n'ait besoin de retourner sur la copie.
+
 ## Journal des évolutions
 
 **V2 (architecture)** — police Roboto, graphiques à taille adaptative,
 plage Charges étendue à 1000 lignes, mapping Chantiers déplacé de
-`00_Constantes.gs` vers des cellules éditables dans Paramètres,
-ajout de `ARCHITECTURE.md`. Restent en attente d'une décision/donnée
-du client avant implémentation : couleur d'accent officielle, liste
-définitive des catégories de charges, et l'assistant "Nouvel exercice"
-(voir échanges de revue).
+`00_Constantes.gs` vers des cellules éditables dans Paramètres, ajout
+de `ARCHITECTURE.md`, liste de catégories de charges définitive
+(Véhicules, Assurances, Administration, Logiciels, Personnel, Autres),
+couleur d'accent confirmée définitive, et ajout de l'assistant
+"Nouvel exercice" (nouveau fichier par année).

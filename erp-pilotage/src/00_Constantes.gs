@@ -53,6 +53,16 @@ var COLORS = {
   WHITE: '#ffffff'
 };
 
+// Palette des graphiques "par catégorie" (répartition des charges).
+// Centralisée ici pour éviter de dupliquer la même liste dans
+// Dashboard et Analyse (voir buildDashboardGraphiques_, buildAnalyseGraphiques_).
+// Volontairement plus longue que le nombre actuel de catégories pour
+// rester valide si la liste s'allonge sans qu'il faille y retoucher.
+var CHART_CATEGORY_COLORS = [
+  COLORS.ACCENT, COLORS.INK, COLORS.INK_MUTED,
+  '#ded2ba', '#8f8577', '#d8cdb8', '#a89a7d', '#c4b8a0'
+];
+
 // 'Google Sans' n'existe pas dans le sélecteur de polices de Google
 // Sheets (c'est une police d'interface produit, pas une police de
 // document) : setFontFamily() l'ignore silencieusement et Sheets
@@ -76,15 +86,11 @@ var PARAM_CELLS = {
 // Colonnes des listes techniques (masquées) dans Paramètres.
 var PARAM_LISTES = {
   CATEGORIES: { col: 'H', header: 'Catégories', values: [
-    'Assurances',
     'Véhicules',
-    'Locaux',
-    'Abonnements & logiciels',
-    'Salaires & charges sociales',
-    'Matériel & outillage',
-    'Télécom & internet',
-    'Comptabilité & juridique',
-    'Banque & financement',
+    'Assurances',
+    'Administration',
+    'Logiciels',
+    'Personnel',
     'Autres'
   ]},
   TVA: { col: 'I', header: 'TVA', values: [0, 0.055, 0.10, 0.20] },

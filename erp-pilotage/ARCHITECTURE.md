@@ -142,7 +142,20 @@ de protections fantômes.
 Rien n'est jamais masqué dans Charges ou Chantiers : ce sont des
 tableaux de saisie/lecture, aucune donnée technique n'y est ajoutée.
 
-## 7. Étendre le classeur
+## 7. Nouvel exercice (85_NouvelExercice.gs)
+
+Seul module qui n'opère pas sur le classeur actif : `Spreadsheet.copy()`
+retourne directement l'objet `Spreadsheet` de la copie, sur lequel
+`prepareParametresNouvelExercice_()` et `viderChantiersDonnees_()`
+appellent `ss.getSheetByName(...)` explicitement (jamais
+`SpreadsheetApp.getActiveSpreadsheet()`, qui renverrait le fichier
+d'origine, pas la copie). C'est la seule raison technique qui empêche
+de réutiliser tel quel `buildParametres_()`/`ensureChantiersLinks_()`
+ici — tout le reste du classeur copié (formules, plages nommées,
+graphiques, protections) fonctionne sans reconstruction car il ne
+dépend que de plages nommées internes au fichier, dupliquées avec lui.
+
+## 8. Étendre le classeur
 
 - **Ajouter un champ lu depuis Chantiers** (ex. un jour, un champ
   "Client") : ajouter une entrée à `CHANTIERS_FIELDS`

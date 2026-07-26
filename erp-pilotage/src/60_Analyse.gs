@@ -100,7 +100,7 @@ function buildAnalyseGraphiques_(sheet) {
     .setPosition(ANALYSE_CHART_CATEGORIES_ROW, 1, 0, 0)
     .setOption('title', 'Charges par catégorie')
     .setOption('pieHole', 0.5)
-    .setOption('colors', [COLORS.ACCENT, COLORS.INK, COLORS.INK_MUTED, '#ded2ba', '#8f8577', '#d8cdb8', '#a89a7d', '#c4b8a0', '#736a5c', '#efe9dd'])
+    .setOption('colors', CHART_CATEGORY_COLORS)
     .setOption('width', tailleCharges.width)
     .setOption('height', tailleCharges.height)
     .setOption('backgroundColor', COLORS.WHITE)
