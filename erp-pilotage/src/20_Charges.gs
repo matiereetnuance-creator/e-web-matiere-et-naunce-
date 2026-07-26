@@ -39,7 +39,7 @@ function buildChargesTitre_(sheet) {
   var titreRange = sheet.getRange('A1:C1');
   titreRange.merge().setValue('CHARGES FIXES');
   styleTitle_(titreRange);
-  sheet.setRowHeight(1, ROW_HEIGHT.TITRE);
+  sheet.setRowHeight(1, DESIGN.HEADER_HEIGHT);
 }
 
 /** En-tête du tableau, avec notes explicatives sur les colonnes les moins évidentes. */
@@ -47,7 +47,7 @@ function buildChargesEnTete_(sheet) {
   var header = sheet.getRange(CHARGES_HEADER_ROW, 1, 1, CHARGES_COLUMNS.length);
   header.setValues([CHARGES_COLUMNS]);
   styleTableHeader_(header);
-  sheet.setRowHeight(CHARGES_HEADER_ROW, ROW_HEIGHT.EN_TETE_TABLEAU);
+  sheet.setRowHeight(CHARGES_HEADER_ROW, DESIGN.TABLE_HEADER_HEIGHT);
 
   sheet.getRange(CHARGES_HEADER_ROW, 5).setNote(
     'Montant HT (hors taxes) uniquement. Le TTC n\'est pas stocké : ' +
@@ -103,16 +103,27 @@ function chargesEquivalentMensuelFormula_() {
   return 'IFERROR(' + corps + ',0)';
 }
 
+/**
+ * Les 2 cartes KPI n'occupent volontairement pas le même nombre de
+ * colonnes de données (2 puis 4) : les colonnes du tableau ci-dessous
+ * ont des largeurs très différentes (Libellé a besoin de place,
+ * TVA/Actif non), donc aligner les cartes sur le même NOMBRE de
+ * colonnes donnerait deux largeurs très inégales (540px vs 300px).
+ * Ces largeurs de colonnes donnent au contraire deux cartes de
+ * largeur quasi identique (390px vs 380px) — c'est la largeur en
+ * pixels qui doit être uniforme (V4), pas le nombre de colonnes.
+ */
 function buildChargesCartes_(sheet) {
   var mensuelFormula = avecIferror_('LET(mensuel,' + chargesEquivalentMensuelFormula_() + ',SUM(mensuel))', 0);
-  var valeurMensuelle = buildKpiCard_(sheet, 3, 1, 3, 'CHARGES MENSUELLES', mensuelFormula, FORMAT_EUR, true);
+  var valeurMensuelle = buildKpiCard_(sheet, 3, 1, 2, 'CHARGES MENSUELLES', mensuelFormula, FORMAT_EUR, true);
   setNamedRange_(NAMED_RANGES.CHARGES_MENSUELLES, valeurMensuelle);
 
   var annuelFormula = avecIferror_(valeurMensuelle.getA1Notation() + '*12', 0);
-  var valeurAnnuelle = buildKpiCard_(sheet, 3, 5, 3, 'CHARGES ANNUELLES', annuelFormula, FORMAT_EUR, false);
+  var valeurAnnuelle = buildKpiCard_(sheet, 3, 5, 4, 'CHARGES ANNUELLES', annuelFormula, FORMAT_EUR, false);
   setNamedRange_(NAMED_RANGES.CHARGES_ANNUELLES, valeurAnnuelle);
 
-  sheet.setRowHeight(4, ROW_HEIGHT.CARTE_VALEUR);
+  sheet.setRowHeight(3, DESIGN.CARD_LABEL_HEIGHT);
+  sheet.setRowHeight(4, DESIGN.CARD_HEIGHT);
 }
 
 /** Listes déroulantes + contrôles de saisie stricts (V3, point validation des données). */
@@ -142,6 +153,7 @@ function buildChargesValidations_(sheet, namedRanges) {
       .build());
 
   styleInputCell_(sheet.getRange(CHARGES_FIRST_DATA_ROW, 1, CHARGES_LAST_DATA_ROW - CHARGES_FIRST_DATA_ROW + 1, CHARGES_COLUMNS.length));
+  sheet.setRowHeights(CHARGES_FIRST_DATA_ROW, CHARGES_LAST_DATA_ROW - CHARGES_FIRST_DATA_ROW + 1, DESIGN.TABLE_ROW_HEIGHT);
 }
 
 /**

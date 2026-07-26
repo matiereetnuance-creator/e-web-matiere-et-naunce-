@@ -3,7 +3,59 @@
 Toutes les versions sont des révisions du même projet Apps Script
 (`erp-pilotage/`), livrées sur la branche `claude/erp-matiere-nuance-1mme8l`.
 
-## V3 — Qualité, robustesse, sécurité, performance (actuelle)
+## V4 — Design premium (actuelle)
+
+Aucune fonctionnalité métier ajoutée, aucune formule ni logique
+métier modifiée. Périmètre : transformer l'apparence et les à-côtés
+non métier (version, journal, export) en logiciel professionnel.
+
+- **Système de design centralisé** (`DESIGN`, `00_Constantes.gs`) :
+  remplace `ROW_HEIGHT` (V3) et centralise en plus toutes les tailles
+  de police, espacements et paddings — plus aucune valeur de mise en
+  page codée en dur dans un module de feuille. Corrige au passage deux
+  incohérences héritées (sous-titre "Listes techniques" à 10pt au lieu
+  de 11, tableaux Charges/Prévisionnel sans hauteur de ligne fixée).
+- **Titres identiques sur les 7 feuilles** : Accueil utilisait sa
+  propre taille (24pt) depuis la V1, aligné sur `styleTitle_()` (20pt)
+  comme les 6 autres feuilles.
+- **Cartes KPI Charges rééquilibrées** : largeurs ajustées (2 puis 4
+  colonnes) pour peser le même poids visuel malgré des colonnes de
+  tableau très inégales en dessous (~390px contre ~380px, au lieu de
+  540px contre 300px).
+- **Style de graphique unique** (`creerGraphiqueBase_()`,
+  `01_Utils.gs`) appliqué aux 6 graphiques du classeur (police, axes,
+  grilles, légendes, respiration) — première modification de
+  `40_Dashboard.gs` depuis la V2, strictement limitée à l'appel de ce
+  générateur partagé (aucune formule touchée).
+- **Bordures de saisie neutres** (gris) plutôt qu'accent doré — plus
+  discret sur 1000 lignes de saisie.
+- **Audit de palette** : toutes les couleurs du projet vérifiées comme
+  appartenant à blanc / gris très clair / anthracite / accent (voir
+  ARCHITECTURE.md §16).
+- **`VERSION.gs`** : numéro de version, nom de build, date, auteur —
+  source unique lue par le menu À propos.
+- **Journal technique interne** (`06_Journal.gs`) : installation,
+  diagnostic, nouvel exercice, réapplication de protections, erreurs —
+  stocké dans les Document Properties (jamais visible dans une
+  feuille). Menu Pilotage ▸ Afficher le journal (20 derniers
+  événements).
+- **Menu "À propos"** (`07_APropos.gs`) : nom du projet, version,
+  build, auteur, dernier diagnostic, dernière installation.
+- **Export PDF** (`95_Export.gs`) : menu Pilotage ▸ Exporter un
+  rapport PDF — Dashboard, Prévisionnel, Analyse en A4, déposé sur
+  Drive. Première capacité du projet nécessitant le service Drive.
+
+**Fichiers modifiés** : `00_Constantes.gs`, `01_Utils.gs`,
+`02_Menu.gs`, `05_Accueil.gs`, `10_Parametres.gs`, `20_Charges.gs`,
+`40_Dashboard.gs`, `50_Previsionnel.gs`, `60_Analyse.gs`,
+`85_NouvelExercice.gs`, `90_Diagnostic.gs`, `99_Installation.gs`,
+`README.md`, `ARCHITECTURE.md`.
+**Fichiers créés** : `VERSION.gs`, `06_Journal.gs`, `07_APropos.gs`,
+`95_Export.gs`.
+**Non modifiés** : `30_Chantiers.gs` (0 changement), `03_Erreurs.gs`,
+`04_Protections.gs` (déjà conformes à la charte de couleurs).
+
+## V3 — Qualité, robustesse, sécurité, performance
 
 Aucune fonctionnalité métier ajoutée, aucun calcul modifié. Périmètre :
 qualité logicielle uniquement.

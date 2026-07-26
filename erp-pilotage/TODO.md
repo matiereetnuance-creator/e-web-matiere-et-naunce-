@@ -33,6 +33,15 @@ nécessaire pour une mise en production sereine.
 - [ ] Confirmer que le partage/droits d'accès du fichier copié par
   "Nouvel exercice" correspond à ce qui est attendu (hérité du fichier
   source par défaut).
+- [ ] **Tester Pilotage ▸ Exporter un rapport PDF** (V4) : vérifier que
+  le PDF combine bien les 3 feuilles (technique non documentée par
+  Google, jamais exécutée — voir KNOWN_LIMITATIONS.md). Accepter la
+  demande d'autorisation Drive au premier lancement. Si l'export
+  échoue, utiliser le repli manuel indiqué dans le message d'erreur
+  (Fichier ▸ Imprimer).
+- [ ] Vérifier le rendu du menu **À propos** et du **journal
+  technique** (Pilotage ▸ Afficher le journal) après quelques
+  installations/diagnostics.
 
 ## Quand le temps le permet
 
@@ -42,3 +51,10 @@ nécessaire pour une mise en production sereine.
 - [ ] Vérifier le rendu des couleurs de mise en forme conditionnelle à
   l'écran (les valeurs hexadécimales ont été choisies sans aperçu
   visuel réel — voir KNOWN_LIMITATIONS.md).
+- [ ] Vérifier à l'œil le rendu du système de design V4 (tailles de
+  police des graphiques, largeur des 2 cartes Charges, hauteurs de
+  ligne des tableaux) et ajuster `DESIGN` (`00_Constantes.gs`) si un
+  détail paraît trop serré ou trop aéré.
+- [ ] Envisager l'orientation paysage pour l'export PDF si le
+  Dashboard (large grille de 14 colonnes) paraît trop compressé en A4
+  portrait (`construireUrlExportPdf_()`, `95_Export.gs`).

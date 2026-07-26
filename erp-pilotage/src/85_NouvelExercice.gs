@@ -67,6 +67,8 @@ function assistantNouvelExercice() {
   prepareParametresNouvelExercice_(copie, nouvelExercice);
   viderChantiersDonnees_(copie);
 
+  enregistrerEvenement_(JOURNAL_TYPES.NOUVEL_EXERCICE, 'Créé « ' + nouveauNom + ' » pour l\'exercice ' + nouvelExercice);
+
   ui.alert('Exercice ' + nouvelExercice + ' créé',
     '« ' + nouveauNom + ' » a été créé avec succès :\n\n' + copie.getUrl(),
     ui.ButtonSet.OK);

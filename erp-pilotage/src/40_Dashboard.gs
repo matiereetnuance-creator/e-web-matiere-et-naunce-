@@ -26,7 +26,7 @@ function buildDashboardTitre_(sheet) {
   var titre = sheet.getRange('A1:F1');
   titre.merge().setValue('DASHBOARD');
   styleTitle_(titre);
-  sheet.setRowHeight(1, 40);
+  sheet.setRowHeight(1, DESIGN.HEADER_HEIGHT);
 }
 
 function buildDashboardCartes_(sheet) {
@@ -53,8 +53,8 @@ function buildDashboardCartes_(sheet) {
     ',IFERROR(' + caA1 + '/ecoule,0))';
   buildKpiCard_(sheet, row, startCols[4], width, 'PRÉVISION FIN D\'ANNÉE', previsionFormula, FORMAT_EUR, true);
 
-  sheet.setRowHeight(row, 20);
-  sheet.setRowHeight(row + 1, 34);
+  sheet.setRowHeight(row, DESIGN.CARD_LABEL_HEIGHT);
+  sheet.setRowHeight(row + 1, DESIGN.CARD_HEIGHT);
 
   return caCell;
 }
@@ -71,16 +71,13 @@ function buildDashboardGraphiques_(sheet) {
 
   var moisRange = sheet.getRange(1, DASHBOARD_HELPER_COL_MOIS, 13, 2);
   var tailleCa = computeChartSize_(sheet, 1, DASHBOARD_CHART_CA_COLSPAN, DASHBOARD_CHART_ROW, DASHBOARD_CHART_ROWSPAN);
-  var chartCa = sheet.newChart()
-    .setChartType(Charts.ChartType.COLUMN)
+  var chartCa = creerGraphiqueBase_(sheet, Charts.ChartType.COLUMN)
     .addRange(moisRange)
     .setPosition(DASHBOARD_CHART_ROW, 1, 0, 0)
     .setOption('title', 'Évolution du CA par mois')
-    .setOption('legend', { position: 'none' })
     .setOption('colors', [COLORS.ACCENT])
     .setOption('width', tailleCa.width)
     .setOption('height', tailleCa.height)
-    .setOption('backgroundColor', COLORS.WHITE)
     .build();
   sheet.insertChart(chartCa);
 
@@ -88,16 +85,15 @@ function buildDashboardGraphiques_(sheet) {
   var catRange = sheet.getRange(1, DASHBOARD_HELPER_COL_CATEGORIE, catCount + 1, 2);
   var colStartRepartition = 1 + DASHBOARD_CHART_CA_COLSPAN;
   var tailleRepartition = computeChartSize_(sheet, colStartRepartition, DASHBOARD_CHART_REPARTITION_COLSPAN, DASHBOARD_CHART_ROW, DASHBOARD_CHART_ROWSPAN);
-  var chartCharges = sheet.newChart()
-    .setChartType(Charts.ChartType.PIE)
+  var chartCharges = creerGraphiqueBase_(sheet, Charts.ChartType.PIE)
     .addRange(catRange)
     .setPosition(DASHBOARD_CHART_ROW, colStartRepartition, 0, 0)
     .setOption('title', 'Répartition des charges fixes')
     .setOption('pieHole', 0.5)
+    .setOption('legend', { position: 'right', textStyle: { color: COLORS.INK_MUTED, fontSize: DESIGN.NOTE_FONT_SIZE } })
     .setOption('colors', CHART_CATEGORY_COLORS)
     .setOption('width', tailleRepartition.width)
     .setOption('height', tailleRepartition.height)
-    .setOption('backgroundColor', COLORS.WHITE)
     .build();
   sheet.insertChart(chartCharges);
 }

@@ -33,6 +33,7 @@ function installerERP() {
     if (accueil) accueil.activate();
 
     if (enTetesManquants.length > 0) {
+      enregistrerEvenement_(JOURNAL_TYPES.INSTALLATION, 'Terminée — en-têtes Chantiers manquants : ' + enTetesManquants.join(', '));
       ui.alert('Installation terminée — action requise',
         'Le classeur a été installé, mais la feuille "' + SHEETS.CHANTIERS +
         '" n\'expose pas les en-têtes suivants :\n\n' + enTetesManquants.join('\n') +
@@ -40,14 +41,17 @@ function installerERP() {
         '(aucune erreur ne s\'affiche). Ouvrez le menu Pilotage ▸ "Vérifier la ' +
         'structure Chantiers" après correction.', ui.ButtonSet.OK);
     } else {
+      enregistrerEvenement_(JOURNAL_TYPES.INSTALLATION, 'Terminée avec succès');
       toast_('Installation terminée avec succès.', 'Pilotage');
     }
   } catch (err) {
     // Erreur inattendue : on informe clairement plutôt que de laisser
     // remonter une exception technique brute à l'écran.
+    var messageErreur = String(err && err.message ? err.message : err);
+    enregistrerEvenement_(JOURNAL_TYPES.ERREUR, 'Installation interrompue : ' + messageErreur);
     afficherErreur_('Erreur d\'installation',
       'L\'installation s\'est arrêtée avant d\'être terminée :\n\n' +
-      String(err && err.message ? err.message : err) +
+      messageErreur +
       '\n\nAucune donnée saisie (Chantiers, Charges, Paramètres) n\'a été ' +
       'affectée. Relancez Pilotage ▸ Installer après avoir corrigé la cause, ' +
       'ou consultez Pilotage ▸ Diagnostic.');

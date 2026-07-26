@@ -64,7 +64,7 @@ function buildParametres_() {
  */
 function buildParametresChampSaisie_(sheet, row, label, cell, namedRange, format, defaultValue, validation, note) {
   var labelRange = sheet.getRange(row, 1);
-  labelRange.setValue(label).setFontFamily(FONT).setFontSize(11).setFontColor(COLORS.INK).setVerticalAlignment('middle');
+  labelRange.setValue(label).setFontFamily(FONT).setFontSize(DESIGN.INPUT_FONT_SIZE).setFontColor(COLORS.INK).setVerticalAlignment('middle');
 
   var input = sheet.getRange(cell);
   var etaitVide = input.isBlank();
@@ -79,21 +79,22 @@ function buildParametresChampSaisie_(sheet, row, label, cell, namedRange, format
   }
 
   setNamedRange_(namedRange, input);
-  sheet.setRowHeight(row, ROW_HEIGHT.SAISIE);
+  sheet.setRowHeight(row, DESIGN.INPUT_ROW_HEIGHT);
 }
 
 function buildParametresTitre_(sheet) {
   var titre = sheet.getRange('A1:B1');
   titre.merge().setValue('PARAMÈTRES');
   styleTitle_(titre);
-  sheet.setRowHeight(1, ROW_HEIGHT.TITRE);
+  sheet.setRowHeight(1, DESIGN.HEADER_HEIGHT);
 }
 
 /** Réglages généraux de l'exercice — chaque champ a sa propre validation stricte (V3). */
 function buildParametresGeneraux_(sheet) {
   var sousTitre = sheet.getRange('A3');
-  sousTitre.setValue('Paramètres généraux')
-    .setFontFamily(FONT).setFontSize(11).setFontWeight('bold').setFontColor(COLORS.INK_MUTED);
+  sousTitre.setValue('Paramètres généraux');
+  styleSubtitle_(sousTitre);
+  sheet.setRowHeight(3, DESIGN.SUBHEADER_HEIGHT);
 
   var anneeCourante = new Date().getFullYear();
   var rows = [
@@ -126,8 +127,9 @@ function buildParametresGeneraux_(sheet) {
  */
 function buildParametresChantiersMapping_(sheet) {
   var sousTitre = sheet.getRange('A11');
-  sousTitre.setValue('Connexion à l\'onglet Chantiers')
-    .setFontFamily(FONT).setFontSize(11).setFontWeight('bold').setFontColor(COLORS.INK_MUTED);
+  sousTitre.setValue('Connexion à l\'onglet Chantiers');
+  styleSubtitle_(sousTitre);
+  sheet.setRowHeight(11, DESIGN.SUBHEADER_HEIGHT);
 
   CHANTIERS_FIELDS.forEach(function (f) {
     var note = 'Doit correspondre EXACTEMENT à l\'intitulé de la colonne ' +
@@ -139,8 +141,8 @@ function buildParametresChantiersMapping_(sheet) {
 
 function buildParametresListes_(sheet) {
   var titre = sheet.getRange('H1');
-  titre.setValue('Listes techniques (ne pas supprimer)')
-    .setFontFamily(FONT).setFontSize(10).setFontWeight('bold').setFontColor(COLORS.INK_MUTED);
+  titre.setValue('Listes techniques (ne pas supprimer)');
+  styleSubtitle_(titre);
 
   var keys = Object.keys(PARAM_LISTES);
   keys.forEach(function (key) {

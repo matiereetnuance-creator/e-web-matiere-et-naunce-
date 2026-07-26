@@ -38,6 +38,8 @@ function diagnosticERP() {
     '════════════════════════\n\n';
   var corps = sections.map(function (s) { return s.texte; }).join('\n\n');
 
+  enregistrerEvenement_(JOURNAL_TYPES.DIAGNOSTIC, reussis + '/' + total + ' contrôles réussis');
+
   var ui = SpreadsheetApp.getUi();
   ui.alert('🩺 Diagnostic Pilotage', entete + corps, ui.ButtonSet.OK);
 }

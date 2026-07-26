@@ -23,18 +23,21 @@ reste de ce dépôt — même client, outil différent (pilotage interne).
 ```
 erp-pilotage/
 ├── appsscript.json          Manifeste du projet Apps Script
-├── ARCHITECTURE.md          Plages nommées, dépendances, flux de données, erreurs, performance
-├── CHANGELOG.md             Historique détaillé V1 / V2 / V3
+├── ARCHITECTURE.md          Plages nommées, dépendances, flux de données, erreurs, performance, design
+├── CHANGELOG.md             Historique détaillé V1 / V2 / V3 / V4
 ├── ROADMAP.md               Évolutions possibles (non développées)
 ├── TODO.md                  Actions restantes avant mise en production
 ├── KNOWN_LIMITATIONS.md     Limites Google Sheets et risques acceptés
 └── src/
-    ├── 00_Constantes.gs      Source unique de vérité (noms, couleurs, config par défaut du mapping Chantiers)
-    ├── 01_Utils.gs           Fonctions réutilisables (cartes KPI, protections, formules, taille des graphiques)
+    ├── VERSION.gs            Numéro de version, date de build, auteur — source unique (V4)
+    ├── 00_Constantes.gs      Source unique de vérité (noms, couleurs, système de design, mapping Chantiers)
+    ├── 01_Utils.gs           Fonctions réutilisables (cartes KPI, protections, formules, style des graphiques)
     ├── 02_Menu.gs            Menu "Pilotage"
     ├── 03_Erreurs.gs         Bibliothèque de gestion des erreurs (V3)
     ├── 04_Protections.gs     Filet de sécurité générique sur les cellules à formule (V3)
     ├── 05_Accueil.gs
+    ├── 06_Journal.gs         Journal technique interne, Document Properties (V4)
+    ├── 07_APropos.gs         Menu Pilotage ▸ À propos (V4)
     ├── 10_Parametres.gs
     ├── 20_Charges.gs
     ├── 30_Chantiers.gs       Lecture par en-tête uniquement, aucune écriture sur la feuille existante
@@ -43,6 +46,7 @@ erp-pilotage/
     ├── 60_Analyse.gs
     ├── 85_NouvelExercice.gs  Assistant "Nouvel exercice" (nouveau fichier par année)
     ├── 90_Diagnostic.gs      Menu Pilotage ▸ Diagnostic (V3)
+    ├── 95_Export.gs          Menu Pilotage ▸ Exporter un rapport PDF (V4)
     └── 99_Installation.gs    Orchestration de l'installation complète
 ```
 
@@ -147,7 +151,7 @@ formules, les validations et les protections sont reconstruites.
   réadapte à chaque réinstallation, pas en continu à l'écran.
 - **Plage de saisie Charges** étendue à 1000 lignes (`CHARGES_LAST_DATA_ROW`).
 - **Mapping Chantiers configurable sans toucher au code** : voir la
-  section dédiée ci-dessus et `ARCHITECTURE.md` §14.
+  section dédiée ci-dessus et `ARCHITECTURE.md` §18.
 - **Catégories de charges** : liste définitive validée par le client —
   Véhicules, Assurances, Administration, Logiciels, Personnel, Autres
   (`PARAM_LISTES.CATEGORIES` dans `00_Constantes.gs`).
@@ -201,12 +205,15 @@ qu'aucun `build*_()` n'ait besoin de retourner sur la copie.
 | Entrée | Rôle |
 |---|---|
 | 🏠 Accueil / 📊 Dashboard | Navigation rapide |
+| 📄 Exporter un rapport PDF… | Génère un PDF A4 (Dashboard, Prévisionnel, Analyse) déposé sur Drive (V4) |
 | 🔄 Actualiser les listes déroulantes | Ré-applique les validations de Charges sans tout reconstruire |
 | ✅ Vérifier la structure Chantiers | Contrôle le mapping B12:B15 contre la vraie feuille Chantiers |
 | 🔒 Réappliquer les protections | Ré-arme le filet de sécurité (V3) sans reconstruire les feuilles |
-| 🩺 Diagnostic | 7 contrôles automatiques, rapport clair (V3 — voir `ARCHITECTURE.md` §12) |
+| 🩺 Diagnostic | 7 contrôles automatiques, rapport clair (V3) |
+| 🗒️ Afficher le journal | Les 20 derniers événements techniques enregistrés (V4) |
 | 🆕 Nouvel exercice… | Crée une copie du classeur pour l'année suivante (voir section dédiée) |
 | 🛠️ Installer / Réinitialiser | (Re)construit tout le classeur, sans jamais effacer les données saisies |
+| ℹ️ À propos… | Nom, version, build, auteur, dernier diagnostic, dernière installation (V4) |
 
 ## Robustesse (V3)
 
@@ -219,15 +226,46 @@ classeur. Le détail (bibliothèque d'erreurs, validations de saisie,
 mise en forme conditionnelle sobre, protections) est documenté dans
 `ARCHITECTURE.md` §9 à §13.
 
+## Design premium (V4)
+
+Objectif : que le classeur donne l'impression d'un logiciel
+professionnel (Apple / Linear / Notion / Stripe / Arc), pas d'un
+tableur. Concrètement :
+
+- **Un seul système de design** (`DESIGN`, `00_Constantes.gs`) :
+  toutes les hauteurs de ligne, espacements, tailles de police et
+  paddings du classeur viennent de là — `HEADER_HEIGHT`, `CARD_HEIGHT`,
+  `SECTION_SPACING`, `TITLE_FONT_SIZE`, `SUBTITLE_FONT_SIZE`,
+  `BORDER_COLOR`, `CARD_BACKGROUND`, etc. Aucune valeur de mise en
+  page n'est écrite en dur dans un module de feuille.
+- **Titres identiques sur les 7 feuilles** (`styleTitle_()`), y
+  compris Accueil (qui avait sa propre taille en V1-V3).
+- **Cartes KPI strictement uniformes** : même police, mêmes marges,
+  même hiérarchie titre/valeur (`buildKpiCard_()`, seule fonction du
+  projet qui construise une carte). Les 2 cartes de Charges ont été
+  ajustées (2 puis 4 colonnes) pour peser le même poids visuel (~390px
+  contre ~380px) malgré des colonnes de tableau de largeurs très
+  différentes en dessous.
+- **Un seul style de graphique** (`creerGraphiqueBase_()`,
+  `01_Utils.gs`) : même police, mêmes couleurs d'axes/grille/légende,
+  même respiration (`chartArea`) sur les 6 graphiques du classeur.
+- **Palette strictement limitée** à blanc, gris très clair, anthracite
+  et l'accent Matière & Nuance (vérifié : aucune autre teinte dans le
+  code — voir `ARCHITECTURE.md` §16).
+- **Bordures de saisie neutres** plutôt qu'accent doré (un aplat doré
+  sur 1000 lignes de saisie lisait comme bruyant, pas discret).
+
 ## Journal des évolutions
 
 Voir **[`CHANGELOG.md`](CHANGELOG.md)** pour l'historique complet.
-En bref : **V3** (qualité, robustesse, sécurité, performance — aucune
-fonctionnalité métier ajoutée, aucun calcul modifié, Dashboard non
-modifié) ; **V2** (police Roboto, graphiques adaptatifs, plage Charges
-1000 lignes, mapping Chantiers configurable, catégories et couleur
-d'accent définitives, assistant Nouvel exercice) ; **V1** (version
-initiale, 7 feuilles).
+En bref : **V4** (design premium — système de design centralisé,
+style de graphique unique, harmonisation cartes/tableaux/typographie,
+menu À propos, journal technique interne, export PDF ; aucune
+fonctionnalité métier, aucun calcul modifié) ; **V3** (qualité,
+robustesse, sécurité, performance) ; **V2** (police Roboto, graphiques
+adaptatifs, plage Charges 1000 lignes, mapping Chantiers configurable,
+catégories et couleur d'accent définitives, assistant Nouvel
+exercice) ; **V1** (version initiale, 7 feuilles).
 
 Voir aussi **[`ROADMAP.md`](ROADMAP.md)** (évolutions possibles),
 **[`TODO.md`](TODO.md)** (actions avant mise en production) et

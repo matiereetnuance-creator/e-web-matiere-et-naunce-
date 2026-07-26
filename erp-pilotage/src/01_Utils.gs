@@ -89,19 +89,32 @@ function setNamedRange_(name, range) {
   ss.setNamedRange(name, range);
 }
 
-/** Applique le style "titre de feuille" (grand, gras, anthracite). */
+/** Applique le style "titre de feuille" (grand, gras, anthracite) — identique sur les 7 feuilles (V4). */
 function styleTitle_(range) {
   range.setFontFamily(FONT)
-    .setFontSize(20)
+    .setFontSize(DESIGN.TITLE_FONT_SIZE)
     .setFontWeight('bold')
     .setFontColor(COLORS.INK)
+    .setVerticalAlignment('middle');
+}
+
+/**
+ * Style d'un sous-titre de section (ex. "Paramètres généraux"),
+ * partagé pour éviter toute variation involontaire de taille/couleur
+ * entre les sections d'une même feuille ou d'une feuille à l'autre (V4).
+ */
+function styleSubtitle_(range) {
+  range.setFontFamily(FONT)
+    .setFontSize(DESIGN.SUBTITLE_FONT_SIZE)
+    .setFontWeight('bold')
+    .setFontColor(COLORS.INK_MUTED)
     .setVerticalAlignment('middle');
 }
 
 /** Style d'un libellé de carte KPI (petit, discret, majuscules). */
 function styleCardLabel_(range) {
   range.setFontFamily(FONT)
-    .setFontSize(9)
+    .setFontSize(DESIGN.KPI_LABEL_FONT_SIZE)
     .setFontWeight('bold')
     .setFontColor(COLORS.INK_MUTED)
     .setVerticalAlignment('middle');
@@ -110,7 +123,7 @@ function styleCardLabel_(range) {
 /** Style de la valeur d'une carte KPI (grand, anthracite ou accent). */
 function styleCardValue_(range, accent) {
   range.setFontFamily(FONT)
-    .setFontSize(20)
+    .setFontSize(DESIGN.KPI_VALUE_FONT_SIZE)
     .setFontWeight('bold')
     .setFontColor(accent ? COLORS.ACCENT_TEXT : COLORS.INK)
     .setVerticalAlignment('middle');
@@ -149,8 +162,10 @@ function buildKpiCard_(sheet, row, col, width, label, formula, numberFormat, acc
   applyThinBorder_(cardRange);
   labelRange.setBackground(COLORS.CARD_BG);
   valueRange.setBackground(COLORS.CARD_BG);
-  labelRange.setHorizontalAlignment('left').setPadding(0, 10, 0, 10);
-  valueRange.setHorizontalAlignment('left').setPadding(0, 10, 12, 10);
+  labelRange.setHorizontalAlignment('left')
+    .setPadding(DESIGN.CARD_PADDING_TOP, DESIGN.CARD_PADDING_LEFT, 0, DESIGN.CARD_PADDING_RIGHT);
+  valueRange.setHorizontalAlignment('left')
+    .setPadding(0, DESIGN.CARD_PADDING_LEFT, DESIGN.CARD_PADDING_BOTTOM, DESIGN.CARD_PADDING_RIGHT);
 
   protectAsCalculated_(valueRange);
 
@@ -162,17 +177,24 @@ function applyThinBorder_(range) {
   range.setBorder(true, true, true, true, false, false, COLORS.BORDER, SpreadsheetApp.BorderStyle.SOLID);
 }
 
-/** Marque une plage comme cellule de saisie (fond légèrement teinté, bordure accent). */
+/**
+ * Marque une plage comme cellule de saisie (fond légèrement teinté).
+ * V4 : bordure neutre (BORDER_COLOR) plutôt qu'accent — un aplat
+ * doré sur 1000 lignes de saisie lisait comme "bruyant" plutôt que
+ * discret ; le fond teinté suffit à signaler une zone éditable,
+ * l'accent reste réservé aux éléments réellement mis en avant
+ * (bouton Accueil, valeurs KPI phares).
+ */
 function styleInputCell_(range) {
   range.setBackground(COLORS.INPUT_BG);
-  range.setBorder(true, true, true, true, false, false, COLORS.ACCENT, SpreadsheetApp.BorderStyle.SOLID);
-  range.setFontFamily(FONT).setFontColor(COLORS.INK);
+  range.setBorder(true, true, true, true, false, false, COLORS.BORDER, SpreadsheetApp.BorderStyle.SOLID);
+  range.setFontFamily(FONT).setFontSize(DESIGN.INPUT_FONT_SIZE).setFontColor(COLORS.INK);
 }
 
-/** Style d'un en-tête de tableau de données (Charges, Prévisionnel...). */
+/** Style d'un en-tête de tableau de données (Charges, Prévisionnel...) — identique partout (V4). */
 function styleTableHeader_(range) {
   range.setFontFamily(FONT)
-    .setFontSize(10)
+    .setFontSize(DESIGN.TABLE_HEADER_FONT_SIZE)
     .setFontWeight('bold')
     .setFontColor(COLORS.WHITE)
     .setBackground(COLORS.INK)
@@ -253,6 +275,33 @@ function annualAmountFormula_(namedValue, extraCondition) {
     ',ex,' + NAMED_RANGES.EXERCICE +
     ',SUMPRODUCT((YEAR(d)=ex)*v' + cond + '))';
   return avecIferror_(corps, 0);
+}
+
+/**
+ * Point de départ commun à tous les graphiques du classeur (V4) :
+ * même police, mêmes couleurs d'axes/légende/grille, même respiration
+ * (chartArea) — "un seul style de graphique pour tout le projet".
+ * Chaque appelant enchaîne ensuite `.addRange()`, `.setPosition()`,
+ * `.setOption('title', …)`, `.setOption('colors', …)` et la taille
+ * (`computeChartSize_`), en ne redéfinissant que ce qui lui est propre
+ * (ex. `pieHole` pour un anneau, position de légende pour un graphique
+ * à plusieurs séries).
+ *
+ * @param {Sheet} sheet
+ * @param {Charts.ChartType} type
+ * @return {EmbeddedChartBuilder}
+ */
+function creerGraphiqueBase_(sheet, type) {
+  var texteAxe = { color: COLORS.INK_MUTED, fontSize: DESIGN.NOTE_FONT_SIZE };
+  return sheet.newChart()
+    .setChartType(type)
+    .setOption('fontName', FONT)
+    .setOption('backgroundColor', COLORS.WHITE)
+    .setOption('titleTextStyle', { color: COLORS.INK, fontSize: DESIGN.SUBTITLE_FONT_SIZE, bold: true })
+    .setOption('hAxis', { textStyle: texteAxe, gridlines: { color: COLORS.BORDER }, baselineColor: COLORS.BORDER })
+    .setOption('vAxis', { textStyle: texteAxe, gridlines: { color: COLORS.BORDER }, baselineColor: COLORS.BORDER })
+    .setOption('legend', { textStyle: texteAxe, position: 'none' })
+    .setOption('chartArea', { left: 12, top: 34, right: 12, bottom: 26 });
 }
 
 /**

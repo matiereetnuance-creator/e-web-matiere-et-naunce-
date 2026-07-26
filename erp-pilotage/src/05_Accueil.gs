@@ -18,25 +18,25 @@ function buildAccueil_() {
   buildAccueilBouton_(sheet);
 }
 
+/** Même style de titre que les 6 autres feuilles (styleTitle_) — V4, harmonisation. */
 function buildAccueilTitre_(sheet) {
   var titre = sheet.getRange('A1:B1');
   titre.merge().setValue('MATIÈRE & NUANCE - PILOTAGE');
-  titre.setFontFamily(FONT).setFontSize(24).setFontWeight('bold')
-    .setFontColor(COLORS.INK).setVerticalAlignment('middle');
-  sheet.setRowHeight(1, 60);
+  styleTitle_(titre);
+  sheet.setRowHeight(1, DESIGN.HEADER_HEIGHT);
 }
 
 function buildAccueilExercice_(sheet) {
   var label = sheet.getRange('A3');
-  label.setValue('Exercice').setFontFamily(FONT).setFontSize(12).setFontColor(COLORS.INK_MUTED);
+  label.setValue('Exercice').setFontFamily(FONT).setFontSize(DESIGN.INPUT_FONT_SIZE).setFontColor(COLORS.INK_MUTED);
 
   var valeur = sheet.getRange('B3');
   valeur.setFormula(avecIferror_(NAMED_RANGES.EXERCICE, '—'));
-  valeur.setFontFamily(FONT).setFontSize(12).setFontWeight('bold').setFontColor(COLORS.INK);
+  valeur.setFontFamily(FONT).setFontSize(DESIGN.INPUT_FONT_SIZE).setFontWeight('bold').setFontColor(COLORS.INK);
   valeur.setNote('Repris automatiquement de 05 - Paramètres.');
   protectAsCalculated_(valeur);
 
-  sheet.setRowHeight(3, ROW_HEIGHT.SAISIE);
+  sheet.setRowHeight(3, DESIGN.INPUT_ROW_HEIGHT);
 }
 
 function buildAccueilBouton_(sheet) {
@@ -45,7 +45,7 @@ function buildAccueilBouton_(sheet) {
   bouton.merge();
   bouton.setFormula('=HYPERLINK("#gid=' + dashboard.getSheetId() + '","Ouvrir le Dashboard  →")');
   bouton.setBackground(COLORS.ACCENT)
-    .setFontFamily(FONT).setFontSize(13).setFontWeight('bold').setFontColor(COLORS.WHITE)
+    .setFontFamily(FONT).setFontSize(DESIGN.BUTTON_FONT_SIZE).setFontWeight('bold').setFontColor(COLORS.WHITE)
     .setHorizontalAlignment('center').setVerticalAlignment('middle');
   applyThinBorder_(bouton);
   protectAsCalculated_(bouton);

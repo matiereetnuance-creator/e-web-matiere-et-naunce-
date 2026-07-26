@@ -36,14 +36,14 @@ function buildPrevisionnelTitre_(sheet) {
   var titre = sheet.getRange('A1:D1');
   titre.merge().setValue('PRÉVISIONNEL');
   styleTitle_(titre);
-  sheet.setRowHeight(1, ROW_HEIGHT.TITRE);
+  sheet.setRowHeight(1, DESIGN.HEADER_HEIGHT);
 }
 
 function buildPrevisionnelEnTete_(sheet) {
   var header = sheet.getRange(PREVISIONNEL_HEADER_ROW, 1, 1, 4);
   header.setValues([['Mois', 'Objectif', 'Réalisé', 'Ecart']]);
   styleTableHeader_(header);
-  sheet.setRowHeight(PREVISIONNEL_HEADER_ROW, ROW_HEIGHT.EN_TETE_TABLEAU);
+  sheet.setRowHeight(PREVISIONNEL_HEADER_ROW, DESIGN.TABLE_HEADER_HEIGHT);
   sheet.getRange(PREVISIONNEL_HEADER_ROW, 2).setNote(
     'Objectif CA HT annuel (Paramètres) réparti à parts égales sur 12 mois.');
   sheet.getRange(PREVISIONNEL_HEADER_ROW, 4).setNote(
@@ -76,15 +76,18 @@ function buildPrevisionnelLignesMois_(sheet) {
   }
 
   var moisRange = sheet.getRange(PREVISIONNEL_FIRST_ROW, 1, n, 1);
-  moisRange.setValues(moisValues).setFontFamily(FONT).setFontColor(COLORS.INK);
+  moisRange.setValues(moisValues);
 
   sheet.getRange(PREVISIONNEL_FIRST_ROW, 2, n, 1).setFormulas(objectifFormulas);
   sheet.getRange(PREVISIONNEL_FIRST_ROW, 3, n, 1).setFormulas(realiseFormulas);
   sheet.getRange(PREVISIONNEL_FIRST_ROW, 4, n, 1).setFormulas(ecartFormulas);
-  sheet.getRange(PREVISIONNEL_FIRST_ROW, 2, n, 3).setNumberFormat(FORMAT_EUR);
 
-  sheet.getRange(PREVISIONNEL_FIRST_ROW, 1, n, 4).setBackgrounds(
-    fonds.map(function (f) { return [f[0], f[0], f[0], f[0]]; }));
+  var toutesLesLignes = sheet.getRange(PREVISIONNEL_FIRST_ROW, 1, n, 4);
+  toutesLesLignes.setFontFamily(FONT).setFontSize(DESIGN.TABLE_BODY_FONT_SIZE).setFontColor(COLORS.INK);
+  sheet.getRange(PREVISIONNEL_FIRST_ROW, 2, n, 3).setNumberFormat(FORMAT_EUR);
+  sheet.setRowHeights(PREVISIONNEL_FIRST_ROW, n, DESIGN.TABLE_ROW_HEIGHT);
+
+  toutesLesLignes.setBackgrounds(fonds.map(function (f) { return [f[0], f[0], f[0], f[0]]; }));
 
   protectAsCalculated_(moisRange);
   protectAsCalculated_(sheet.getRange(PREVISIONNEL_FIRST_ROW, 2, n, 3));
@@ -92,16 +95,18 @@ function buildPrevisionnelLignesMois_(sheet) {
 
 function buildPrevisionnelLigneTotal_(sheet) {
   var totalRow = PREVISIONNEL_FIRST_ROW + 12;
-  var totalLabel = sheet.getRange(totalRow, 1);
-  totalLabel.setValue('Total').setFontFamily(FONT).setFontWeight('bold').setFontColor(COLORS.INK);
+  var totalRange = sheet.getRange(totalRow, 1, 1, 4);
+  totalRange.setFontFamily(FONT).setFontSize(DESIGN.TABLE_BODY_FONT_SIZE).setFontWeight('bold').setFontColor(COLORS.INK);
+  sheet.setRowHeight(totalRow, DESIGN.TABLE_ROW_HEIGHT);
+
+  sheet.getRange(totalRow, 1).setValue('Total');
 
   ['B', 'C', 'D'].forEach(function (col) {
     var cell = sheet.getRange(col + totalRow);
     cell.setFormula(avecIferror_('SUM(' + col + PREVISIONNEL_FIRST_ROW + ':' + col + (totalRow - 1) + ')', 0));
-    cell.setNumberFormat(FORMAT_EUR).setFontWeight('bold');
+    cell.setNumberFormat(FORMAT_EUR);
   });
 
-  var totalRange = sheet.getRange(totalRow, 1, 1, 4);
   totalRange.setBorder(true, false, false, false, false, false, COLORS.INK, SpreadsheetApp.BorderStyle.SOLID_MEDIUM);
   protectAsCalculated_(totalRange);
 }
@@ -138,16 +143,14 @@ function buildPrevisionnelGraphique_(sheet) {
   var chartRow = totalRow + 2;
   var taille = computeChartSize_(sheet, 1, PREVISIONNEL_CHART_COLSPAN, chartRow, PREVISIONNEL_CHART_ROWSPAN);
 
-  var chart = sheet.newChart()
-    .setChartType(Charts.ChartType.COLUMN)
+  var chart = creerGraphiqueBase_(sheet, Charts.ChartType.COLUMN)
     .addRange(dataRange)
     .setPosition(chartRow, 1, 0, 0)
     .setOption('title', 'Objectif vs Réalisé par mois')
     .setOption('colors', [COLORS.INK_MUTED, COLORS.ACCENT])
-    .setOption('legend', { position: 'top' })
+    .setOption('legend', { position: 'top', textStyle: { color: COLORS.INK_MUTED, fontSize: DESIGN.NOTE_FONT_SIZE } })
     .setOption('width', taille.width)
     .setOption('height', taille.height)
-    .setOption('backgroundColor', COLORS.WHITE)
     .build();
   sheet.insertChart(chart);
 }

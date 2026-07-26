@@ -76,17 +76,49 @@ var CHART_CATEGORY_COLORS = [
 // réellement disponible dans Sheets la plus proche visuellement.
 var FONT = 'Roboto';
 
-// Hauteurs de ligne standard (V3 : centralisées pour une apparence
-// uniforme sur tout le classeur — auparavant répétées en dur dans
-// chaque module avec de légères variations involontaires).
-var ROW_HEIGHT = {
-  TITRE: 40,
-  SOUS_TITRE: 26,
-  SAISIE: 26,
-  CARTE_LABEL: 20,
-  CARTE_VALEUR: 34,
-  EN_TETE_TABLEAU: 28,
-  LIGNE_TABLEAU: 24
+// ------------------------------------------------------------------
+// Système de design (V4) — grille, hauteurs, espacements, typographie.
+// Source unique de vérité pour toute valeur de mise en page : aucun
+// module de feuille ne doit écrire un pixel, une taille de police ou
+// un espacement en dur. C'est ce qui garantit que les 7 feuilles
+// suivent exactement la même grille visuelle (même hauteur de titre,
+// même style de carte, même hiérarchie typographique) — l'objectif
+// premium de la V4.
+// ------------------------------------------------------------------
+
+var DESIGN = {
+  // Hauteurs de ligne (pixels)
+  HEADER_HEIGHT: 40,        // ligne de titre de feuille
+  SUBHEADER_HEIGHT: 26,     // ligne de sous-titre de section
+  INPUT_ROW_HEIGHT: 26,     // ligne de saisie (Paramètres)
+  CARD_LABEL_HEIGHT: 20,    // ligne libellé d'une carte KPI
+  CARD_HEIGHT: 34,          // ligne valeur d'une carte KPI
+  TABLE_HEADER_HEIGHT: 28,  // ligne d'en-tête de tableau
+  TABLE_ROW_HEIGHT: 24,     // ligne de donnée de tableau
+
+  // Espacements
+  SECTION_SPACING: 1,       // lignes vides entre deux sections d'une feuille
+  CARD_GAP_COLS: 1,         // colonnes d'espace entre deux cartes KPI
+  CARD_PADDING_LEFT: 10,
+  CARD_PADDING_RIGHT: 10,
+  CARD_PADDING_TOP: 0,
+  CARD_PADDING_BOTTOM: 12,
+
+  // Typographie (points)
+  TITLE_FONT_SIZE: 20,
+  SUBTITLE_FONT_SIZE: 11,
+  KPI_LABEL_FONT_SIZE: 9,
+  KPI_VALUE_FONT_SIZE: 20,
+  TABLE_HEADER_FONT_SIZE: 10,
+  TABLE_BODY_FONT_SIZE: 10,
+  INPUT_FONT_SIZE: 11,
+  BUTTON_FONT_SIZE: 13,
+  NOTE_FONT_SIZE: 9,
+
+  // Couleurs de référence (vocabulaire "design system" — alias directs
+  // vers COLORS, défini juste au-dessus)
+  BORDER_COLOR: COLORS.BORDER,
+  CARD_BACKGROUND: COLORS.CARD_BG
 };
 
 // ------------------------------------------------------------------

@@ -9,14 +9,19 @@ function onOpen() {
     .addItem('🏠 Accueil', 'allerAccueil')
     .addItem('📊 Dashboard', 'allerDashboard')
     .addSeparator()
+    .addItem('📄 Exporter un rapport PDF…', 'exporterRapportPdf')
+    .addSeparator()
     .addItem('🔄 Actualiser les listes déroulantes', 'actualiserListes')
     .addItem('✅ Vérifier la structure Chantiers', 'verifierStructureChantiers')
     .addItem('🔒 Réappliquer les protections', 'reappliquerProtectionsEtConfirmer')
     .addItem('🩺 Diagnostic', 'diagnosticERP')
+    .addItem('🗒️ Afficher le journal', 'afficherJournal')
     .addSeparator()
     .addItem('🆕 Nouvel exercice…', 'assistantNouvelExercice')
     .addSeparator()
     .addItem('🛠️ Installer / Réinitialiser la structure ERP', 'confirmerEtInstaller')
+    .addSeparator()
+    .addItem('ℹ️ À propos…', 'afficherAPropos')
     .addToUi();
 }
 
@@ -56,6 +61,7 @@ function actualiserListes() {
 /** Menu ▸ Réappliquer les protections : ré-arme le filet de sécurité sans reconstruire les feuilles. */
 function reappliquerProtectionsEtConfirmer() {
   reappliquerProtectionsFormules_();
+  enregistrerEvenement_(JOURNAL_TYPES.PROTECTIONS, 'Réappliquées manuellement depuis le menu');
   toast_('Protections réappliquées sur toutes les cellules à formule.', 'Pilotage');
 }
 

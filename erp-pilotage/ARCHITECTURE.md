@@ -267,7 +267,105 @@ lecture, à l'exception de la vérification Chantiers qui réutilise
   au lieu de formules) changerait la logique de calcul, explicitement
   hors sujet de cette version (voir KNOWN_LIMITATIONS.md).
 
-## 14. Étendre le classeur
+## 14. Système de design (V4, `DESIGN` dans `00_Constantes.gs`)
+
+Objectif : que les 7 feuilles suivent exactement la même grille
+visuelle, sans qu'aucun module n'ait à répéter un pixel ou une taille
+de police. `DESIGN` est la source unique de vérité, en trois familles :
+
+- **Hauteurs** : `HEADER_HEIGHT` (titre de feuille), `SUBHEADER_HEIGHT`
+  (sous-titre de section), `INPUT_ROW_HEIGHT` (ligne de saisie),
+  `CARD_LABEL_HEIGHT` / `CARD_HEIGHT` (carte KPI), `TABLE_HEADER_HEIGHT`
+  / `TABLE_ROW_HEIGHT` (tableaux).
+- **Espacements** : `SECTION_SPACING`, `CARD_GAP_COLS`,
+  `CARD_PADDING_LEFT/RIGHT/TOP/BOTTOM`.
+- **Typographie** : `TITLE_FONT_SIZE`, `SUBTITLE_FONT_SIZE`,
+  `KPI_LABEL_FONT_SIZE`, `KPI_VALUE_FONT_SIZE`, `TABLE_HEADER_FONT_SIZE`,
+  `TABLE_BODY_FONT_SIZE`, `INPUT_FONT_SIZE`, `BUTTON_FONT_SIZE`,
+  `NOTE_FONT_SIZE`. Plus deux alias couleur (`BORDER_COLOR`,
+  `CARD_BACKGROUND`) pointant vers `COLORS`, pour un vocabulaire
+  "design system" explicite.
+
+`DESIGN` remplace intégralement l'ancien `ROW_HEIGHT` (V3) : toute
+référence à `ROW_HEIGHT.*` a été migrée, et les tailles de police qui
+n'étaient pas encore centralisées (Accueil, sous-titres Paramètres,
+lignes de tableau Charges/Prévisionnel) ont été alignées dans le même
+mouvement — c'est ce qui a mis au jour et corrigé deux incohérences
+héritées de la V1/V2 : le sous-titre "Listes techniques" de Paramètres
+était en 10pt quand les deux autres sous-titres de la même feuille
+étaient en 11pt, et aucune hauteur de ligne n'était fixée sur les
+tableaux de Charges/Prévisionnel (dépendant de la hauteur par défaut
+de Sheets).
+
+**Harmonisation des cartes KPI** : `buildKpiCard_()` reste l'unique
+fonction qui construise une carte (garantie structurelle d'uniformité
+depuis la V3). En V4, les 2 cartes de Charges ont vu leur *nombre de
+colonnes* ajusté (2 puis 4, au lieu de 3 et 3) pour que leur *largeur
+en pixels* soit quasi identique (~390px / ~380px) — les colonnes du
+tableau en dessous ont des largeurs très inégales (Libellé large,
+TVA/Actif étroites), donc un nombre de colonnes égal aurait donné des
+cartes visuellement très différentes (540px vs 300px). C'est la
+largeur perçue qui devait être uniforme, pas le nombre de colonnes
+sous-jacent.
+
+## 15. Style de graphique unique (V4, `creerGraphiqueBase_()`)
+
+Les 6 graphiques du classeur (Dashboard ×2, Prévisionnel ×1, Analyse
+×3) démarrent tous par `creerGraphiqueBase_(sheet, type)`
+(`01_Utils.gs`), qui pose la police, la couleur des axes/grilles/
+légendes et la respiration (`chartArea`) communes, avant que chaque
+appelant n'ajoute ce qui lui est propre (plage de données, position,
+titre, couleurs de série, `pieHole`). Avant la V4, chacun des 6
+graphiques redéfinissait ces options indépendamment ; certains
+avaient une grille d'axe non stylée, d'autres aucune. C'est la
+première fois que `40_Dashboard.gs` est modifié depuis la V2 — pour
+appeler ce générateur partagé, jamais pour changer une formule ou un
+calcul.
+
+## 16. Palette de couleurs (V4, audit)
+
+Toutes les couleurs du projet ont été extraites et vérifiées
+(`grep -ohE "#[0-9a-fA-F]{6}"` sur `src/*.gs`) : chacune appartient à
+l'une des quatre familles autorisées — blanc (`#ffffff`), gris très
+clair (`#f6f5f3`, `#f0efec`, `#e5e2dc`...), anthracite (`#2b2926`,
+`#8a847a`) ou accent Matière & Nuance et ses teintes dérivées
+(`#c8b394`, `#5b4f3a`, et la palette `CHART_CATEGORY_COLORS` — des
+tons or/taupe nécessaires pour distinguer les parts d'un graphique en
+anneau, qui ne peut pas se contenter d'une seule couleur). Aucune
+teinte bleue, verte, rouge ou violette nulle part dans le projet.
+
+Un changement de style volontaire : la bordure des cellules de
+saisie (`styleInputCell_()`) est passée de la couleur d'accent à
+`BORDER_COLOR` (gris neutre) — un aplat doré sur 1000 lignes de
+saisie lisait comme "bruyant" plutôt que "discret". L'accent reste
+réservé aux éléments réellement mis en avant (bouton Accueil, 2
+valeurs KPI phares par carte).
+
+## 17. Journal technique, À propos, Export PDF (V4)
+
+- **Journal** (`06_Journal.gs`) : stocké dans les Document Properties
+  (`PropertiesService.getDocumentProperties()`), jamais dans une
+  feuille visible ni exportable. Chaque installation, diagnostic,
+  nouvel exercice, réapplication de protections ou erreur ajoute une
+  entrée `{date, type, details}` ; le tableau est plafonné à
+  `JOURNAL_MAX_EVENTS` (100) pour rester sous la limite de 9 Ko d'une
+  Document Property. `Pilotage ▸ Afficher le journal` n'en montre que
+  les 20 plus récents.
+- **À propos** (`07_APropos.gs`) : lit uniquement `VERSION.gs` (numéro,
+  nom de build, date, auteur) et les fonctions `dernierEvenement_()`
+  du journal (installation/diagnostic les plus récents) — aucune
+  valeur recopiée en dur.
+- **Export PDF** (`95_Export.gs`) : appelle le point d'export natif de
+  Google Sheets (`/export?format=pdf`) via `UrlFetchApp`, authentifié
+  par `ScriptApp.getOAuthToken()`, en combinant les `gid` de Dashboard/
+  Prévisionnel/Analyse séparés par une virgule (technique répandue
+  mais non documentée officiellement par Google). Le PDF est déposé
+  dans le dossier Drive du classeur via `DriveApp`. Première capacité
+  du projet à nécessiter le service Drive — la première exécution
+  demandera à l'utilisateur d'autoriser ce nouveau périmètre. Non
+  vérifié dans un vrai Google Sheets (voir KNOWN_LIMITATIONS.md).
+
+## 18. Étendre le classeur
 
 - **Ajouter un champ lu depuis Chantiers** (ex. un jour, un champ
   "Client") : ajouter une entrée à `CHANTIERS_FIELDS`

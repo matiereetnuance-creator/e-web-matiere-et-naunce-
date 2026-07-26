@@ -33,27 +33,43 @@
   dans tout le classeur — nécessaire à la logique de la fonctionnalité
   elle-même, aucune alternative sans la modifier.
 - **Pas d'API Google Sheets réelle depuis cet environnement de
-  développement.** Aucune ligne de ce projet — V1, V2 ou V3 — n'a été
+  développement.** Aucune ligne de ce projet — V1 à V4 — n'a été
   exécutée dans un vrai classeur Google Sheets. Toutes les
   vérifications ont été faites par lecture de code, vérification de
   syntaxe JavaScript et raisonnement sur le comportement documenté de
   l'API Apps Script. Voir TODO.md pour les tests réels recommandés
   avant mise en production.
+- **Export PDF multi-feuilles non documenté officiellement** (V4,
+  `95_Export.gs`) : combiner Dashboard/Prévisionnel/Analyse en un seul
+  PDF via plusieurs `gid` séparés par une virgule dans l'URL d'export
+  est une technique largement utilisée par la communauté Apps Script
+  mais que Google ne documente pas officiellement — son comportement
+  pourrait changer sans préavis. Repli prévu si l'export échoue :
+  message d'erreur clair renvoyant vers Fichier ▸ Imprimer manuel.
+- **Export PDF nécessite le service Drive**, jamais utilisé avant la
+  V4 : la première exécution demandera à l'utilisateur d'autoriser un
+  périmètre OAuth plus large (accès Drive pour déposer le fichier).
 
 ## Risques acceptés (décisions explicites, pas des oublis)
 
-- **`40_Dashboard.gs` n'a reçu aucune modification en V3**, à la
-  demande explicite du client. Il bénéficie indirectement du
-  durcissement des générateurs de formules partagés
-  (`monthlyAmountFormula_`, `annualAmountFormula_`,
-  `chargesEquivalentMensuelFormula_`) mais deux formules qui lui sont
-  propres (`=CHARGES_MENSUELLES`, le `SUMPRODUCT` externe de la
-  répartition par catégorie) ne sont pas explicitement enveloppées
-  dans `IFERROR`. Risque très faible en pratique (nécessiterait la
-  suppression de la feuille Charges elle-même, ce qui casserait de
-  toute façon ses propres indicateurs et serait détecté par
-  Diagnostic) — non corrigé pour respecter la consigne "ne pas
-  modifier le Dashboard".
+- **`40_Dashboard.gs` n'avait reçu aucune modification en V3**, à la
+  demande explicite du client ; la V4 y a touché pour la première
+  fois, mais strictement pour appeler `creerGraphiqueBase_()` sur ses
+  2 graphiques (style visuel uniquement) — aucune formule, aucun KPI,
+  aucune mise en page de carte modifiée. Un risque V3 subsiste tel
+  quel : deux formules propres au Dashboard (`=CHARGES_MENSUELLES`, le
+  `SUMPRODUCT` externe de la répartition par catégorie) ne sont pas
+  explicitement enveloppées dans `IFERROR`. Risque très faible en
+  pratique (nécessiterait la suppression de la feuille Charges
+  elle-même, ce qui casserait de toute façon ses propres indicateurs
+  et serait détecté par Diagnostic).
+- **Rendu visuel du système de design (V4) non vérifié à l'écran** :
+  `DESIGN` centralise des valeurs choisies par raisonnement (échelle
+  typographique, espacements, largeurs de cartes) mais jamais vues
+  rendues dans un vrai Google Sheets. Les tailles de police des axes
+  de graphiques (`creerGraphiqueBase_()`) et les couleurs de grille
+  sont dans la même situation. À ajuster après la première
+  installation réelle si un détail paraît trop serré ou trop aéré.
 - **`CHANTIERS_STATUT` relié mais non utilisé comme filtre** (voir
   ROADMAP.md) : deviner la mauvaise valeur aurait faussé
   silencieusement tous les indicateurs de CA/marge — jugé plus sûr de
