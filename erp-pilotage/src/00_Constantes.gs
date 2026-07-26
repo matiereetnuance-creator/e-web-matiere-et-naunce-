@@ -2,9 +2,11 @@
  * ERP Matière & Nuance — Constantes globales.
  *
  * Source unique de vérité pour les noms de feuilles, la charte
- * graphique, les positions de cellules et le mapping vers la feuille
- * "Chantiers" existante. Toute évolution de structure se fait ICI,
- * jamais en dupliquant des valeurs dans les modules.
+ * graphique, les positions de cellules et la configuration par défaut
+ * du mapping vers la feuille "Chantiers" existante (mapping ensuite
+ * modifiable par le client depuis Paramètres, sans toucher au code —
+ * voir CHANTIERS_FIELDS ci-dessous). Toute évolution de structure se
+ * fait ICI, jamais en dupliquant des valeurs dans les modules.
  */
 
 // ------------------------------------------------------------------
@@ -51,7 +53,12 @@ var COLORS = {
   WHITE: '#ffffff'
 };
 
-var FONT = 'Google Sans';
+// 'Google Sans' n'existe pas dans le sélecteur de polices de Google
+// Sheets (c'est une police d'interface produit, pas une police de
+// document) : setFontFamily() l'ignore silencieusement et Sheets
+// retombe sur la police par défaut du classeur. Roboto est la police
+// réellement disponible dans Sheets la plus proche visuellement.
+var FONT = 'Roboto';
 
 // ------------------------------------------------------------------
 // Paramètres — emplacement des cellules de saisie et des listes
@@ -115,6 +122,13 @@ var NAMED_RANGES = {
   CHANTIERS_DATE: 'CHANTIERS_DATE',
   CHANTIERS_STATUT: 'CHANTIERS_STATUT',
 
+  // Cellules de Paramètres où le CLIENT indique les en-têtes réels de
+  // sa feuille Chantiers (voir bloc "Chantiers — mapping" plus bas).
+  CHANTIERS_HEADER_CA_HT: 'PARAM_CHANTIERS_HEADER_CA_HT',
+  CHANTIERS_HEADER_MARGE_HT: 'PARAM_CHANTIERS_HEADER_MARGE_HT',
+  CHANTIERS_HEADER_DATE: 'PARAM_CHANTIERS_HEADER_DATE',
+  CHANTIERS_HEADER_STATUT: 'PARAM_CHANTIERS_HEADER_STATUT',
+
   DASHBOARD_CA_REALISE: 'DASHBOARD_CA_REALISE'
 };
 
@@ -124,7 +138,7 @@ var NAMED_RANGES = {
 
 var CHARGES_HEADER_ROW = 7;
 var CHARGES_FIRST_DATA_ROW = 8;
-var CHARGES_LAST_DATA_ROW = 500; // plage large fixe = pas de fonctions volatiles
+var CHARGES_LAST_DATA_ROW = 1000; // plage large fixe = pas de fonctions volatiles
 var CHARGES_COLUMNS = [
   'Catégorie', 'Libellé', 'Fournisseur', 'Périodicité',
   'Montant HT', 'TVA', 'Date de début', 'Actif'
@@ -135,24 +149,31 @@ var CHARGES_COLUMNS = [
 //
 // ⚠️ IMPORTANT : l'onglet "03 - Chantiers" existe déjà chez le client
 // et sa structure ne doit JAMAIS être modifiée par ce projet (aucune
-// colonne ajoutée/supprimée, aucune formule touchée). Les intitulés
-// ci-dessous sont une hypothèse de travail à vérifier une seule fois,
-// avant mise en production, contre les véritables en-têtes de la
-// feuille du client — puis à corriger ICI si besoin. Tout le reste du
+// colonne ajoutée/supprimée, aucune formule touchée).
+//
+// Les en-têtes attendus ne sont PLUS codés en dur ici : ils sont
+// saisis par le client dans "05 - Paramètres" (section "Connexion à
+// l'onglet Chantiers", cellules B12:B15 — voir 10_Parametres.gs). Les
+// `defaultHeader` ci-dessous ne servent qu'à pré-remplir ces cellules
+// lors de la toute première installation ; une fois saisies, elles ne
+// sont plus jamais écrasées par une réinstallation. Tout le reste du
 // classeur (Dashboard, Prévisionnel, Analyse) lit Chantiers par nom
-// d'en-tête (et non par position de colonne), donc un simple ajustement
-// de ces libellés suffit à reconnecter l'ensemble sans toucher aux
-// autres modules. Utiliser le menu Pilotage ▸ "Vérifier la structure
+// d'en-tête (et non par position de colonne), donc corriger UNE
+// cellule dans Paramètres suffit à reconnecter l'ensemble, sans
+// toucher au code. Utiliser le menu Pilotage ▸ "Vérifier la structure
 // Chantiers" pour contrôler la correspondance.
 // ------------------------------------------------------------------
 
 var CHANTIERS_HEADER_ROW = 1;
-var CHANTIERS_COLUMNS = {
-  CA_HT: 'CA HT',
-  MARGE_HT: 'Marge HT',
-  DATE: 'Date de facturation',
-  STATUT: 'Statut'
-};
+
+var CHANTIERS_MAPPING_FIRST_ROW = 12; // Paramètres!B12:B15
+
+var CHANTIERS_FIELDS = [
+  { key: 'CA_HT', row: 12, label: 'Colonne « CA HT »', defaultHeader: 'CA HT', headerNamedRange: NAMED_RANGES.CHANTIERS_HEADER_CA_HT, dataNamedRange: NAMED_RANGES.CHANTIERS_CA_HT },
+  { key: 'MARGE_HT', row: 13, label: 'Colonne « Marge HT »', defaultHeader: 'Marge HT', headerNamedRange: NAMED_RANGES.CHANTIERS_HEADER_MARGE_HT, dataNamedRange: NAMED_RANGES.CHANTIERS_MARGE_HT },
+  { key: 'DATE', row: 14, label: 'Colonne « Date »', defaultHeader: 'Date de facturation', headerNamedRange: NAMED_RANGES.CHANTIERS_HEADER_DATE, dataNamedRange: NAMED_RANGES.CHANTIERS_DATE },
+  { key: 'STATUT', row: 15, label: 'Colonne « Statut »', defaultHeader: 'Statut', headerNamedRange: NAMED_RANGES.CHANTIERS_HEADER_STATUT, dataNamedRange: NAMED_RANGES.CHANTIERS_STATUT }
+];
 
 // ------------------------------------------------------------------
 // Divers

@@ -78,19 +78,24 @@ function buildPrevisionnelTableau_(sheet) {
   protectAsCalculated_(totalRange);
 }
 
+var PREVISIONNEL_CHART_COLSPAN = 4;
+var PREVISIONNEL_CHART_ROWSPAN = 16;
+
 function buildPrevisionnelGraphique_(sheet) {
   var totalRow = PREVISIONNEL_FIRST_ROW + 12;
   var dataRange = sheet.getRange(PREVISIONNEL_HEADER_ROW, 1, totalRow - PREVISIONNEL_HEADER_ROW, 3); // Mois, Objectif, Réalisé
+  var chartRow = totalRow + 2;
+  var taille = computeChartSize_(sheet, 1, PREVISIONNEL_CHART_COLSPAN, chartRow, PREVISIONNEL_CHART_ROWSPAN);
 
   var chart = sheet.newChart()
     .setChartType(Charts.ChartType.COLUMN)
     .addRange(dataRange)
-    .setPosition(totalRow + 2, 1, 0, 0)
+    .setPosition(chartRow, 1, 0, 0)
     .setOption('title', 'Objectif vs Réalisé par mois')
     .setOption('colors', [COLORS.INK_MUTED, COLORS.ACCENT])
     .setOption('legend', { position: 'top' })
-    .setOption('width', 720)
-    .setOption('height', 320)
+    .setOption('width', taille.width)
+    .setOption('height', taille.height)
     .setOption('backgroundColor', COLORS.WHITE)
     .build();
   sheet.insertChart(chart);

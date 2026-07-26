@@ -7,10 +7,11 @@
  * en dur dans les formules des autres onglets : elles pointent vers
  * les plages nommées créées ici.
  *
- * IMPORTANT : les cellules de saisie (colonne B, lignes 4 à 9) sont
- * des données client. Une réinstallation ne les efface JAMAIS — seules
- * les zones entièrement générées par le script (titre, libellés,
- * bloc de listes techniques) sont effacées puis reconstruites.
+ * IMPORTANT : les cellules de saisie (colonne B, lignes 4 à 9 puis
+ * 12 à 15) sont des données client. Une réinstallation ne les efface
+ * JAMAIS — seules les zones entièrement générées par le script
+ * (titre, libellés, bloc de listes techniques) sont effacées puis
+ * reconstruites.
  */
 
 function buildParametres_() {
@@ -24,18 +25,41 @@ function buildParametres_() {
   for (var c = 3; c <= 6; c++) sheet.setColumnWidth(c, 24);
 
   // Zones entièrement régénérées par le script (jamais de saisie
-  // client) : titre, sous-titre, libellés colonne A, listes techniques.
-  // La colonne B (lignes 4 à 9, cellules de saisie) n'est jamais touchée ici.
+  // client) : titre, sous-titres, libellés colonne A, listes techniques.
+  // La colonne B (lignes 4 à 9 et 12 à 15, cellules de saisie) n'est
+  // jamais touchée ici.
   sheet.getRange('A1:B1').breakApart().clearContent().clearFormat();
   sheet.getRange('A3').clearContent().clearFormat();
   sheet.getRange('A4:A9').clearContent().clearFormat();
+  sheet.getRange('A11').clearContent().clearFormat();
+  sheet.getRange('A12:A15').clearContent().clearFormat();
   sheet.getRange('H1:K200').clearContent().clearFormat();
 
   buildParametresTitre_(sheet);
   buildParametresGeneraux_(sheet);
+  buildParametresChantiersMapping_(sheet);
   buildParametresListes_(sheet);
 
   sheet.setFrozenRows(1);
+}
+
+/** Écrit un libellé (colonne A) + une cellule de saisie protégée-jamais-écrasée (colonne B). */
+function buildParametresChampSaisie_(sheet, row, label, cell, namedRange, format, defaultValue) {
+  var labelRange = sheet.getRange(row, 1);
+  labelRange.setValue(label).setFontFamily(FONT).setFontSize(11).setFontColor(COLORS.INK).setVerticalAlignment('middle');
+
+  var input = sheet.getRange(cell);
+  var etaitVide = input.isBlank();
+  styleInputCell_(input);
+  input.setNumberFormat(format).setVerticalAlignment('middle');
+  // Valeur de démarrage uniquement si la cellule est réellement vide,
+  // pour ne jamais écraser une saisie déjà faite par le client.
+  if (etaitVide && defaultValue !== null && defaultValue !== undefined) {
+    input.setValue(defaultValue);
+  }
+
+  setNamedRange_(namedRange, input);
+  sheet.setRowHeight(row, 26);
 }
 
 function buildParametresTitre_(sheet) {
@@ -61,21 +85,23 @@ function buildParametresGeneraux_(sheet) {
   ];
 
   rows.forEach(function (r) {
-    var label = sheet.getRange(r.row, 1);
-    label.setValue(r.label).setFontFamily(FONT).setFontSize(11).setFontColor(COLORS.INK).setVerticalAlignment('middle');
+    buildParametresChampSaisie_(sheet, r.row, r.label, r.cell, r.name, r.format, r.defaultValue);
+  });
+}
 
-    var input = sheet.getRange(r.cell);
-    var etaitVide = input.isBlank();
-    styleInputCell_(input);
-    input.setNumberFormat(r.format).setVerticalAlignment('middle');
-    // Valeur de démarrage uniquement si la cellule est réellement vide,
-    // pour ne jamais écraser une saisie déjà faite par le client.
-    if (etaitVide && r.defaultValue !== null) {
-      input.setValue(r.defaultValue);
-    }
+/**
+ * Section "Connexion à l'onglet Chantiers" : les en-têtes de colonnes
+ * attendus dans la feuille Chantiers existante, saisis ici par le
+ * client plutôt que codés en dur (voir CHANTIERS_FIELDS,
+ * 00_Constantes.gs, et ensureChantiersLinks_(), 30_Chantiers.gs).
+ */
+function buildParametresChantiersMapping_(sheet) {
+  var sousTitre = sheet.getRange('A11');
+  sousTitre.setValue('Connexion à l\'onglet Chantiers')
+    .setFontFamily(FONT).setFontSize(11).setFontWeight('bold').setFontColor(COLORS.INK_MUTED);
 
-    setNamedRange_(r.name, input);
-    sheet.setRowHeight(r.row, 26);
+  CHANTIERS_FIELDS.forEach(function (f) {
+    buildParametresChampSaisie_(sheet, f.row, f.label, 'B' + f.row, f.headerNamedRange, '@', f.defaultHeader);
   });
 }
 

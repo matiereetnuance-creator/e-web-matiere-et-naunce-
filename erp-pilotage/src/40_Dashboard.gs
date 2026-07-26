@@ -59,35 +59,44 @@ function buildDashboardCartes_(sheet) {
   return caCell;
 }
 
+// Ancrage des 2 graphiques : colonnes/lignes couvertes (voir computeChartSize_).
+var DASHBOARD_CHART_ROW = 7;
+var DASHBOARD_CHART_ROWSPAN = 14;
+var DASHBOARD_CHART_CA_COLSPAN = 7;
+var DASHBOARD_CHART_REPARTITION_COLSPAN = 6;
+
 function buildDashboardGraphiques_(sheet) {
   buildDashboardDonneesMensuelles_(sheet);
   buildDashboardDonneesCategories_(sheet);
 
   var moisRange = sheet.getRange(1, DASHBOARD_HELPER_COL_MOIS, 13, 2);
+  var tailleCa = computeChartSize_(sheet, 1, DASHBOARD_CHART_CA_COLSPAN, DASHBOARD_CHART_ROW, DASHBOARD_CHART_ROWSPAN);
   var chartCa = sheet.newChart()
     .setChartType(Charts.ChartType.COLUMN)
     .addRange(moisRange)
-    .setPosition(7, 1, 0, 0)
+    .setPosition(DASHBOARD_CHART_ROW, 1, 0, 0)
     .setOption('title', 'Évolution du CA par mois')
     .setOption('legend', { position: 'none' })
     .setOption('colors', [COLORS.ACCENT])
-    .setOption('width', 520)
-    .setOption('height', 280)
+    .setOption('width', tailleCa.width)
+    .setOption('height', tailleCa.height)
     .setOption('backgroundColor', COLORS.WHITE)
     .build();
   sheet.insertChart(chartCa);
 
   var catCount = PARAM_LISTES.CATEGORIES.values.length;
   var catRange = sheet.getRange(1, DASHBOARD_HELPER_COL_CATEGORIE, catCount + 1, 2);
+  var colStartRepartition = 1 + DASHBOARD_CHART_CA_COLSPAN;
+  var tailleRepartition = computeChartSize_(sheet, colStartRepartition, DASHBOARD_CHART_REPARTITION_COLSPAN, DASHBOARD_CHART_ROW, DASHBOARD_CHART_ROWSPAN);
   var chartCharges = sheet.newChart()
     .setChartType(Charts.ChartType.PIE)
     .addRange(catRange)
-    .setPosition(7, 8, 0, 0)
+    .setPosition(DASHBOARD_CHART_ROW, colStartRepartition, 0, 0)
     .setOption('title', 'Répartition des charges fixes')
     .setOption('pieHole', 0.5)
     .setOption('colors', [COLORS.ACCENT, COLORS.INK, COLORS.INK_MUTED, '#ded2ba', '#8f8577', '#d8cdb8', '#a89a7d', '#c4b8a0', '#736a5c', '#efe9dd'])
-    .setOption('width', 520)
-    .setOption('height', 280)
+    .setOption('width', tailleRepartition.width)
+    .setOption('height', tailleRepartition.height)
     .setOption('backgroundColor', COLORS.WHITE)
     .build();
   sheet.insertChart(chartCharges);

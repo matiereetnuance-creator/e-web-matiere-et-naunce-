@@ -53,9 +53,14 @@ function buildAnalyseDonneesMensuelles_(sheet) {
   protectAsCalculated_(sheet.getRange(2, col + 1, 12, 2));
 }
 
+var ANALYSE_CHART_ROWSPAN = 13;
+var ANALYSE_CHART_COLSPAN = 7;
+var ANALYSE_CHART_CATEGORIES_ROW = 20;
+
 function buildAnalyseGraphiques_(sheet) {
   var col = ANALYSE_HELPER_COL;
 
+  var tailleCa = computeChartSize_(sheet, 1, ANALYSE_CHART_COLSPAN, 3, ANALYSE_CHART_ROWSPAN);
   var chartCa = sheet.newChart()
     .setChartType(Charts.ChartType.COLUMN)
     .addRange(sheet.getRange(1, col, 13, 2)) // Mois, CA
@@ -63,22 +68,24 @@ function buildAnalyseGraphiques_(sheet) {
     .setOption('title', 'CA par mois')
     .setOption('legend', { position: 'none' })
     .setOption('colors', [COLORS.ACCENT])
-    .setOption('width', 520)
-    .setOption('height', 280)
+    .setOption('width', tailleCa.width)
+    .setOption('height', tailleCa.height)
     .setOption('backgroundColor', COLORS.WHITE)
     .build();
   sheet.insertChart(chartCa);
 
+  var colStartMarge = 1 + ANALYSE_CHART_COLSPAN;
+  var tailleMarge = computeChartSize_(sheet, colStartMarge, ANALYSE_CHART_COLSPAN, 3, ANALYSE_CHART_ROWSPAN);
   var chartMarge = sheet.newChart()
     .setChartType(Charts.ChartType.COLUMN)
     .addRange(sheet.getRange(1, col, 13, 1))     // Mois
     .addRange(sheet.getRange(1, col + 2, 13, 1)) // Marge
-    .setPosition(3, 8, 0, 0)
+    .setPosition(3, colStartMarge, 0, 0)
     .setOption('title', 'Marge par mois')
     .setOption('legend', { position: 'none' })
     .setOption('colors', [COLORS.INK])
-    .setOption('width', 520)
-    .setOption('height', 280)
+    .setOption('width', tailleMarge.width)
+    .setOption('height', tailleMarge.height)
     .setOption('backgroundColor', COLORS.WHITE)
     .build();
   sheet.insertChart(chartMarge);
@@ -86,15 +93,16 @@ function buildAnalyseGraphiques_(sheet) {
   var dashboard = getRequiredSheet_(SHEETS.DASHBOARD);
   var catCount = PARAM_LISTES.CATEGORIES.values.length;
   var catRange = dashboard.getRange(1, DASHBOARD_HELPER_COL_CATEGORIE, catCount + 1, 2);
+  var tailleCharges = computeChartSize_(sheet, 1, ANALYSE_CHART_COLSPAN, ANALYSE_CHART_CATEGORIES_ROW, ANALYSE_CHART_ROWSPAN);
   var chartCharges = sheet.newChart()
     .setChartType(Charts.ChartType.PIE)
     .addRange(catRange)
-    .setPosition(20, 1, 0, 0)
+    .setPosition(ANALYSE_CHART_CATEGORIES_ROW, 1, 0, 0)
     .setOption('title', 'Charges par catégorie')
     .setOption('pieHole', 0.5)
     .setOption('colors', [COLORS.ACCENT, COLORS.INK, COLORS.INK_MUTED, '#ded2ba', '#8f8577', '#d8cdb8', '#a89a7d', '#c4b8a0', '#736a5c', '#efe9dd'])
-    .setOption('width', 520)
-    .setOption('height', 280)
+    .setOption('width', tailleCharges.width)
+    .setOption('height', tailleCharges.height)
     .setOption('backgroundColor', COLORS.WHITE)
     .build();
   sheet.insertChart(chartCharges);

@@ -23,9 +23,10 @@ reste de ce dépôt — même client, outil différent (pilotage interne).
 ```
 erp-pilotage/
 ├── appsscript.json          Manifeste du projet Apps Script
+├── ARCHITECTURE.md          Plages nommées, dépendances entre feuilles, flux de données
 └── src/
-    ├── 00_Constantes.gs      Source unique de vérité (noms, couleurs, mapping Chantiers)
-    ├── 01_Utils.gs           Fonctions réutilisables (cartes KPI, protections, formules)
+    ├── 00_Constantes.gs      Source unique de vérité (noms, couleurs, config par défaut du mapping Chantiers)
+    ├── 01_Utils.gs           Fonctions réutilisables (cartes KPI, protections, formules, taille des graphiques)
     ├── 02_Menu.gs            Menu "Pilotage"
     ├── 05_Accueil.gs
     ├── 10_Parametres.gs
@@ -37,27 +38,34 @@ erp-pilotage/
     └── 99_Installation.gs    Orchestration de l'installation complète
 ```
 
+Pour le détail des plages nommées, du graphe de dépendances entre
+feuilles et de l'ordre d'installation, voir **[`ARCHITECTURE.md`](ARCHITECTURE.md)**.
+
 ## ⚠️ Point d'attention avant mise en production : la feuille Chantiers
 
 Le tableau `03 - Chantiers` existe déjà dans le classeur du client et
 **sa structure ne doit jamais être modifiée** (aucune colonne ajoutée,
 supprimée ou renommée par ce projet). Les autres onglets lisent ses
-données par **nom d'en-tête**, pas par position de colonne, via le
-mapping centralisé dans `CHANTIERS_COLUMNS` (`00_Constantes.gs`) :
+données par **nom d'en-tête**, pas par position de colonne — et,
+depuis la V2, ces en-têtes attendus sont **saisis par le client
+lui-même dans `05 - Paramètres`** (section "Connexion à l'onglet
+Chantiers", cellules B12 à B15) plutôt que codés en dur dans le
+script :
 
-```js
-var CHANTIERS_COLUMNS = {
-  CA_HT: 'CA HT',
-  MARGE_HT: 'Marge HT',
-  DATE: 'Date de facturation',
-  STATUT: 'Statut'
-};
-```
+| Cellule Paramètres | Champ | Valeur par défaut (1ʳᵉ installation) |
+|---|---|---|
+| B12 | Colonne « CA HT » | `CA HT` |
+| B13 | Colonne « Marge HT » | `Marge HT` |
+| B14 | Colonne « Date » | `Date de facturation` |
+| B15 | Colonne « Statut » | `Statut` |
 
-Ces intitulés sont une hypothèse de travail. **Avant toute mise en
-production**, comparez-les aux véritables en-têtes de la feuille
-Chantiers du client et corrigez-les si besoin — un seul endroit à
-modifier, tout le reste du classeur se reconnecte automatiquement.
+Ces valeurs par défaut (`CHANTIERS_FIELDS` dans `00_Constantes.gs`) ne
+servent qu'à pré-remplir les cellules lors de la toute première
+installation ; ensuite, seule la cellule Paramètres fait foi et n'est
+plus jamais réécrite. **Avant toute mise en production**, corrigez ces
+4 cellules pour qu'elles correspondent aux véritables en-têtes de la
+feuille Chantiers du client — un seul endroit à modifier, sans toucher
+au code, tout le reste du classeur se reconnecte automatiquement.
 Le menu **Pilotage ▸ Vérifier la structure Chantiers** contrôle cette
 correspondance et signale toute colonne introuvable.
 
@@ -113,10 +121,26 @@ formules, les validations et les protections sont reconstruites.
 
 ## Choix techniques notables
 
+- **Police** : `Roboto` — `Google Sans` (V1) n'existe pas dans le
+  sélecteur de polices de Google Sheets (c'est une police d'interface
+  produit Google, pas une police de document disponible via
+  `setFontFamily()`) ; Roboto est la police Google réellement
+  disponible dans Sheets la plus proche visuellement.
 - **Couleur d'accent** : le doré `#c8b394` utilisé pour l'esperluette
   du logo Matière & Nuance sur le site public (`--gold` dans
-  `public/assets/css/style.css`), repris ici comme unique couleur
-  d'accent de la charte demandée.
+  `public/assets/css/style.css`), repris ici en attendant la couleur
+  officielle exacte de la charte — **à remplacer dans `COLORS.ACCENT`
+  (`00_Constantes.gs`) dès qu'elle est fournie.**
+- **Taille des graphiques** : calculée à l'installation à partir de la
+  géométrie réelle de leur ancrage (somme des largeurs de colonnes et
+  hauteurs de lignes couvertes, `computeChartSize_()` dans
+  `01_Utils.gs`) plutôt qu'un pixel fixe codé en dur. Limite propre à
+  Google Sheets : un graphique reste un objet de taille fixe une fois
+  posé (pas de redimensionnement fluide façon page web) — il se
+  réadapte à chaque réinstallation, pas en continu à l'écran.
+- **Plage de saisie Charges** étendue à 1000 lignes (`CHARGES_LAST_DATA_ROW`).
+- **Mapping Chantiers configurable sans toucher au code** : voir la
+  section dédiée ci-dessus et `ARCHITECTURE.md` §7.
 - **Cellules calculées protégées** en mode "avertissement" (l'édition
   reste possible en cas de besoin réel, mais un message prévient
   qu'il s'agit d'une cellule calculée) plutôt qu'un verrouillage dur
@@ -134,3 +158,13 @@ formules, les validations et les protections sont reconstruites.
   catégorie est calculée une seule fois (table cachée sur Dashboard)
   et réutilisée telle quelle pour le graphique "Charges par catégorie"
   de Analyse, afin d'éviter de dupliquer le même calcul.
+
+## Journal des évolutions
+
+**V2 (architecture)** — police Roboto, graphiques à taille adaptative,
+plage Charges étendue à 1000 lignes, mapping Chantiers déplacé de
+`00_Constantes.gs` vers des cellules éditables dans Paramètres,
+ajout de `ARCHITECTURE.md`. Restent en attente d'une décision/donnée
+du client avant implémentation : couleur d'accent officielle, liste
+définitive des catégories de charges, et l'assistant "Nouvel exercice"
+(voir échanges de revue).

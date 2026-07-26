@@ -203,3 +203,28 @@ function annualAmountFormula_(namedValue, extraCondition) {
     ',ex,' + NAMED_RANGES.EXERCICE +
     ',SUMPRODUCT((YEAR(d)=ex)*v' + cond + '))';
 }
+
+/**
+ * Calcule la taille (en pixels) d'un graphique à partir de la
+ * géométrie réelle de son ancrage (somme des largeurs de colonnes et
+ * hauteurs de lignes couvertes), plutôt qu'une valeur codée en dur.
+ * Un graphique Sheets reste un objet de taille fixe une fois posé —
+ * il n'existe pas de redimensionnement fluide façon page web — mais
+ * cette taille s'adapte automatiquement à la mise en page réelle de
+ * la feuille à chaque (ré)installation, au lieu de rester figée sur
+ * un chiffre arbitraire indépendant des colonnes qu'elle survole.
+ *
+ * @param {Sheet} sheet
+ * @param {number} colStart 1-based
+ * @param {number} colSpan nombre de colonnes couvertes
+ * @param {number} rowStart 1-based
+ * @param {number} rowSpan nombre de lignes couvertes
+ * @return {{width:number, height:number}}
+ */
+function computeChartSize_(sheet, colStart, colSpan, rowStart, rowSpan) {
+  var width = 0;
+  for (var c = colStart; c < colStart + colSpan; c++) width += sheet.getColumnWidth(c);
+  var height = 0;
+  for (var r = rowStart; r < rowStart + rowSpan; r++) height += sheet.getRowHeight(r);
+  return { width: width, height: height };
+}
