@@ -33,12 +33,26 @@
   dans tout le classeur — nécessaire à la logique de la fonctionnalité
   elle-même, aucune alternative sans la modifier.
 - **Pas d'API Google Sheets réelle depuis cet environnement de
-  développement.** Aucune ligne de ce projet — V1 à V4 — n'a été
-  exécutée dans un vrai classeur Google Sheets. Toutes les
-  vérifications ont été faites par lecture de code, vérification de
-  syntaxe JavaScript et raisonnement sur le comportement documenté de
-  l'API Apps Script. Voir TODO.md pour les tests réels recommandés
-  avant mise en production.
+  développement.** Aucune ligne de ce projet n'a jamais été exécutée
+  dans un vrai classeur Google Sheets depuis cet environnement.
+  Toutes les vérifications sont faites par lecture de code,
+  vérification de syntaxe JavaScript et raisonnement sur le
+  comportement documenté de l'API Apps Script. Voir TODO.md pour les
+  tests réels recommandés avant mise en production.
+- **Limite d'exécution de 6 minutes — confirmée en conditions réelles
+  (V4.1).** Le premier retour d'exécution réelle du projet (V4
+  installée par le client sur un vrai classeur) a montré que
+  `installerERP()`, en une seule exécution, dépassait cette limite sur
+  un classeur vierge ("Exceeded maximum execution time"). Corrigé en
+  découpant l'installation en 3 étapes indépendantes, chacune avec son
+  propre budget de 6 minutes (voir ARCHITECTURE.md §4, CHANGELOG.md).
+  Le risque théorique subsiste, atténué mais pas éliminé : si la
+  feuille Chantiers existante du client devenait un jour extrêmement
+  volumineuse (au-delà de quelques milliers de lignes), même une des 3
+  étapes pourrait en théorie approcher la limite — improbable au
+  volume actuel, mais à garder en tête si Chantiers grossit fortement
+  (voir aussi la limite `SUMPRODUCT` ci-dessous, cause probable
+  commune).
 - **Export PDF multi-feuilles non documenté officiellement** (V4,
   `95_Export.gs`) : combiner Dashboard/Prévisionnel/Analyse en un seul
   PDF via plusieurs `gid` séparés par une virgule dans l'URL d'export

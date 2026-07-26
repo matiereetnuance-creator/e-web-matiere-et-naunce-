@@ -23,7 +23,7 @@ function buildParametres_() {
 
   sheet.setColumnWidth(1, 220);
   sheet.setColumnWidth(2, 200);
-  for (var c = 3; c <= 6; c++) sheet.setColumnWidth(c, 24);
+  sheet.setColumnWidths(3, 4, 24); // un seul appel plutôt que 4 (V4.1, perf)
 
   // Zones entièrement régénérées par le script (jamais de saisie
   // client) : titre, sous-titres, libellés colonne A, listes

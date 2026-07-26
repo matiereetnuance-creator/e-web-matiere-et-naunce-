@@ -3,7 +3,47 @@
 Toutes les versions sont des révisions du même projet Apps Script
 (`erp-pilotage/`), livrées sur la branche `claude/erp-matiere-nuance-1mme8l`.
 
-## V4 — Design premium (actuelle)
+## V4.1 — Installation en 3 étapes (actuelle)
+
+Correctif suite au **premier retour d'exécution réelle** du projet
+(V4 installée sur un vrai classeur Google Sheets par le client) :
+`installerERP()` dépassait la limite d'exécution Apps Script de 6
+minutes ("Exceeded maximum execution time") lors de la toute première
+installation sur un classeur vierge. Aucune logique métier modifiée,
+aucune formule touchée — uniquement la couche d'orchestration de
+l'installation et 3 optimisations de performance sans effet visible.
+
+- **Installation découpée en 3 étapes indépendantes**
+  (`installerEtape1_()` / `installerEtape2_()` / `installerEtape3_()`,
+  `99_Installation.gs`) remplaçant l'unique `installerERP()` :
+  Étape 1/3 (Paramètres + Charges + connexion Chantiers), Étape 2/3
+  (Dashboard + Prévisionnel + Analyse), Étape 3/3 (Accueil +
+  protections + rangement des onglets). Chaque étape = un clic de
+  menu = une exécution Apps Script séparée, avec son propre budget de
+  6 minutes. Voir ARCHITECTURE.md §4.
+- **Garde-fous d'ordre** : `etapePreteEtape2_()` / `etapePreteEtape3_()`
+  empêchent de lancer une étape avant la précédente (message clair au
+  lieu d'un classeur à moitié construit).
+- **Menu** (`02_Menu.gs`) : l'item unique "🛠️ Installer / Réinitialiser
+  la structure ERP" est remplacé par un sous-menu "🛠️ Installation (en
+  3 étapes)" à 3 entrées.
+- **Performance** : `setColumnWidth()` appelé en boucle sur Paramètres
+  (4 appels), Dashboard (14 appels) et Analyse (8 appels) remplacé par
+  un seul `setColumnWidths()` chacun — même rendu, moins d'appels API,
+  contribue à rester sous la limite de 6 minutes.
+- **Documentation** : README.md, ARCHITECTURE.md, TODO.md,
+  KNOWN_LIMITATIONS.md et RECETTE.md mis à jour pour refléter le
+  nouveau flux d'installation en 3 étapes.
+
+**Fichiers modifiés** : `99_Installation.gs` (réécrit), `02_Menu.gs`
+(réécrit), `04_Protections.gs` (commentaire), `10_Parametres.gs`,
+`40_Dashboard.gs`, `60_Analyse.gs` (consolidation `setColumnWidths`),
+`85_NouvelExercice.gs` (message d'erreur, référence menu), `README.md`,
+`ARCHITECTURE.md`, `TODO.md`, `KNOWN_LIMITATIONS.md`, `RECETTE.md`.
+**Non modifiés** : tous les autres modules `build*_()` — aucune
+formule, aucun calcul, aucune mise en forme changée.
+
+## V4 — Design premium
 
 Aucune fonctionnalité métier ajoutée, aucune formule ni logique
 métier modifiée. Périmètre : transformer l'apparence et les à-côtés

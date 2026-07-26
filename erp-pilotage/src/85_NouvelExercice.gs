@@ -32,8 +32,8 @@ function assistantNouvelExercice() {
   var paramSheet = getSheetSafe_(SHEETS.PARAMETRES);
   if (!paramSheet) {
     afficherErreur_('Paramètres introuvables',
-      'Installez d\'abord l\'ERP (Pilotage ▸ Installer / Réinitialiser la ' +
-      'structure ERP) avant de créer un nouvel exercice.');
+      'Installez d\'abord l\'ERP (Pilotage ▸ Installation ▸ les 3 étapes) ' +
+      'avant de créer un nouvel exercice.');
     return;
   }
 

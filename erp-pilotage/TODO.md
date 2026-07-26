@@ -11,15 +11,22 @@ nécessaire pour une mise en production sereine.
   correspondent exactement à ceux de l'onglet Chantiers existant.
   Confirmer avec Pilotage ▸ Vérifier la structure Chantiers (ou
   Diagnostic).
-- [ ] **Installer une fois sur un classeur de test réel** (jamais
-  exécuté dans un vrai Google Sheets depuis cet environnement de
-  développement — voir KNOWN_LIMITATIONS.md). Vérifier à l'œil que la
+- [x] **Installer une fois sur un classeur de test réel** — fait : a
+  révélé un dépassement de la limite d'exécution Apps Script (6 min)
+  sur `installerERP()` en une seule exécution, corrigé en V4.1 par un
+  découpage en 3 étapes (voir CHANGELOG.md). Reste à confirmer une
+  nouvelle installation complète avec le code V4.1 :
+  **Pilotage ▸ 🛠️ Installation (en 3 étapes)**, en cliquant les 3
+  étapes l'une après l'autre (1️⃣ Paramètres + Charges, 2️⃣ Dashboard +
+  Prévisionnel + Analyse, 3️⃣ Finalisation). Vérifier à l'œil que la
   mise en forme correspond aux maquettes fournies en revue
-  d'architecture.
+  d'architecture, et qu'aucune des 3 étapes ne dépasse la limite de
+  temps.
 - [ ] **Réinstaller une seconde fois sur ce même classeur de test**
-  après avoir saisi des données (Charges, Paramètres) pour confirmer
-  de visu qu'aucune n'est perdue (idempotence vérifiée par
-  raisonnement sur le code, pas par exécution réelle).
+  (les 3 étapes, dans l'ordre) après avoir saisi des données (Charges,
+  Paramètres) pour confirmer de visu qu'aucune n'est perdue
+  (idempotence vérifiée par raisonnement sur le code, pas encore par
+  une réinstallation réelle avec le flux en 3 étapes).
 
 ## Important
 

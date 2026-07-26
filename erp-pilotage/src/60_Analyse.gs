@@ -14,7 +14,7 @@ function buildAnalyse_() {
   var sheet = getOrCreateSheet_(SHEETS.ANALYSE);
   resetSheet_(sheet);
 
-  for (var c = 1; c <= 8; c++) sheet.setColumnWidth(c, 95);
+  sheet.setColumnWidths(1, 8, 95); // un seul appel plutôt que 8 (V4.1, perf)
 
   buildAnalyseTitre_(sheet);
   buildAnalyseDonneesMensuelles_(sheet);

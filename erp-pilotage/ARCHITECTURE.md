@@ -93,25 +93,54 @@ d'Analyse réutilise directement la table cachée calculée par
 calcul une deuxième fois. Conséquence directe : **Dashboard doit
 toujours être (re)construit avant Analyse** — c'est pour cette raison,
 et pas seulement pour suivre l'ordre du cahier des charges, que
-`installerERP()` respecte l'ordre ci-dessous.
+l'installation respecte l'ordre ci-dessous.
 
 ## 4. Ordre d'installation (`99_Installation.gs`)
 
+**V4.1 — installation en 3 étapes.** Apps Script limite une exécution
+à 6 minutes sur un compte gratuit ; construire les 7 feuilles en un
+seul appel (`installerERP()`, jusqu'à la V4.0) a dépassé cette limite
+lors de la toute première installation réelle sur un classeur vierge
+(premier retour d'exécution réelle du projet — voir CHANGELOG.md et
+KNOWN_LIMITATIONS.md). L'installation est donc découpée en 3 fonctions
+indépendantes (`installerEtape1_()`, `installerEtape2_()`,
+`installerEtape3_()`), chacune déclenchée par un item de menu séparé
+(`02_Menu.gs`) — donc une exécution Apps Script distincte, avec son
+propre budget de 6 minutes. L'ordre de dépendance entre feuilles reste
+strictement identique à avant, simplement réparti en 3 groupes :
+
 ```
+Étape 1/3 — installerEtape1_()
 1. buildParametres_()        → doit être en premier : tout le reste lit ses plages nommées
 2. buildCharges_()           → a besoin des listes de Paramètres (dropdowns)
 3. ensureChantiersLinks_()   → a besoin du mapping saisi dans Paramètres (§2)
+
+Étape 2/3 — installerEtape2_()
 4. buildDashboard_()         → a besoin de Paramètres + Charges + Chantiers
 5. buildPrevisionnel_()      → a besoin de Paramètres + Chantiers
 6. buildAnalyse_()           → a besoin de Chantiers + PARAMÈTRES + DASHBOARD (table cachée réutilisée)
-7. buildAccueil_()           → a besoin de Dashboard (identifiant de feuille pour le bouton)
+
+Étape 3/3 — installerEtape3_()
+7. buildAccueil_()                     → a besoin de Dashboard (identifiant de feuille pour le bouton)
+8. reappliquerProtectionsFormules_()   → filet de sécurité générique (§5), une fois toutes les feuilles posées
+9. ordonnerFeuilles_()                 → range les onglets dans SHEET_ORDER
 ```
 
-Inverser 4 et 6, ou construire Analyse seule sans passer par
-`installerERP()`, casse le 3ᵉ graphique d'Analyse (plage `Dashboard!T:U`
+Inverser 4 et 6, ou construire Analyse seule sans être passé par
+l'étape 2, casse le 3ᵉ graphique d'Analyse (plage `Dashboard!T:U`
 introuvable ou périmée). `buildAnalyse_()` appelle `getRequiredSheet_()`
 sur Dashboard précisément pour échouer bruyamment dans ce cas plutôt que
 produire un graphique vide silencieusement.
+
+Chaque étape vérifie que la précédente a bien été exécutée avant de
+construire quoi que ce soit (`etapePreteEtape2_()` teste l'existence
+des plages nommées posées par l'étape 1 ; `etapePreteEtape3_()` teste
+celle posée par l'étape 2) — lancer une étape hors ordre affiche un
+message clair au lieu de produire un classeur à moitié construit.
+Chaque étape reste, comme l'ancien `installerERP()`, entièrement
+idempotente : relancer une étape seule à n'importe quel moment ne
+touche jamais aux données déjà saisies (Chantiers, lignes de Charges,
+réglages de Paramètres).
 
 ## 5. Modèle de protection
 
@@ -138,7 +167,8 @@ de protections fantômes.
 
 **V3 — filet de sécurité générique** (`04_Protections.gs`) :
 `reappliquerProtectionsFormules_()` s'exécute en toute fin
-d'`installerERP()` et balaie l'ensemble du classeur (hors Chantiers)
+d'`installerEtape3_()` (étape 3/3 de l'installation, V4.1 — voir §4)
+et balaie l'ensemble du classeur (hors Chantiers)
 pour protéger toute cellule à formule qui aurait échappé à la
 protection explicite d'un module. Elle **n'efface jamais** les
 protections existantes avant de balayer : une cellule déjà protégée
@@ -261,6 +291,13 @@ lecture, à l'exception de la vérification Chantiers qui réutilise
   et les protections existantes en un seul appel chacune, puis protège
   par segments de colonnes contiguës plutôt qu'une Protection par
   cellule.
+- **V4.1** : les largeurs de colonnes posées en boucle
+  (`for (var c = ...) sheet.setColumnWidth(c, ...)`) sur Paramètres,
+  Dashboard et Analyse ont été remplacées par un seul appel
+  `setColumnWidths(colonneDépart, nombre, largeur)` chacune — même
+  résultat visuel, jusqu'à 14 appels API économisés par installation.
+  Contribue, avec le découpage en 3 étapes (§4), à rester sous la
+  limite d'exécution de 6 minutes d'Apps Script.
 - Non optimisé, en connaissance de cause : les formules
   `SUMPRODUCT` sur Chantiers (jusqu'à 5000 lignes) restent posées telles
   quelles — les réécrire (ex. tableaux croisés dynamiques, Apps Script

@@ -1,61 +1,51 @@
 /**
- * Installation / réinitialisation de l'ERP.
+ * Installation en 3 étapes (V4.1).
  *
- * Reconstruit la structure, la mise en forme, les formules et les
- * validations de tous les onglets calculés dans le bon ordre (voir
- * ARCHITECTURE.md §4 pour le détail des dépendances). N'efface JAMAIS
- * les données déjà saisies par le client (Chantiers, Charges, réglages
- * de Paramètres) — seules la mise en forme et les formules sont
- * reconstruites. Processus entièrement idempotent : relancer cette
- * fonction 10 fois de suite produit exactement le même résultat que
- * la relancer une fois (voir KNOWN_LIMITATIONS.md pour les garanties
- * et limites de cette idempotence).
+ * Sur un compte Google gratuit, Apps Script limite une exécution à
+ * 6 minutes. Construire les 7 feuilles en un seul appel (l'ancien
+ * `installerERP()`, jusqu'à la V4.0) pouvait dépasser cette limite
+ * lors d'une toute première installation sur un classeur vierge.
+ * L'installation est donc découpée en 3 étapes indépendantes, chacune
+ * lancée par un clic de menu séparé — donc une exécution Apps Script
+ * séparée, avec son propre budget de 6 minutes :
+ *
+ *   Étape 1/3 : Paramètres + Charges + connexion à Chantiers
+ *   Étape 2/3 : Dashboard + Prévisionnel + Analyse
+ *   Étape 3/3 : Accueil + protections + rangement des onglets
+ *
+ * Chaque étape vérifie que la précédente a bien été exécutée (elle ne
+ * construit rien tant que ce n'est pas le cas — voir
+ * `etapePreteEtape2_()` / `etapePreteEtape3_()`) et reste, comme
+ * avant, entièrement idempotente : relancer une étape seule à
+ * n'importe quel moment ne touche jamais aux données déjà saisies
+ * (Chantiers, lignes de Charges, réglages de Paramètres) et ne casse
+ * pas les étapes déjà construites (voir ARCHITECTURE.md §4).
  */
 
-/** Construit/reconstruit tout le classeur. Ne lève jamais d'exception non gérée vers l'utilisateur. */
-function installerERP() {
-  var ui = SpreadsheetApp.getUi();
-  try {
-    buildParametres_();
-    buildCharges_();
+/** Étape 1/3 : Paramètres, Charges, connexion à Chantiers. Retourne les en-têtes Chantiers manquants. */
+function installerEtape1_() {
+  buildParametres_();
+  buildCharges_();
+  return ensureChantiersLinks_();
+}
 
-    var enTetesManquants = ensureChantiersLinks_();
+/** Étape 2/3 : Dashboard, Prévisionnel, Analyse — suppose l'étape 1 déjà faite. */
+function installerEtape2_() {
+  buildDashboard_();
+  buildPrevisionnel_();
+  buildAnalyse_();
+}
 
-    buildDashboard_();
-    buildPrevisionnel_();
-    buildAnalyse_();
-    buildAccueil_();
+/** Étape 3/3 : Accueil, protections, rangement des onglets. Retourne les en-têtes Chantiers encore manquants. */
+function installerEtape3_() {
+  buildAccueil_();
+  reappliquerProtectionsFormules_();
+  ordonnerFeuilles_();
 
-    reappliquerProtectionsFormules_();
-    ordonnerFeuilles_();
+  var accueil = getSheetSafe_(SHEETS.ACCUEIL);
+  if (accueil) accueil.activate();
 
-    var accueil = getSheetSafe_(SHEETS.ACCUEIL);
-    if (accueil) accueil.activate();
-
-    if (enTetesManquants.length > 0) {
-      enregistrerEvenement_(JOURNAL_TYPES.INSTALLATION, 'Terminée — en-têtes Chantiers manquants : ' + enTetesManquants.join(', '));
-      ui.alert('Installation terminée — action requise',
-        'Le classeur a été installé, mais la feuille "' + SHEETS.CHANTIERS +
-        '" n\'expose pas les en-têtes suivants :\n\n' + enTetesManquants.join('\n') +
-        '\n\nEn attendant la correction, les indicateurs concernés affichent 0 ' +
-        '(aucune erreur ne s\'affiche). Ouvrez le menu Pilotage ▸ "Vérifier la ' +
-        'structure Chantiers" après correction.', ui.ButtonSet.OK);
-    } else {
-      enregistrerEvenement_(JOURNAL_TYPES.INSTALLATION, 'Terminée avec succès');
-      toast_('Installation terminée avec succès.', 'Pilotage');
-    }
-  } catch (err) {
-    // Erreur inattendue : on informe clairement plutôt que de laisser
-    // remonter une exception technique brute à l'écran.
-    var messageErreur = String(err && err.message ? err.message : err);
-    enregistrerEvenement_(JOURNAL_TYPES.ERREUR, 'Installation interrompue : ' + messageErreur);
-    afficherErreur_('Erreur d\'installation',
-      'L\'installation s\'est arrêtée avant d\'être terminée :\n\n' +
-      messageErreur +
-      '\n\nAucune donnée saisie (Chantiers, Charges, Paramètres) n\'a été ' +
-      'affectée. Relancez Pilotage ▸ Installer après avoir corrigé la cause, ' +
-      'ou consultez Pilotage ▸ Diagnostic.');
-  }
+  return ensureChantiersLinks_(); // relit l'état courant pour le message final
 }
 
 /** Place les feuilles dans l'ordre attendu (SHEET_ORDER, 00_Constantes.gs). */
@@ -68,4 +58,36 @@ function ordonnerFeuilles_() {
       ss.moveActiveSheet(index + 1);
     }
   });
+}
+
+/** Vrai si l'étape 1 semble avoir été exécutée (Paramètres + Charges construits). */
+function etapePreteEtape2_() {
+  return !!getNamedRangeSafe_(NAMED_RANGES.OBJECTIF_CA) && !!getNamedRangeSafe_(NAMED_RANGES.CHARGES_MENSUELLES);
+}
+
+/** Vrai si l'étape 2 semble avoir été exécutée (Dashboard construit). */
+function etapePreteEtape3_() {
+  return !!getNamedRangeSafe_(NAMED_RANGES.DASHBOARD_CA_REALISE);
+}
+
+/**
+ * Message d'action pour des en-têtes Chantiers introuvables, ou
+ * chaîne vide si tout va bien. Partagé par les 3 boîtes de dialogue
+ * de fin d'étape pour éviter de répéter le même texte.
+ */
+function messageEnTetesManquants_(enTetesManquants) {
+  if (!enTetesManquants.length) return '';
+  return '\n\n⚠️ En-têtes Chantiers introuvables : ' + enTetesManquants.join(', ') +
+    '\nEn attendant la correction (Paramètres!B12:B15, section "Connexion à ' +
+    'l\'onglet Chantiers"), les indicateurs concernés affichent 0 — aucune erreur ne s\'affiche.';
+}
+
+/** Consigne l'échec au journal et affiche un message clair plutôt qu'une exception brute. */
+function signalerErreurInstallation_(etape, err) {
+  var messageErreur = String(err && err.message ? err.message : err);
+  enregistrerEvenement_(JOURNAL_TYPES.ERREUR, 'Installation ' + etape + ' interrompue : ' + messageErreur);
+  afficherErreur_('Erreur d\'installation — ' + etape,
+    'Cette étape s\'est arrêtée avant d\'être terminée :\n\n' + messageErreur +
+    '\n\nAucune donnée saisie (Chantiers, Charges, Paramètres) n\'a été affectée. ' +
+    'Corrigez la cause puis relancez cette étape, ou consultez Pilotage ▸ Diagnostic.');
 }

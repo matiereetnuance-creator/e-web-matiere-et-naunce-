@@ -105,8 +105,9 @@ clasp push
 `clasp create --type sheets` crée un classeur Google Sheets lié et un
 projet Apps Script. Après le premier `clasp push`, ouvrez le classeur
 généré : le menu **Pilotage** apparaît au rechargement de la page
-(`onOpen`). Utilisez **Pilotage ▸ Installer / Réinitialiser la
-structure ERP** pour construire l'ensemble des feuilles.
+(`onOpen`). Utilisez **Pilotage ▸ 🛠️ Installation (en 3 étapes)** pour
+construire l'ensemble des feuilles, une étape à la fois (voir
+"Première installation" ci-dessous).
 
 Pour connecter ce code à un classeur **déjà existant** chez le client
 (celui qui contient la vraie feuille Chantiers) : `clasp clone
@@ -126,11 +127,28 @@ dans Sheets, puis copiez les fichiers de `src/` dans l'éditeur), puis
 
 ### Première installation
 
-Menu **Pilotage ▸ Installer / Réinitialiser la structure ERP**. Une
-confirmation est demandée avant toute reconstruction. Les données déjà
-saisies (lignes de `Charges`, contenu de `Chantiers`, réglages de
-`Paramètres`) ne sont jamais effacées — seules la mise en forme, les
-formules, les validations et les protections sont reconstruites.
+Depuis la V4.1, l'installation est **découpée en 3 étapes** (menu
+**Pilotage ▸ 🛠️ Installation (en 3 étapes)**) plutôt qu'un seul clic :
+Google Apps Script limite une exécution à 6 minutes sur un compte
+gratuit, et tout construire en un seul appel peut dépasser cette
+limite lors d'une toute première installation sur un classeur vierge
+(constaté en conditions réelles — voir CHANGELOG.md). Chaque étape est
+une exécution indépendante, avec son propre budget de temps :
+
+1. **1️⃣ Étape 1/3 — Paramètres + Charges** (relie aussi Chantiers par
+   en-tête).
+2. **2️⃣ Étape 2/3 — Dashboard + Prévisionnel + Analyse.**
+3. **3️⃣ Étape 3/3 — Finalisation** (Accueil, protections, rangement
+   des onglets).
+
+Une confirmation est demandée avant chaque étape, et une boîte de
+dialogue en fin d'étape indique la suite. Lancer une étape avant la
+précédente affiche un message clair sans rien reconstruire. Les
+données déjà saisies (lignes de `Charges`, contenu de `Chantiers`,
+réglages de `Paramètres`) ne sont jamais effacées, à aucune étape —
+seules la mise en forme, les formules, les validations et les
+protections sont reconstruites. Voir `RECETTE.md` §2 pour le
+déroulé détaillé et `ARCHITECTURE.md` §4 pour le détail technique.
 
 ## Choix techniques notables
 
@@ -212,7 +230,7 @@ qu'aucun `build*_()` n'ait besoin de retourner sur la copie.
 | 🩺 Diagnostic | 7 contrôles automatiques, rapport clair (V3) |
 | 🗒️ Afficher le journal | Les 20 derniers événements techniques enregistrés (V4) |
 | 🆕 Nouvel exercice… | Crée une copie du classeur pour l'année suivante (voir section dédiée) |
-| 🛠️ Installer / Réinitialiser | (Re)construit tout le classeur, sans jamais effacer les données saisies |
+| 🛠️ Installation (en 3 étapes) | (Re)construit tout le classeur en 3 clics séparés, sans jamais effacer les données saisies (V4.1 — voir "Première installation") |
 | ℹ️ À propos… | Nom, version, build, auteur, dernier diagnostic, dernière installation (V4) |
 
 ## Robustesse (V3)
@@ -258,7 +276,10 @@ tableur. Concrètement :
 ## Journal des évolutions
 
 Voir **[`CHANGELOG.md`](CHANGELOG.md)** pour l'historique complet.
-En bref : **V4** (design premium — système de design centralisé,
+En bref : **V4.1** (installation en 3 étapes pour respecter la limite
+d'exécution de 6 minutes d'Apps Script — corrige un dépassement
+constaté lors de la première installation réelle ; aucune logique
+métier modifiée) ; **V4** (design premium — système de design centralisé,
 style de graphique unique, harmonisation cartes/tableaux/typographie,
 menu À propos, journal technique interne, export PDF ; aucune
 fonctionnalité métier, aucun calcul modifié) ; **V3** (qualité,

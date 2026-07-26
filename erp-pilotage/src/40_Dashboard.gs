@@ -12,7 +12,7 @@ function buildDashboard_() {
   var sheet = getOrCreateSheet_(SHEETS.DASHBOARD);
   resetSheet_(sheet);
 
-  for (var c = 1; c <= 14; c++) sheet.setColumnWidth(c, 95);
+  sheet.setColumnWidths(1, 14, 95); // un seul appel plutôt que 14 (V4.1, perf)
 
   buildDashboardTitre_(sheet);
   buildDashboardCartes_(sheet);

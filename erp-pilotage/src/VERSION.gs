@@ -8,7 +8,7 @@
  */
 
 var VERSION = {
-  NUMBER: '4.0.0',
+  NUMBER: '4.1.0',
   BUILD_NAME: 'Premium',
   BUILD_DATE: '2026-07-26',
   AUTHOR: 'Matière & Nuance — Pilotage interne'

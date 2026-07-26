@@ -22,8 +22,9 @@
  * l'identique. Ne pas y toucher est donc ce qui rend cette fonction
  * sûre à appeler autant de fois que voulu (idempotence, point 8).
  *
- * Appelée automatiquement en fin d'installerERP() (99_Installation.gs)
- * et disponible en menu (02_Menu.gs) pour un ré-armement manuel.
+ * Appelée automatiquement en fin d'installerEtape3_() (99_Installation.gs,
+ * étape 3/3 de l'installation) et disponible en menu (02_Menu.gs) pour
+ * un ré-armement manuel.
  */
 
 /** Réapplique les protections sur toutes les cellules à formule de toutes les feuilles gérées. */
