@@ -268,6 +268,9 @@ catégories et couleur d'accent définitives, assistant Nouvel
 exercice) ; **V1** (version initiale, 7 feuilles).
 
 Voir aussi **[`ROADMAP.md`](ROADMAP.md)** (évolutions possibles),
-**[`TODO.md`](TODO.md)** (actions avant mise en production) et
+**[`TODO.md`](TODO.md)** (actions avant mise en production),
 **[`KNOWN_LIMITATIONS.md`](KNOWN_LIMITATIONS.md)** (limites Google
-Sheets et risques acceptés en connaissance de cause).
+Sheets et risques acceptés en connaissance de cause) et
+**[`RECETTE.md`](RECETTE.md)** (protocole de recette fonctionnelle —
+à exécuter par une personne disposant d'un compte Google, cet
+environnement de développement n'ayant aucun accès à Google Sheets).
