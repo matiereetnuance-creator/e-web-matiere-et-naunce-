@@ -6,9 +6,35 @@
  * garder une charte graphique cohérente sur l'ensemble du classeur.
  */
 
+var _spreadsheetActifCache_ = null;
+
+/**
+ * Classeur actif, mis en cache pour la durée d'une exécution.
+ *
+ * Chaque installation appelle SpreadsheetApp.getActiveSpreadsheet()
+ * des dizaines de fois (une fois par feuille créée/lue, plage nommée
+ * posée, etc.). Comme le classeur actif ne change jamais au cours
+ * d'une même exécution Apps Script, ce cache évite ces appels
+ * redondants au service Sheets (V3 — audit performance). Le cache est
+ * réinitialisé à chaque nouvelle exécution du script (portée globale
+ * remise à zéro par le moteur Apps Script), jamais de risque de
+ * pointer vers un classeur périmé d'une exécution à l'autre.
+ *
+ * ⚠️ Ne jamais utiliser cette fonction pour manipuler la copie créée
+ * par "Nouvel exercice" (85_NouvelExercice.gs) : cette copie n'est
+ * PAS le classeur actif, elle doit toujours être référencée par
+ * l'objet Spreadsheet retourné par `.copy()`.
+ */
+function getSpreadsheet_() {
+  if (!_spreadsheetActifCache_) {
+    _spreadsheetActifCache_ = SpreadsheetApp.getActiveSpreadsheet();
+  }
+  return _spreadsheetActifCache_;
+}
+
 /** Retourne la feuille, en la créant si elle n'existe pas encore. */
 function getOrCreateSheet_(name) {
-  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var ss = getSpreadsheet_();
   var sheet = ss.getSheetByName(name);
   if (!sheet) {
     sheet = ss.insertSheet(name);
@@ -21,7 +47,7 @@ function getOrCreateSheet_(name) {
  * Lève une erreur explicite sinon plutôt que d'en créer une vide.
  */
 function getRequiredSheet_(name) {
-  var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(name);
+  var sheet = getSpreadsheet_().getSheetByName(name);
   if (!sheet) {
     throw new Error('La feuille "' + name + '" est introuvable. ' +
       'Elle doit exister avant l\'installation (voir 00_Constantes.gs).');
@@ -39,6 +65,7 @@ function resetSheet_(sheet) {
   sheet.setTabColor(null);
 }
 
+/** Supprime toutes les protections de plage que le script est autorisé à retirer. */
 function removeAllProtections_(sheet) {
   var protections = sheet.getProtections(SpreadsheetApp.ProtectionType.RANGE);
   protections.forEach(function (p) {
@@ -56,7 +83,7 @@ function protectAsCalculated_(range, description) {
 
 /** Crée (ou remplace) une plage nommée. */
 function setNamedRange_(name, range) {
-  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var ss = getSpreadsheet_();
   var existing = ss.getRangeByName(name);
   if (existing) ss.removeNamedRange(name);
   ss.setNamedRange(name, range);
@@ -92,8 +119,18 @@ function styleCardValue_(range, accent) {
 /**
  * Construit une carte KPI simple : libellé sur la ligne `row`,
  * valeur (formule) sur la ligne `row + 1`, fond gris très clair,
- * bordure fine, valeur protégée car calculée.
+ * bordure fine, valeur protégée car calculée. Toutes les cartes du
+ * classeur passent par cette unique fonction — c'est ce qui garantit
+ * qu'elles ont exactement le même style (V3, point UX).
  *
+ * @param {Sheet} sheet
+ * @param {number} row Ligne du libellé (la valeur est sur row + 1).
+ * @param {number} col Colonne de départ (1-based).
+ * @param {number} width Largeur en colonnes de la carte.
+ * @param {string} label Libellé affiché (ex. "CA RÉALISÉ").
+ * @param {string} formula Formule complète (avec "="), déjà protégée par avecIferror_ si pertinent.
+ * @param {string=} numberFormat Format numérique à appliquer à la valeur.
+ * @param {boolean=} accent Si vrai, la valeur est affichée dans la couleur d'accent.
  * @return {Range} la cellule de valeur, pour réutilisation éventuelle.
  */
 function buildKpiCard_(sheet, row, col, width, label, formula, numberFormat, accent) {
@@ -144,10 +181,9 @@ function styleTableHeader_(range) {
   protectAsCalculated_(range, 'En-tête de tableau — ne pas modifier');
 }
 
-/** Applique une liste déroulante (validation) à partir d'une plage nommée. */
+/** Applique une liste déroulante (validation stricte : saisie hors liste refusée) à partir d'une plage nommée. */
 function setDropdownFromNamedRange_(range, namedRangeName, allowInvalid) {
-  var ss = SpreadsheetApp.getActiveSpreadsheet();
-  var source = ss.getRangeByName(namedRangeName);
+  var source = getSpreadsheet_().getRangeByName(namedRangeName);
   var rule = SpreadsheetApp.newDataValidation()
     .requireValueInRange(source, true)
     .setAllowInvalid(!!allowInvalid)
@@ -155,18 +191,25 @@ function setDropdownFromNamedRange_(range, namedRangeName, allowInvalid) {
   range.setDataValidation(rule);
 }
 
-/** Retourne l'index de colonne (1-based) d'un en-tête dans une feuille, ou -1. */
-function findColumnByHeader_(sheet, headerRow, headerText) {
-  var lastCol = sheet.getLastColumn();
-  if (lastCol === 0) return -1;
-  var headers = sheet.getRange(headerRow, 1, 1, lastCol).getValues()[0];
+/**
+ * Retourne l'index de colonne (1-based) d'un en-tête dans un tableau
+ * d'en-têtes déjà lu (voir ensureChantiersLinks_, qui lit la ligne
+ * d'en-tête Chantiers UNE fois et réutilise ce tableau pour ses 4
+ * recherches plutôt que de relire la feuille à chaque champ — V3,
+ * audit performance).
+ *
+ * @param {Array<string>} headers Ligne d'en-têtes déjà lue (getValues()[0]).
+ * @param {string} headerText En-tête recherché.
+ * @return {number} Index 1-based, ou -1 si introuvable.
+ */
+function findColumnInHeaders_(headers, headerText) {
   for (var i = 0; i < headers.length; i++) {
     if (String(headers[i]).trim() === headerText) return i + 1;
   }
   return -1;
 }
 
-/** Formate en euros sans décimales inutiles. */
+/** Formats numériques centralisés — jamais de format écrit en dur dans un module de feuille. */
 var FORMAT_EUR = '#,##0 €;-#,##0 €';
 var FORMAT_EUR_2DEC = '#,##0.00 €;-#,##0.00 €';
 var FORMAT_PERCENT = '0.0%';
@@ -175,33 +218,41 @@ var FORMAT_DATE = 'dd/mm/yyyy';
 
 /** Affiche un message de confirmation discret (bas d'écran). */
 function toast_(message, title) {
-  SpreadsheetApp.getActiveSpreadsheet().toast(message, title || 'Pilotage', 4);
+  getSpreadsheet_().toast(message, title || 'Pilotage', 4);
 }
 
 /**
- * Formule (LET + SUMPRODUCT) du total d'une valeur Chantiers pour un
- * mois donné de l'exercice en cours. Utilisée par Dashboard,
- * Prévisionnel et Analyse pour éviter toute duplication de logique.
+ * Formule (LET + SUMPRODUCT, protégée par IFERROR) du total d'une
+ * valeur Chantiers pour un mois donné de l'exercice en cours. Utilisée
+ * par Dashboard, Prévisionnel et Analyse pour éviter toute duplication
+ * de logique — la durcir ici (V3) suffit à protéger les trois.
  *
  * @param {string} namedValue Plage nommée de la valeur à sommer (ex. CHANTIERS_CA_HT).
  * @param {number} monthIndex 1 (janvier) à 12 (décembre).
  * @param {string=} extraCondition Facteur SUMPRODUCT additionnel, ex. '(s="Facturé")'.
+ * @return {string} Formule complète (avec "=").
  */
 function monthlyAmountFormula_(namedValue, monthIndex, extraCondition) {
   var cond = extraCondition ? '*' + extraCondition : '';
-  return '=LET(d,' + NAMED_RANGES.CHANTIERS_DATE +
+  var corps = 'LET(d,' + NAMED_RANGES.CHANTIERS_DATE +
     ',v,' + namedValue +
     ',ex,' + NAMED_RANGES.EXERCICE +
     ',SUMPRODUCT((YEAR(d)=ex)*(MONTH(d)=' + monthIndex + ')*v' + cond + '))';
+  return avecIferror_(corps, 0);
 }
 
-/** Même principe que monthlyAmountFormula_ mais sur l'exercice entier (sans filtre de mois). */
+/**
+ * Même principe que monthlyAmountFormula_ mais sur l'exercice entier
+ * (sans filtre de mois).
+ * @return {string} Formule complète (avec "=").
+ */
 function annualAmountFormula_(namedValue, extraCondition) {
   var cond = extraCondition ? '*' + extraCondition : '';
-  return '=LET(d,' + NAMED_RANGES.CHANTIERS_DATE +
+  var corps = 'LET(d,' + NAMED_RANGES.CHANTIERS_DATE +
     ',v,' + namedValue +
     ',ex,' + NAMED_RANGES.EXERCICE +
     ',SUMPRODUCT((YEAR(d)=ex)*v' + cond + '))';
+  return avecIferror_(corps, 0);
 }
 
 /**

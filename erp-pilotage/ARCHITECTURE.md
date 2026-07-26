@@ -50,6 +50,7 @@ entre feuilles — voir §3.
 | `CHANTIERS_MARGE_HT` | Chantiers (existante) | colonne trouvée par en-tête, 5000 lignes | `ensureChantiersLinks_()` | Lecture seule |
 | `CHANTIERS_DATE` | Chantiers (existante) | colonne trouvée par en-tête, 5000 lignes | `ensureChantiersLinks_()` | Lecture seule |
 | `CHANTIERS_STATUT` | Chantiers (existante) | colonne trouvée par en-tête, 5000 lignes | `ensureChantiersLinks_()` | Lecture seule (reliée, non filtrée — voir README) |
+| `PARAM_CHANTIERS_FALLBACK_VIDE` | Paramètres | M1 (masquée, toujours vide) | `buildParametres_()` | Technique (V3, repli d'erreur) |
 | `DASHBOARD_CA_REALISE` | Dashboard | B4 (carte KPI) | `buildDashboard_()` | Calculée |
 
 Toutes les créations/mises à jour de plages nommées passent par
@@ -118,7 +119,11 @@ Deux régimes coexistent, jamais mélangés sur une même cellule :
 
 - **Cellule de saisie** (`styleInputCell_()`) : fond légèrement teinté,
   bordure couleur accent, jamais protégée, jamais écrasée par une
-  réinstallation si elle contient déjà une valeur.
+  réinstallation si elle contient déjà une valeur. La liste exhaustive
+  de ces plages est centralisée dans `EDITABLE_RANGES`
+  (`00_Constantes.gs`) — c'est la source unique de vérité que
+  `reappliquerProtectionsFormules_()` consulte pour savoir ce qu'il ne
+  doit jamais protéger.
 - **Cellule calculée** (`protectAsCalculated_()`) : protection
   « avertissement » (`setWarningOnly(true)`) — l'édition reste possible
   mais un message prévient qu'il s'agit d'une formule. Choisi plutôt
@@ -131,11 +136,24 @@ toutes les anciennes protections (`removeAllProtections_()`) avant
 d'en reposer de nouvelles — une réinstallation ne accumule donc jamais
 de protections fantômes.
 
+**V3 — filet de sécurité générique** (`04_Protections.gs`) :
+`reappliquerProtectionsFormules_()` s'exécute en toute fin
+d'`installerERP()` et balaie l'ensemble du classeur (hors Chantiers)
+pour protéger toute cellule à formule qui aurait échappé à la
+protection explicite d'un module. Elle **n'efface jamais** les
+protections existantes avant de balayer : une cellule déjà protégée
+(y compris une carte KPI fusionnée sur plusieurs colonnes, où
+`getFormulas()` ne voit la formule que dans la cellule en haut à
+gauche) est simplement ignorée. C'est ce qui la rend sûre à appeler
+un nombre quelconque de fois, y compris manuellement depuis le menu
+(Pilotage ▸ Réappliquer les protections), sans jamais accumuler de
+protections redondantes ni casser une protection posée autrement.
+
 ## 6. Colonnes/lignes cachées, par feuille
 
 | Feuille | Zone cachée | Contenu |
 |---|---|---|
-| Paramètres | Colonnes H:K | Listes techniques (Catégories, TVA, Périodicité, Oui/Non) |
+| Paramètres | Colonnes H:M | Listes techniques (H:K), espaceur (L), cellule de repli Chantiers (M — V3) |
 | Dashboard | Colonnes Q:V | Table mensuelle CA (Q:R) + répartition par catégorie (T:U) — sources des 2 graphiques |
 | Analyse | Colonnes J:L | Table mensuelle CA (K) / Marge (L) — sources des 2 premiers graphiques |
 
@@ -155,7 +173,101 @@ ici — tout le reste du classeur copié (formules, plages nommées,
 graphiques, protections) fonctionne sans reconstruction car il ne
 dépend que de plages nommées internes au fichier, dupliquées avec lui.
 
-## 8. Étendre le classeur
+## 9. Gestion des erreurs (V3, `03_Erreurs.gs`)
+
+Deux mécanismes distincts, à ne pas confondre :
+
+1. **Exceptions Apps Script** (une feuille ou une plage nommée
+   supprimée provoquerait un plantage technique) : les fonctions
+   `getSheetSafe_()`, `getNamedRangeSafe_()`, `getNamedValueSafe_()` ne
+   lèvent jamais d'exception — elles renvoient `null`/une valeur par
+   défaut. `afficherErreur_()` centralise l'affichage d'un message
+   utilisateur compréhensible (`ui.alert` préfixé `⚠️`).
+2. **Erreurs de formule** (`#REF!`, `#N/A!`, `#VALUE!`, `#NOM?`) :
+   `avecIferror_(corps, repli)` enveloppe systématiquement les formules
+   générées par le script. Appliqué au niveau des générateurs partagés
+   (`monthlyAmountFormula_`, `annualAmountFormula_` dans `01_Utils.gs`,
+   `chargesEquivalentMensuelFormula_` dans `20_Charges.gs`), ce qui
+   protège aussi le Dashboard sans qu'aucune ligne de
+   `40_Dashboard.gs` n'ait eu besoin d'être modifiée — ces deux
+   générateurs sont exactement ce que le Dashboard appelle pour ses
+   propres cartes et sa table cachée.
+
+**Repli Chantiers** : si une colonne attendue est introuvable,
+`ensureChantiersLinks_()` (`30_Chantiers.gs`) ne laisse jamais une
+plage nommée `CHANTIERS_*` indéfinie — elle la fait pointer vers
+`PARAM_CHANTIERS_FALLBACK_VIDE` (Paramètres!M1, toujours vide). Sans ce
+filet, chaque formule référençant cette plage afficherait `#NOM?` dans
+tout le classeur ; avec lui, l'indicateur concerné affiche simplement
+0, et Pilotage ▸ Diagnostic (ou Vérifier la structure Chantiers)
+signale clairement le problème réel.
+
+## 10. Validation des données (V3)
+
+Chaque cellule de saisie a un type explicite et une règle de
+validation stricte (`setAllowInvalid(false)`) :
+
+| Champ | Règle |
+|---|---|
+| Charges!Montant HT | Nombre ≥ 0 |
+| Charges!Date de début | Date valide |
+| Charges!Catégorie / Périodicité / TVA / Actif | Valeur de la liste correspondante uniquement |
+| Paramètres!Exercice | Nombre ≥ 1900 |
+| Paramètres!Date début / fin | Date valide |
+| Paramètres!Objectif CA HT / Salaire mensuel | Nombre ≥ 0 |
+| Paramètres!Objectif Marge | Nombre entre 0 et 1 (0 % à 100 %) |
+
+## 11. Mise en forme conditionnelle (V3)
+
+Toujours sobre — jamais de rouge ni de vert saturé (`COLORS.INACTIF_BG`,
+`COLORS.OBJECTIF_ATTEINT_BG`, `COLORS.OBJECTIF_DEPASSE_BG`,
+`COLORS.OBLIGATOIRE_VIDE_BG`, `00_Constantes.gs`) :
+
+| Feuille | Règle | Effet |
+|---|---|---|
+| Charges | `Actif = "Non"` | Ligne entière en gris très clair |
+| Prévisionnel | `Ecart > Objectif × 10 %` | Fond accent (dépassé) |
+| Prévisionnel | `Ecart ≥ 0` | Fond accent très léger (atteint) |
+| Paramètres | Exercice/dates/Objectif CA vides | Fond d'attention très léger |
+
+## 12. Diagnostic (V3, `90_Diagnostic.gs`)
+
+Menu **Pilotage ▸ Diagnostic** exécute 7 contrôles indépendants
+(feuilles, plages nommées, protections, colonnes Chantiers, paramètres
+obligatoires, graphiques, listes) via `creerRapportSection_()` (helper
+partagé, évite de dupliquer la mise en forme du rapport) et affiche un
+score global + le détail dans une boîte de dialogue. Purement en
+lecture, à l'exception de la vérification Chantiers qui réutilise
+`ensureChantiersLinks_()` (déjà non destructive, voir §8.1).
+
+## 13. Performance (V3)
+
+- `getSpreadsheet_()` (`01_Utils.gs`) met en cache le classeur actif
+  pour la durée d'une exécution — évite des dizaines d'appels
+  redondants à `SpreadsheetApp.getActiveSpreadsheet()` par
+  installation. Jamais utilisé pour la copie créée par "Nouvel
+  exercice", qui n'est pas le classeur actif (voir §7).
+- `ensureChantiersLinks_()` lit la ligne d'en-tête de Chantiers **une
+  seule fois** et réutilise ce tableau pour ses 4 recherches
+  (`findColumnInHeaders_()`), au lieu de relire la feuille à chaque
+  champ.
+- Les tableaux mensuels (Dashboard, Prévisionnel, Analyse) calculent
+  leurs 12 (ou 24/36) formules en JavaScript pur puis les écrivent en
+  un seul appel `setFormulas()`/`setValues()` par colonne, au lieu d'un
+  appel par cellule — de même pour les formats numériques, arrière-
+  plans et protections, regroupés par plage plutôt que posés cellule
+  par cellule.
+- `protegerCellulesAFormule_()` (`04_Protections.gs`) lit les formules
+  et les protections existantes en un seul appel chacune, puis protège
+  par segments de colonnes contiguës plutôt qu'une Protection par
+  cellule.
+- Non optimisé, en connaissance de cause : les formules
+  `SUMPRODUCT` sur Chantiers (jusqu'à 5000 lignes) restent posées telles
+  quelles — les réécrire (ex. tableaux croisés dynamiques, Apps Script
+  au lieu de formules) changerait la logique de calcul, explicitement
+  hors sujet de cette version (voir KNOWN_LIMITATIONS.md).
+
+## 14. Étendre le classeur
 
 - **Ajouter un champ lu depuis Chantiers** (ex. un jour, un champ
   "Client") : ajouter une entrée à `CHANTIERS_FIELDS`

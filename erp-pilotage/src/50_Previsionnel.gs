@@ -9,7 +9,10 @@
 
 var PREVISIONNEL_HEADER_ROW = 3;
 var PREVISIONNEL_FIRST_ROW = 4; // Janvier
+var PREVISIONNEL_CHART_COLSPAN = 4;
+var PREVISIONNEL_CHART_ROWSPAN = 16;
 
+/** Construit entièrement la feuille Prévisionnel (100% générée, aucune donnée de saisie). */
 function buildPrevisionnel_() {
   var sheet = getOrCreateSheet_(SHEETS.PREVISIONNEL);
   resetSheet_(sheet);
@@ -20,7 +23,10 @@ function buildPrevisionnel_() {
   sheet.setColumnWidth(4, 130);
 
   buildPrevisionnelTitre_(sheet);
-  buildPrevisionnelTableau_(sheet);
+  buildPrevisionnelEnTete_(sheet);
+  buildPrevisionnelLignesMois_(sheet);
+  buildPrevisionnelLigneTotal_(sheet);
+  buildPrevisionnelMiseEnFormeConditionnelle_(sheet);
   buildPrevisionnelGraphique_(sheet);
 
   sheet.setFrozenRows(PREVISIONNEL_HEADER_ROW);
@@ -30,46 +36,68 @@ function buildPrevisionnelTitre_(sheet) {
   var titre = sheet.getRange('A1:D1');
   titre.merge().setValue('PRÉVISIONNEL');
   styleTitle_(titre);
-  sheet.setRowHeight(1, 40);
+  sheet.setRowHeight(1, ROW_HEIGHT.TITRE);
 }
 
-function buildPrevisionnelTableau_(sheet) {
+function buildPrevisionnelEnTete_(sheet) {
   var header = sheet.getRange(PREVISIONNEL_HEADER_ROW, 1, 1, 4);
   header.setValues([['Mois', 'Objectif', 'Réalisé', 'Ecart']]);
   styleTableHeader_(header);
+  sheet.setRowHeight(PREVISIONNEL_HEADER_ROW, ROW_HEIGHT.EN_TETE_TABLEAU);
+  sheet.getRange(PREVISIONNEL_HEADER_ROW, 2).setNote(
+    'Objectif CA HT annuel (Paramètres) réparti à parts égales sur 12 mois.');
+  sheet.getRange(PREVISIONNEL_HEADER_ROW, 4).setNote(
+    'Réalisé − Objectif. Positif = objectif atteint ou dépassé (fond doré) ; ' +
+    'négatif = en dessous de l\'objectif (aucune couleur d\'alerte).');
+}
 
-  for (var m = 1; m <= 12; m++) {
+/**
+ * Écrit les 12 lignes mensuelles en une seule fois par colonne
+ * (setValues/setFormulas/setNumberFormat/setBackgrounds/protection
+ * plutôt que 12 appels séparés par colonne — V3, audit performance).
+ * Les valeurs sont calculées en JavaScript (aucun appel au classeur)
+ * puis écrites en un seul aller-retour par plage.
+ */
+function buildPrevisionnelLignesMois_(sheet) {
+  var n = 12;
+  var moisValues = [];
+  var objectifFormulas = [];
+  var realiseFormulas = [];
+  var ecartFormulas = [];
+  var fonds = [];
+
+  for (var m = 1; m <= n; m++) {
+    moisValues.push([MOIS_LABELS[m - 1]]);
     var row = PREVISIONNEL_FIRST_ROW + m - 1;
-
-    var moisCell = sheet.getRange(row, 1);
-    moisCell.setValue(MOIS_LABELS[m - 1]);
-    moisCell.setFontFamily(FONT).setFontColor(COLORS.INK);
-    protectAsCalculated_(moisCell);
-
-    var objectifCell = sheet.getRange(row, 2);
-    objectifCell.setFormula('=' + NAMED_RANGES.OBJECTIF_CA + '/12');
-    objectifCell.setNumberFormat(FORMAT_EUR);
-
-    var realiseCell = sheet.getRange(row, 3);
-    realiseCell.setFormula(monthlyAmountFormula_(NAMED_RANGES.CHANTIERS_CA_HT, m));
-    realiseCell.setNumberFormat(FORMAT_EUR);
-
-    var ecartCell = sheet.getRange(row, 4);
-    ecartCell.setFormula('=C' + row + '-B' + row);
-    ecartCell.setNumberFormat(FORMAT_EUR);
-
-    var ligne = sheet.getRange(row, 1, 1, 4);
-    if (m % 2 === 0) ligne.setBackground(COLORS.CARD_BG);
-    protectAsCalculated_(sheet.getRange(row, 2, 1, 3));
+    objectifFormulas.push([avecIferror_(NAMED_RANGES.OBJECTIF_CA + '/12', 0)]);
+    realiseFormulas.push([monthlyAmountFormula_(NAMED_RANGES.CHANTIERS_CA_HT, m)]);
+    ecartFormulas.push([avecIferror_('C' + row + '-B' + row, 0)]);
+    fonds.push([m % 2 === 0 ? COLORS.CARD_BG : COLORS.WHITE]);
   }
 
+  var moisRange = sheet.getRange(PREVISIONNEL_FIRST_ROW, 1, n, 1);
+  moisRange.setValues(moisValues).setFontFamily(FONT).setFontColor(COLORS.INK);
+
+  sheet.getRange(PREVISIONNEL_FIRST_ROW, 2, n, 1).setFormulas(objectifFormulas);
+  sheet.getRange(PREVISIONNEL_FIRST_ROW, 3, n, 1).setFormulas(realiseFormulas);
+  sheet.getRange(PREVISIONNEL_FIRST_ROW, 4, n, 1).setFormulas(ecartFormulas);
+  sheet.getRange(PREVISIONNEL_FIRST_ROW, 2, n, 3).setNumberFormat(FORMAT_EUR);
+
+  sheet.getRange(PREVISIONNEL_FIRST_ROW, 1, n, 4).setBackgrounds(
+    fonds.map(function (f) { return [f[0], f[0], f[0], f[0]]; }));
+
+  protectAsCalculated_(moisRange);
+  protectAsCalculated_(sheet.getRange(PREVISIONNEL_FIRST_ROW, 2, n, 3));
+}
+
+function buildPrevisionnelLigneTotal_(sheet) {
   var totalRow = PREVISIONNEL_FIRST_ROW + 12;
   var totalLabel = sheet.getRange(totalRow, 1);
   totalLabel.setValue('Total').setFontFamily(FONT).setFontWeight('bold').setFontColor(COLORS.INK);
 
   ['B', 'C', 'D'].forEach(function (col) {
     var cell = sheet.getRange(col + totalRow);
-    cell.setFormula('=SUM(' + col + PREVISIONNEL_FIRST_ROW + ':' + col + (totalRow - 1) + ')');
+    cell.setFormula(avecIferror_('SUM(' + col + PREVISIONNEL_FIRST_ROW + ':' + col + (totalRow - 1) + ')', 0));
     cell.setNumberFormat(FORMAT_EUR).setFontWeight('bold');
   });
 
@@ -78,8 +106,31 @@ function buildPrevisionnelTableau_(sheet) {
   protectAsCalculated_(totalRange);
 }
 
-var PREVISIONNEL_CHART_COLSPAN = 4;
-var PREVISIONNEL_CHART_ROWSPAN = 16;
+/**
+ * Mise en forme conditionnelle sobre (V3) sur la colonne Ecart :
+ * objectif dépassé (nettement positif) en accent un peu plus présent,
+ * objectif atteint (positif) en accent très léger. Jamais de rouge
+ * pour un écart négatif — signal neutre, pas alarmant.
+ */
+function buildPrevisionnelMiseEnFormeConditionnelle_(sheet) {
+  var totalRow = PREVISIONNEL_FIRST_ROW + 12;
+  var plageEcart = sheet.getRange(PREVISIONNEL_FIRST_ROW, 4, totalRow - PREVISIONNEL_FIRST_ROW, 1);
+  var premiereLigne = PREVISIONNEL_FIRST_ROW;
+
+  var regleDepasse = SpreadsheetApp.newConditionalFormatRule()
+    .whenFormulaSatisfied('=$D' + premiereLigne + '>$B' + premiereLigne + '*0.1')
+    .setBackground(COLORS.OBJECTIF_DEPASSE_BG)
+    .setRanges([plageEcart])
+    .build();
+  var regleAtteint = SpreadsheetApp.newConditionalFormatRule()
+    .whenFormulaSatisfied('=$D' + premiereLigne + '>=0')
+    .setBackground(COLORS.OBJECTIF_ATTEINT_BG)
+    .setRanges([plageEcart])
+    .build();
+
+  // Ordre important : Sheets applique la première règle qui correspond.
+  sheet.setConditionalFormatRules([regleDepasse, regleAtteint]);
+}
 
 function buildPrevisionnelGraphique_(sheet) {
   var totalRow = PREVISIONNEL_FIRST_ROW + 12;

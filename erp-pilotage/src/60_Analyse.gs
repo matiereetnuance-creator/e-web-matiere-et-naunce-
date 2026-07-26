@@ -27,10 +27,15 @@ function buildAnalyseTitre_(sheet) {
   var titre = sheet.getRange('A1:F1');
   titre.merge().setValue('ANALYSE');
   styleTitle_(titre);
-  sheet.setRowHeight(1, 40);
+  sheet.setRowHeight(1, ROW_HEIGHT.TITRE);
 }
 
-/** Table cachée Mois / CA / Marge — source des deux premiers graphiques. */
+/**
+ * Table cachée Mois / CA / Marge — source des deux premiers
+ * graphiques. Formules calculées en JavaScript puis écrites en un
+ * seul appel par colonne (au lieu de 12 appels setFormula séparés —
+ * V3, audit performance).
+ */
 function buildAnalyseDonneesMensuelles_(sheet) {
   var col = ANALYSE_HELPER_COL;
   sheet.getRange(1, col).setValue('Mois');
@@ -40,16 +45,19 @@ function buildAnalyseDonneesMensuelles_(sheet) {
   var moisRange = sheet.getRange(2, col, 12, 1);
   moisRange.setValues(MOIS_LABELS.map(function (m) { return [m]; }));
 
+  var caFormulas = [];
+  var margeFormulas = [];
   for (var i = 0; i < 12; i++) {
-    var row = 2 + i;
-    var caCell = sheet.getRange(row, col + 1);
-    caCell.setFormula(monthlyAmountFormula_(NAMED_RANGES.CHANTIERS_CA_HT, i + 1));
-    caCell.setNumberFormat(FORMAT_EUR);
-
-    var margeCell = sheet.getRange(row, col + 2);
-    margeCell.setFormula(monthlyAmountFormula_(NAMED_RANGES.CHANTIERS_MARGE_HT, i + 1));
-    margeCell.setNumberFormat(FORMAT_EUR);
+    caFormulas.push([monthlyAmountFormula_(NAMED_RANGES.CHANTIERS_CA_HT, i + 1)]);
+    margeFormulas.push([monthlyAmountFormula_(NAMED_RANGES.CHANTIERS_MARGE_HT, i + 1)]);
   }
+
+  var caRange = sheet.getRange(2, col + 1, 12, 1);
+  var margeRange = sheet.getRange(2, col + 2, 12, 1);
+  caRange.setFormulas(caFormulas);
+  margeRange.setFormulas(margeFormulas);
+  sheet.getRange(2, col + 1, 12, 2).setNumberFormat(FORMAT_EUR);
+
   protectAsCalculated_(sheet.getRange(2, col + 1, 12, 2));
 }
 

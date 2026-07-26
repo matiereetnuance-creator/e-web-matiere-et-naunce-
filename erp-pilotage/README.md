@@ -23,11 +23,17 @@ reste de ce dépôt — même client, outil différent (pilotage interne).
 ```
 erp-pilotage/
 ├── appsscript.json          Manifeste du projet Apps Script
-├── ARCHITECTURE.md          Plages nommées, dépendances entre feuilles, flux de données
+├── ARCHITECTURE.md          Plages nommées, dépendances, flux de données, erreurs, performance
+├── CHANGELOG.md             Historique détaillé V1 / V2 / V3
+├── ROADMAP.md               Évolutions possibles (non développées)
+├── TODO.md                  Actions restantes avant mise en production
+├── KNOWN_LIMITATIONS.md     Limites Google Sheets et risques acceptés
 └── src/
     ├── 00_Constantes.gs      Source unique de vérité (noms, couleurs, config par défaut du mapping Chantiers)
     ├── 01_Utils.gs           Fonctions réutilisables (cartes KPI, protections, formules, taille des graphiques)
     ├── 02_Menu.gs            Menu "Pilotage"
+    ├── 03_Erreurs.gs         Bibliothèque de gestion des erreurs (V3)
+    ├── 04_Protections.gs     Filet de sécurité générique sur les cellules à formule (V3)
     ├── 05_Accueil.gs
     ├── 10_Parametres.gs
     ├── 20_Charges.gs
@@ -36,11 +42,13 @@ erp-pilotage/
     ├── 50_Previsionnel.gs
     ├── 60_Analyse.gs
     ├── 85_NouvelExercice.gs  Assistant "Nouvel exercice" (nouveau fichier par année)
+    ├── 90_Diagnostic.gs      Menu Pilotage ▸ Diagnostic (V3)
     └── 99_Installation.gs    Orchestration de l'installation complète
 ```
 
 Pour le détail des plages nommées, du graphe de dépendances entre
-feuilles et de l'ordre d'installation, voir **[`ARCHITECTURE.md`](ARCHITECTURE.md)**.
+feuilles, de l'ordre d'installation, de la gestion des erreurs et des
+optimisations de performance, voir **[`ARCHITECTURE.md`](ARCHITECTURE.md)**.
 
 ## ⚠️ Point d'attention avant mise en production : la feuille Chantiers
 
@@ -139,7 +147,7 @@ formules, les validations et les protections sont reconstruites.
   réadapte à chaque réinstallation, pas en continu à l'écran.
 - **Plage de saisie Charges** étendue à 1000 lignes (`CHARGES_LAST_DATA_ROW`).
 - **Mapping Chantiers configurable sans toucher au code** : voir la
-  section dédiée ci-dessus et `ARCHITECTURE.md` §8.
+  section dédiée ci-dessus et `ARCHITECTURE.md` §14.
 - **Catégories de charges** : liste définitive validée par le client —
   Véhicules, Assurances, Administration, Logiciels, Personnel, Autres
   (`PARAM_LISTES.CATEGORIES` dans `00_Constantes.gs`).
@@ -188,12 +196,40 @@ contiennent que des formules pointant vers des plages nommées propres
 automatiquement sur le nouvel exercice et un Chantiers vide, sans
 qu'aucun `build*_()` n'ait besoin de retourner sur la copie.
 
+## Menu Pilotage
+
+| Entrée | Rôle |
+|---|---|
+| 🏠 Accueil / 📊 Dashboard | Navigation rapide |
+| 🔄 Actualiser les listes déroulantes | Ré-applique les validations de Charges sans tout reconstruire |
+| ✅ Vérifier la structure Chantiers | Contrôle le mapping B12:B15 contre la vraie feuille Chantiers |
+| 🔒 Réappliquer les protections | Ré-arme le filet de sécurité (V3) sans reconstruire les feuilles |
+| 🩺 Diagnostic | 7 contrôles automatiques, rapport clair (V3 — voir `ARCHITECTURE.md` §12) |
+| 🆕 Nouvel exercice… | Crée une copie du classeur pour l'année suivante (voir section dédiée) |
+| 🛠️ Installer / Réinitialiser | (Re)construit tout le classeur, sans jamais effacer les données saisies |
+
+## Robustesse (V3)
+
+Toutes les formules générées par le script sont protégées contre les
+erreurs de calcul (`#REF!`, `#N/A`, `#VALUE!`, `#NOM?`) : une
+dépendance cassée retombe sur une valeur neutre (0, ou un tiret)
+plutôt que d'afficher une erreur, et le vrai diagnostic se fait via le
+menu Diagnostic — jamais en lisant un symbole d'erreur au milieu du
+classeur. Le détail (bibliothèque d'erreurs, validations de saisie,
+mise en forme conditionnelle sobre, protections) est documenté dans
+`ARCHITECTURE.md` §9 à §13.
+
 ## Journal des évolutions
 
-**V2 (architecture)** — police Roboto, graphiques à taille adaptative,
-plage Charges étendue à 1000 lignes, mapping Chantiers déplacé de
-`00_Constantes.gs` vers des cellules éditables dans Paramètres, ajout
-de `ARCHITECTURE.md`, liste de catégories de charges définitive
-(Véhicules, Assurances, Administration, Logiciels, Personnel, Autres),
-couleur d'accent confirmée définitive, et ajout de l'assistant
-"Nouvel exercice" (nouveau fichier par année).
+Voir **[`CHANGELOG.md`](CHANGELOG.md)** pour l'historique complet.
+En bref : **V3** (qualité, robustesse, sécurité, performance — aucune
+fonctionnalité métier ajoutée, aucun calcul modifié, Dashboard non
+modifié) ; **V2** (police Roboto, graphiques adaptatifs, plage Charges
+1000 lignes, mapping Chantiers configurable, catégories et couleur
+d'accent définitives, assistant Nouvel exercice) ; **V1** (version
+initiale, 7 feuilles).
+
+Voir aussi **[`ROADMAP.md`](ROADMAP.md)** (évolutions possibles),
+**[`TODO.md`](TODO.md)** (actions avant mise en production) et
+**[`KNOWN_LIMITATIONS.md`](KNOWN_LIMITATIONS.md)** (limites Google
+Sheets et risques acceptés en connaissance de cause).

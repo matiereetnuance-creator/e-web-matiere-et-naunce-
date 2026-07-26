@@ -21,6 +21,12 @@
  * indicateurs. monthlyAmountFormula_() / annualAmountFormula_()
  * acceptent un paramètre extraCondition prêt à l'emploi pour brancher
  * ce filtre dès que le bon statut sera confirmé avec le client.
+ *
+ * V3 — robustesse : si une colonne attendue est introuvable, sa plage
+ * nommée pointe désormais vers une cellule de repli garantie vide
+ * (Paramètres!M1) plutôt que de rester non définie. Sans ce filet,
+ * chaque formule du classeur référençant cette plage afficherait
+ * #NOM? au lieu d'un 0 — voir getChantiersFallbackRange_().
  */
 
 /**
@@ -30,29 +36,49 @@
  * buildParametres_() n'ait créé la plage nommée).
  */
 function getChantiersFieldHeader_(field) {
-  var namedRange = SpreadsheetApp.getActiveSpreadsheet().getRangeByName(field.headerNamedRange);
-  if (namedRange) {
-    var value = String(namedRange.getValue()).trim();
-    if (value) return value;
-  }
-  return field.defaultHeader;
+  var valeur = getNamedValueSafe_(field.headerNamedRange, '');
+  var texte = String(valeur).trim();
+  return texte || field.defaultHeader;
 }
 
-/** Relie les plages nommées Chantiers à la feuille existante. Retourne les en-têtes manquants. */
+/**
+ * Cellule de repli garantie vide (Paramètres!M1), créée à la volée si
+ * Paramètres n'a pas encore été installé (cas normalement jamais
+ * atteint : l'installation construit toujours Paramètres en premier).
+ */
+function getChantiersFallbackRange_() {
+  var range = getNamedRangeSafe_(NAMED_RANGES.CHANTIERS_FALLBACK);
+  if (range) return range;
+  var sheet = getOrCreateSheet_(SHEETS.PARAMETRES);
+  var cell = sheet.getRange(PARAM_FALLBACK_CELL);
+  cell.clearContent();
+  setNamedRange_(NAMED_RANGES.CHANTIERS_FALLBACK, cell);
+  return cell;
+}
+
+/**
+ * Relie les plages nommées Chantiers à la feuille existante. Lit la
+ * ligne d'en-tête UNE seule fois (au lieu d'une fois par champ — V3,
+ * audit performance) et réutilise ce tableau pour les 4 recherches.
+ * Retourne la liste des en-têtes introuvables (vide si tout est ok).
+ */
 function ensureChantiersLinks_() {
-  var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEETS.CHANTIERS);
+  var sheet = getSpreadsheet_().getSheetByName(SHEETS.CHANTIERS);
   if (!sheet) {
     sheet = creerGabaritChantiersMinimal_();
   }
 
   var dataRows = 5000; // plage large fixe : robuste, pas de fonction volatile
+  var lastCol = sheet.getLastColumn();
+  var headers = lastCol > 0 ? sheet.getRange(CHANTIERS_HEADER_ROW, 1, 1, lastCol).getValues()[0] : [];
   var missing = [];
 
   CHANTIERS_FIELDS.forEach(function (field) {
     var header = getChantiersFieldHeader_(field);
-    var col = findColumnByHeader_(sheet, CHANTIERS_HEADER_ROW, header);
+    var col = findColumnInHeaders_(headers, header);
     if (col === -1) {
       missing.push(header + ' (' + field.label + ')');
+      setNamedRange_(field.dataNamedRange, getChantiersFallbackRange_());
       return;
     }
     var range = sheet.getRange(CHANTIERS_HEADER_ROW + 1, col, dataRows, 1);
@@ -68,7 +94,7 @@ function ensureChantiersLinks_() {
  * mise en production — voir l'avertissement en tête de fichier.
  */
 function creerGabaritChantiersMinimal_() {
-  var sheet = SpreadsheetApp.getActiveSpreadsheet().insertSheet(SHEETS.CHANTIERS);
+  var sheet = getSpreadsheet_().insertSheet(SHEETS.CHANTIERS);
   var parField = function (key) {
     var field = CHANTIERS_FIELDS.filter(function (f) { return f.key === key; })[0];
     return getChantiersFieldHeader_(field);
@@ -98,9 +124,11 @@ function verifierStructureChantiers() {
     ui.alert('Structure Chantiers — action requise',
       'Colonnes introuvables dans "' + SHEETS.CHANTIERS + '" (ligne ' + CHANTIERS_HEADER_ROW + ') :\n\n' +
       missing.join('\n') +
-      '\n\nCorrigez les en-têtes dans "' + SHEETS.PARAMETRES + '" (cellules B12 à B15, ' +
-      'section "Connexion à l\'onglet Chantiers") pour qu\'ils correspondent aux ' +
-      'véritables intitulés de colonnes, puis relancez cette vérification.',
+      '\n\nEn attendant la correction, les indicateurs concernés affichent 0 ' +
+      '(aucune erreur ne s\'affiche dans les cellules). Corrigez les en-têtes dans "' +
+      SHEETS.PARAMETRES + '" (cellules B12 à B15, section "Connexion à l\'onglet ' +
+      'Chantiers") pour qu\'ils correspondent aux véritables intitulés de colonnes, ' +
+      'puis relancez cette vérification.',
       ui.ButtonSet.OK);
   }
 }

@@ -24,24 +24,24 @@
  * recalculent automatiquement sur le nouvel exercice et un Chantiers vide.
  */
 
+/** Menu ▸ Nouvel exercice : crée une copie du classeur pour l'année suivante (voir en-tête de fichier). */
 function assistantNouvelExercice() {
   var ui = SpreadsheetApp.getUi();
-  var actuel = SpreadsheetApp.getActiveSpreadsheet();
+  var actuel = getSpreadsheet_();
 
-  var paramSheet = actuel.getSheetByName(SHEETS.PARAMETRES);
+  var paramSheet = getSheetSafe_(SHEETS.PARAMETRES);
   if (!paramSheet) {
-    ui.alert('Paramètres introuvables',
+    afficherErreur_('Paramètres introuvables',
       'Installez d\'abord l\'ERP (Pilotage ▸ Installer / Réinitialiser la ' +
-      'structure ERP) avant de créer un nouvel exercice.', ui.ButtonSet.OK);
+      'structure ERP) avant de créer un nouvel exercice.');
     return;
   }
 
   var exerciceActuel = Number(paramSheet.getRange(PARAM_CELLS.EXERCICE).getValue());
   if (!exerciceActuel || isNaN(exerciceActuel)) {
-    ui.alert('Exercice introuvable',
+    afficherErreur_('Exercice introuvable',
       'La cellule Exercice (' + SHEETS.PARAMETRES + '!' + PARAM_CELLS.EXERCICE +
-      ') est vide ou invalide — impossible de déterminer le prochain exercice.',
-      ui.ButtonSet.OK);
+      ') est vide ou invalide — impossible de déterminer le prochain exercice.');
     return;
   }
 

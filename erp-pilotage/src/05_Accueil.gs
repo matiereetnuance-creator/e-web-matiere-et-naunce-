@@ -31,11 +31,12 @@ function buildAccueilExercice_(sheet) {
   label.setValue('Exercice').setFontFamily(FONT).setFontSize(12).setFontColor(COLORS.INK_MUTED);
 
   var valeur = sheet.getRange('B3');
-  valeur.setFormula('=' + NAMED_RANGES.EXERCICE);
+  valeur.setFormula(avecIferror_(NAMED_RANGES.EXERCICE, '—'));
   valeur.setFontFamily(FONT).setFontSize(12).setFontWeight('bold').setFontColor(COLORS.INK);
+  valeur.setNote('Repris automatiquement de 05 - Paramètres.');
   protectAsCalculated_(valeur);
 
-  sheet.setRowHeight(3, 30);
+  sheet.setRowHeight(3, ROW_HEIGHT.SAISIE);
 }
 
 function buildAccueilBouton_(sheet) {

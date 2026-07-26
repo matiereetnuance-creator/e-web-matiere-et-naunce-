@@ -10,10 +10,11 @@
  * IMPORTANT : les cellules de saisie (colonne B, lignes 4 à 9 puis
  * 12 à 15) sont des données client. Une réinstallation ne les efface
  * JAMAIS — seules les zones entièrement générées par le script
- * (titre, libellés, bloc de listes techniques) sont effacées puis
- * reconstruites.
+ * (titre, libellés, bloc de listes techniques, cellule de repli
+ * Chantiers) sont effacées puis reconstruites.
  */
 
+/** Construit entièrement la feuille Paramètres (idempotent — voir en-tête de fichier). */
 function buildParametres_() {
   var sheet = getOrCreateSheet_(SHEETS.PARAMETRES);
 
@@ -25,26 +26,43 @@ function buildParametres_() {
   for (var c = 3; c <= 6; c++) sheet.setColumnWidth(c, 24);
 
   // Zones entièrement régénérées par le script (jamais de saisie
-  // client) : titre, sous-titres, libellés colonne A, listes techniques.
-  // La colonne B (lignes 4 à 9 et 12 à 15, cellules de saisie) n'est
+  // client) : titre, sous-titres, libellés colonne A, listes
+  // techniques, cellule de repli Chantiers (colonne M — V3). La
+  // colonne B (lignes 4 à 9 et 12 à 15, cellules de saisie) n'est
   // jamais touchée ici.
   sheet.getRange('A1:B1').breakApart().clearContent().clearFormat();
   sheet.getRange('A3').clearContent().clearFormat();
   sheet.getRange('A4:A9').clearContent().clearFormat();
   sheet.getRange('A11').clearContent().clearFormat();
   sheet.getRange('A12:A15').clearContent().clearFormat();
-  sheet.getRange('H1:K200').clearContent().clearFormat();
+  sheet.getRange('H1:M200').clearContent().clearFormat();
 
   buildParametresTitre_(sheet);
   buildParametresGeneraux_(sheet);
   buildParametresChantiersMapping_(sheet);
   buildParametresListes_(sheet);
+  buildParametresRepliChantiers_(sheet);
+  buildParametresMiseEnFormeConditionnelle_(sheet);
 
   sheet.setFrozenRows(1);
 }
 
-/** Écrit un libellé (colonne A) + une cellule de saisie protégée-jamais-écrasée (colonne B). */
-function buildParametresChampSaisie_(sheet, row, label, cell, namedRange, format, defaultValue) {
+/**
+ * Écrit un libellé (colonne A) + une cellule de saisie protégée-
+ * jamais-écrasée (colonne B), avec validation de saisie optionnelle
+ * et note explicative optionnelle.
+ *
+ * @param {Sheet} sheet
+ * @param {number} row
+ * @param {string} label
+ * @param {string} cell Notation A1 (ex. "B4").
+ * @param {string} namedRange Nom de la plage nommée à créer sur cette cellule.
+ * @param {string} format Format numérique à appliquer.
+ * @param {*} defaultValue Valeur de démarrage si la cellule est vide (null = aucune).
+ * @param {DataValidation=} validation Règle de validation stricte à appliquer.
+ * @param {string=} note Texte de la note (tooltip) posée sur la cellule.
+ */
+function buildParametresChampSaisie_(sheet, row, label, cell, namedRange, format, defaultValue, validation, note) {
   var labelRange = sheet.getRange(row, 1);
   labelRange.setValue(label).setFontFamily(FONT).setFontSize(11).setFontColor(COLORS.INK).setVerticalAlignment('middle');
 
@@ -52,6 +70,8 @@ function buildParametresChampSaisie_(sheet, row, label, cell, namedRange, format
   var etaitVide = input.isBlank();
   styleInputCell_(input);
   input.setNumberFormat(format).setVerticalAlignment('middle');
+  input.setDataValidation(validation || null);
+  if (note) input.setNote(note);
   // Valeur de démarrage uniquement si la cellule est réellement vide,
   // pour ne jamais écraser une saisie déjà faite par le client.
   if (etaitVide && defaultValue !== null && defaultValue !== undefined) {
@@ -59,16 +79,17 @@ function buildParametresChampSaisie_(sheet, row, label, cell, namedRange, format
   }
 
   setNamedRange_(namedRange, input);
-  sheet.setRowHeight(row, 26);
+  sheet.setRowHeight(row, ROW_HEIGHT.SAISIE);
 }
 
 function buildParametresTitre_(sheet) {
   var titre = sheet.getRange('A1:B1');
   titre.merge().setValue('PARAMÈTRES');
   styleTitle_(titre);
-  sheet.setRowHeight(1, 40);
+  sheet.setRowHeight(1, ROW_HEIGHT.TITRE);
 }
 
+/** Réglages généraux de l'exercice — chaque champ a sa propre validation stricte (V3). */
 function buildParametresGeneraux_(sheet) {
   var sousTitre = sheet.getRange('A3');
   sousTitre.setValue('Paramètres généraux')
@@ -76,16 +97,24 @@ function buildParametresGeneraux_(sheet) {
 
   var anneeCourante = new Date().getFullYear();
   var rows = [
-    { row: 4, label: 'Exercice', cell: PARAM_CELLS.EXERCICE, name: NAMED_RANGES.EXERCICE, format: '0', defaultValue: anneeCourante },
-    { row: 5, label: 'Date début', cell: PARAM_CELLS.DATE_DEBUT, name: NAMED_RANGES.DATE_DEBUT, format: FORMAT_DATE, defaultValue: new Date(anneeCourante, 0, 1) },
-    { row: 6, label: 'Date fin', cell: PARAM_CELLS.DATE_FIN, name: NAMED_RANGES.DATE_FIN, format: FORMAT_DATE, defaultValue: new Date(anneeCourante, 11, 31) },
-    { row: 7, label: 'Objectif CA HT', cell: PARAM_CELLS.OBJECTIF_CA, name: NAMED_RANGES.OBJECTIF_CA, format: FORMAT_EUR, defaultValue: null },
-    { row: 8, label: 'Objectif Marge (%)', cell: PARAM_CELLS.OBJECTIF_MARGE, name: NAMED_RANGES.OBJECTIF_MARGE, format: FORMAT_PERCENT, defaultValue: null },
-    { row: 9, label: 'Salaire mensuel souhaité', cell: PARAM_CELLS.SALAIRE_MENSUEL, name: NAMED_RANGES.SALAIRE_MENSUEL, format: FORMAT_EUR, defaultValue: null }
+    { row: 4, label: 'Exercice', cell: PARAM_CELLS.EXERCICE, name: NAMED_RANGES.EXERCICE, format: '0', defaultValue: anneeCourante,
+      validation: SpreadsheetApp.newDataValidation().requireNumberGreaterThanOrEqualTo(1900).setAllowInvalid(false).setHelpText('Saisissez une année (nombre entier).').build(),
+      note: 'Exercice de référence : détermine l\'année utilisée pour filtrer Chantiers dans tout le classeur.' },
+    { row: 5, label: 'Date début', cell: PARAM_CELLS.DATE_DEBUT, name: NAMED_RANGES.DATE_DEBUT, format: FORMAT_DATE, defaultValue: new Date(anneeCourante, 0, 1),
+      validation: SpreadsheetApp.newDataValidation().requireDate().setAllowInvalid(false).setHelpText('Saisissez une date valide (jj/mm/aaaa).').build() },
+    { row: 6, label: 'Date fin', cell: PARAM_CELLS.DATE_FIN, name: NAMED_RANGES.DATE_FIN, format: FORMAT_DATE, defaultValue: new Date(anneeCourante, 11, 31),
+      validation: SpreadsheetApp.newDataValidation().requireDate().setAllowInvalid(false).setHelpText('Saisissez une date valide (jj/mm/aaaa).').build() },
+    { row: 7, label: 'Objectif CA HT', cell: PARAM_CELLS.OBJECTIF_CA, name: NAMED_RANGES.OBJECTIF_CA, format: FORMAT_EUR, defaultValue: null,
+      validation: SpreadsheetApp.newDataValidation().requireNumberGreaterThanOrEqualTo(0).setAllowInvalid(false).setHelpText('Saisissez un montant positif ou nul.').build(),
+      note: 'Utilisé par le Dashboard (avancement, prévision) et le Prévisionnel (objectif mensuel = ce montant / 12).' },
+    { row: 8, label: 'Objectif Marge (%)', cell: PARAM_CELLS.OBJECTIF_MARGE, name: NAMED_RANGES.OBJECTIF_MARGE, format: FORMAT_PERCENT, defaultValue: null,
+      validation: SpreadsheetApp.newDataValidation().requireNumberBetween(0, 1).setAllowInvalid(false).setHelpText('Saisissez un pourcentage entre 0 % et 100 %.').build() },
+    { row: 9, label: 'Salaire mensuel souhaité', cell: PARAM_CELLS.SALAIRE_MENSUEL, name: NAMED_RANGES.SALAIRE_MENSUEL, format: FORMAT_EUR, defaultValue: null,
+      validation: SpreadsheetApp.newDataValidation().requireNumberGreaterThanOrEqualTo(0).setAllowInvalid(false).setHelpText('Saisissez un montant positif ou nul.').build() }
   ];
 
   rows.forEach(function (r) {
-    buildParametresChampSaisie_(sheet, r.row, r.label, r.cell, r.name, r.format, r.defaultValue);
+    buildParametresChampSaisie_(sheet, r.row, r.label, r.cell, r.name, r.format, r.defaultValue, r.validation, r.note);
   });
 }
 
@@ -101,7 +130,10 @@ function buildParametresChantiersMapping_(sheet) {
     .setFontFamily(FONT).setFontSize(11).setFontWeight('bold').setFontColor(COLORS.INK_MUTED);
 
   CHANTIERS_FIELDS.forEach(function (f) {
-    buildParametresChampSaisie_(sheet, f.row, f.label, 'B' + f.row, f.headerNamedRange, '@', f.defaultHeader);
+    var note = 'Doit correspondre EXACTEMENT à l\'intitulé de la colonne ' +
+      'correspondante dans "03 - Chantiers" (ligne 1). Utilisez Pilotage ▸ ' +
+      'Vérifier la structure Chantiers après toute modification.';
+    buildParametresChampSaisie_(sheet, f.row, f.label, 'B' + f.row, f.headerNamedRange, '@', f.defaultHeader, null, note);
   });
 }
 
@@ -126,6 +158,37 @@ function buildParametresListes_(sheet) {
     setNamedRange_(NAMED_RANGES[namedRangeKey], valuesRange);
   });
 
-  // Colonnes techniques masquées : les plages nommées restent valides.
-  sheet.hideColumns(8, 4); // H:K
+  // Colonnes techniques masquées (H:M, y compris L en espaceur et M
+  // en cellule de repli — voir buildParametresRepliChantiers_) : les
+  // plages nommées restent valides une fois les colonnes masquées.
+  sheet.hideColumns(8, 6); // H:M
+}
+
+/**
+ * Cellule technique garantie vide (M1), utilisée comme repli par
+ * ensureChantiersLinks_() quand une colonne Chantiers est introuvable
+ * — voir NAMED_RANGES.CHANTIERS_FALLBACK (V3, gestion des erreurs).
+ */
+function buildParametresRepliChantiers_(sheet) {
+  var cell = sheet.getRange(PARAM_FALLBACK_CELL);
+  cell.clearContent();
+  cell.setNote('Cellule technique : toujours vide. Sert de repli sûr si une ' +
+    'colonne Chantiers est introuvable, pour éviter une erreur #NOM? dans ' +
+    'le classeur (voir CHANTIERS_FIELDS, 00_Constantes.gs).');
+  setNamedRange_(NAMED_RANGES.CHANTIERS_FALLBACK, cell);
+}
+
+/**
+ * Mise en forme conditionnelle sobre (V3) : un réglage obligatoire
+ * encore vide (Exercice, dates, Objectif CA HT) reçoit un très léger
+ * fond d'attention — jamais de rouge, juste un signal discret.
+ */
+function buildParametresMiseEnFormeConditionnelle_(sheet) {
+  var plage = sheet.getRange('B4:B7');
+  var regle = SpreadsheetApp.newConditionalFormatRule()
+    .whenCellEmpty()
+    .setBackground(COLORS.OBLIGATOIRE_VIDE_BG)
+    .setRanges([plage])
+    .build();
+  sheet.setConditionalFormatRules([regle]);
 }

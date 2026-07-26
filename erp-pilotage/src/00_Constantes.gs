@@ -50,7 +50,13 @@ var COLORS = {
   ACCENT_TEXT: '#5b4f3a', // texte sur fond clair nécessitant + de contraste
   BORDER: '#e5e2dc',
   INPUT_BG: '#fbf9f5',  // fond très légèrement teinté = cellule de saisie
-  WHITE: '#ffffff'
+  WHITE: '#ffffff',
+
+  // Mise en forme conditionnelle (V3) — toujours sobre, jamais de rouge/vert saturé.
+  INACTIF_BG: '#f0efec',        // charge inactive (Actif = Non)
+  OBJECTIF_ATTEINT_BG: '#f6f0e6', // écart >= 0 : accent très léger
+  OBJECTIF_DEPASSE_BG: '#efe0c4', // écart nettement positif : accent un peu plus présent, jamais saturé
+  OBLIGATOIRE_VIDE_BG: '#faf6ee'  // cellule obligatoire encore vide : très léger fond d'attention
 };
 
 // Palette des graphiques "par catégorie" (répartition des charges).
@@ -69,6 +75,19 @@ var CHART_CATEGORY_COLORS = [
 // retombe sur la police par défaut du classeur. Roboto est la police
 // réellement disponible dans Sheets la plus proche visuellement.
 var FONT = 'Roboto';
+
+// Hauteurs de ligne standard (V3 : centralisées pour une apparence
+// uniforme sur tout le classeur — auparavant répétées en dur dans
+// chaque module avec de légères variations involontaires).
+var ROW_HEIGHT = {
+  TITRE: 40,
+  SOUS_TITRE: 26,
+  SAISIE: 26,
+  CARTE_LABEL: 20,
+  CARTE_VALEUR: 34,
+  EN_TETE_TABLEAU: 28,
+  LIGNE_TABLEAU: 24
+};
 
 // ------------------------------------------------------------------
 // Paramètres — emplacement des cellules de saisie et des listes
@@ -135,8 +154,18 @@ var NAMED_RANGES = {
   CHANTIERS_HEADER_DATE: 'PARAM_CHANTIERS_HEADER_DATE',
   CHANTIERS_HEADER_STATUT: 'PARAM_CHANTIERS_HEADER_STATUT',
 
-  DASHBOARD_CA_REALISE: 'DASHBOARD_CA_REALISE'
+  DASHBOARD_CA_REALISE: 'DASHBOARD_CA_REALISE',
+
+  // Repli sûr (V3) : une cellule garantie vide, utilisée comme cible
+  // d'une plage nommée CHANTIERS_* quand la colonne correspondante est
+  // introuvable dans la feuille Chantiers. Sans ce filet, une formule
+  // référençant une plage nommée jamais créée afficherait #NOM? dans
+  // tout le classeur au lieu d'un 0 silencieux — voir ensureChantiersLinks_().
+  CHANTIERS_FALLBACK: 'PARAM_CHANTIERS_FALLBACK_VIDE'
 };
+
+// Cellule technique (colonne masquée) support du repli ci-dessus.
+var PARAM_FALLBACK_CELL = 'M1';
 
 // ------------------------------------------------------------------
 // Charges — mise en page
@@ -148,6 +177,25 @@ var CHARGES_LAST_DATA_ROW = 1000; // plage large fixe = pas de fonctions volatil
 var CHARGES_COLUMNS = [
   'Catégorie', 'Libellé', 'Fournisseur', 'Périodicité',
   'Montant HT', 'TVA', 'Date de début', 'Actif'
+];
+
+// ------------------------------------------------------------------
+// Plages éditables (V3) — source unique de vérité pour
+// reappliquerProtectionsFormules_() (04_Protections.gs) : toute
+// cellule listée ici ne doit JAMAIS être protégée, même si elle
+// contenait accidentellement une formule. Tout le reste des cellules
+// à formule, sur les feuilles listées, doit l'être. La feuille
+// Chantiers n'apparaît jamais ici : elle est exclue par principe de
+// tout balayage de protection (jamais touchée par ce projet).
+// ------------------------------------------------------------------
+
+var EDITABLE_RANGES = {};
+EDITABLE_RANGES[SHEETS.PARAMETRES] = [
+  'B4:B9',   // réglages généraux de l'exercice
+  'B12:B15' // mapping des en-têtes Chantiers
+];
+EDITABLE_RANGES[SHEETS.CHARGES] = [
+  'A' + CHARGES_FIRST_DATA_ROW + ':H' + CHARGES_LAST_DATA_ROW
 ];
 
 // ------------------------------------------------------------------
@@ -171,8 +219,6 @@ var CHARGES_COLUMNS = [
 // ------------------------------------------------------------------
 
 var CHANTIERS_HEADER_ROW = 1;
-
-var CHANTIERS_MAPPING_FIRST_ROW = 12; // Paramètres!B12:B15
 
 var CHANTIERS_FIELDS = [
   { key: 'CA_HT', row: 12, label: 'Colonne « CA HT »', defaultHeader: 'CA HT', headerNamedRange: NAMED_RANGES.CHANTIERS_HEADER_CA_HT, dataNamedRange: NAMED_RANGES.CHANTIERS_CA_HT },

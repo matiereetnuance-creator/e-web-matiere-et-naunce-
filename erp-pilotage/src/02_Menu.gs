@@ -2,6 +2,7 @@
  * Menu personnalisé "Pilotage".
  */
 
+/** Point d'entrée standard Apps Script : construit le menu à l'ouverture du classeur. */
 function onOpen() {
   SpreadsheetApp.getUi()
     .createMenu('Pilotage')
@@ -10,6 +11,8 @@ function onOpen() {
     .addSeparator()
     .addItem('🔄 Actualiser les listes déroulantes', 'actualiserListes')
     .addItem('✅ Vérifier la structure Chantiers', 'verifierStructureChantiers')
+    .addItem('🔒 Réappliquer les protections', 'reappliquerProtectionsEtConfirmer')
+    .addItem('🩺 Diagnostic', 'diagnosticERP')
     .addSeparator()
     .addItem('🆕 Nouvel exercice…', 'assistantNouvelExercice')
     .addSeparator()
@@ -17,15 +20,31 @@ function onOpen() {
     .addToUi();
 }
 
+/** Menu ▸ Accueil : navigue vers la feuille sans jamais planter si elle a été supprimée. */
 function allerAccueil() {
-  SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEETS.ACCUEIL).activate();
+  var sheet = getSheetSafe_(SHEETS.ACCUEIL);
+  if (!sheet) {
+    afficherErreur_('Feuille introuvable',
+      'La feuille "' + SHEETS.ACCUEIL + '" est introuvable. Relancez ' +
+      'Pilotage ▸ Installer / Réinitialiser la structure ERP.');
+    return;
+  }
+  sheet.activate();
 }
 
+/** Menu ▸ Dashboard : navigue vers la feuille sans jamais planter si elle a été supprimée. */
 function allerDashboard() {
-  SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEETS.DASHBOARD).activate();
+  var sheet = getSheetSafe_(SHEETS.DASHBOARD);
+  if (!sheet) {
+    afficherErreur_('Feuille introuvable',
+      'La feuille "' + SHEETS.DASHBOARD + '" est introuvable. Relancez ' +
+      'Pilotage ▸ Installer / Réinitialiser la structure ERP.');
+    return;
+  }
+  sheet.activate();
 }
 
-/** Ne fait que ré-appliquer les validations (listes déroulantes) sur Charges. */
+/** Menu ▸ Actualiser les listes déroulantes : ne fait que ré-appliquer les validations sur Charges. */
 function actualiserListes() {
   buildParametres_();
   var sheet = getOrCreateSheet_(SHEETS.CHARGES);
@@ -34,6 +53,13 @@ function actualiserListes() {
   toast_('Listes déroulantes actualisées.', 'Pilotage');
 }
 
+/** Menu ▸ Réappliquer les protections : ré-arme le filet de sécurité sans reconstruire les feuilles. */
+function reappliquerProtectionsEtConfirmer() {
+  reappliquerProtectionsFormules_();
+  toast_('Protections réappliquées sur toutes les cellules à formule.', 'Pilotage');
+}
+
+/** Menu ▸ Installer / Réinitialiser : demande confirmation avant de lancer installerERP(). */
 function confirmerEtInstaller() {
   var ui = SpreadsheetApp.getUi();
   var reponse = ui.alert(
