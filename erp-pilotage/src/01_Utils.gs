@@ -241,20 +241,72 @@ function toast_(message, title) {
   getSpreadsheet_().toast(message, title || 'Pilotage', 4);
 }
 
+var _formulaSepCache_ = null;
+
+/**
+ * Séparateur d'arguments de formule pour la locale RÉELLE du classeur
+ * (V4.1.4), mis en cache pour la durée d'une exécution (même principe
+ * que `getSpreadsheet_()`).
+ *
+ * Fait confirmé par un test réel sur un classeur en locale française
+ * (pas une supposition) : `Range.setFormula()`/`setFormulas()`
+ * n'effectue AUCUNE traduction de séparateur — la formule doit déjà
+ * contenir le séparateur attendu par la locale du classeur, sous peine
+ * de "Erreur d'analyse de formule" (`#ERROR!`), y compris pour une
+ * formule aussi simple que `IFERROR(1/0,0)` (échoue) /
+ * `IFERROR(1/0;0)` (fonctionne). Ni `LET()` ni aucune fonction en
+ * particulier n'est en cause : TOUTE virgule utilisée comme séparateur
+ * d'argument est concernée, quelle que soit la fonction (voir
+ * CHANGELOG.md V4.1.4 — corrige une attribution erronée à `LET()` en
+ * V4.1.3).
+ *
+ * Détection indépendante de la locale, sans liste de langues à
+ * maintenir à la main : `Intl.NumberFormat` (disponible dans le
+ * runtime V8 d'Apps Script) indique si la locale du classeur formate
+ * les décimales avec une virgule (Sheets attend alors ";" comme
+ * séparateur d'arguments) ou un point (Sheets attend alors ",").
+ */
+function formulaSep_() {
+  if (_formulaSepCache_ === null) {
+    var locale = getSpreadsheet_().getSpreadsheetLocale() || 'en_US';
+    var virguleDecimale = false;
+    try {
+      virguleDecimale = new Intl.NumberFormat(locale.replace(/_/g, '-')).format(1.5).indexOf(',') !== -1;
+    } catch (e) {
+      virguleDecimale = false; // Locale non reconnue par Intl : repli prudent sur ",".
+    }
+    _formulaSepCache_ = virguleDecimale ? ';' : ',';
+  }
+  return _formulaSepCache_;
+}
+
+/**
+ * Construit "NOM(arg1<sep>arg2<sep>...)" avec le séparateur de formule
+ * de la locale réelle du classeur (V4.1.4) — point de passage unique
+ * pour ne plus jamais écrire une virgule en dur entre deux arguments
+ * de formule dans ce projet.
+ * @param {string} nomFonction Ex. "IFERROR", "SUMPRODUCT", "IFS".
+ * @param {Array<string>} args Fragments de formule déjà construits.
+ * @return {string} "NOM(...)", sans le "=" initial.
+ */
+function appel_(nomFonction, args) {
+  return nomFonction + '(' + args.join(formulaSep_()) + ')';
+}
+
 /**
  * Formule (SUMPRODUCT, protégée par IFERROR) du total d'une valeur
  * Chantiers pour un mois donné de l'exercice en cours. Utilisée par
  * Dashboard, Prévisionnel et Analyse pour éviter toute duplication de
  * logique — la durcir ici (V3) suffit à protéger les trois.
  *
- * V4.1.3 : n'utilise plus LET() — la liste nom/valeur de LET n'est pas
- * traduite de façon fiable par Sheets pour les locales non anglaises
- * (séparateur d'arguments ";", décimale ",") lorsque la formule est
- * écrite via l'API (setFormula), contrairement à SUMPRODUCT/IFERROR/
- * YEAR/MONTH — des fonctions bien plus anciennes dont la traduction de
- * locale est fiable depuis longtemps. Les plages nommées (déjà la
- * seule abstraction nécessaire) sont réinjectées directement, sans
- * alias LET — résultat rigoureusement identique.
+ * N'utilise pas `LET()` (depuis la V4.1.3) : les plages nommées (déjà
+ * la seule abstraction nécessaire) sont réinjectées directement, sans
+ * alias — résultat rigoureusement identique, `LET` n'apportait qu'un
+ * gain de lisibilité. `SUMPRODUCT` ne reçoit ici qu'un seul argument
+ * (un produit de facteurs via `*`), donc aucun séparateur de formule
+ * n'est nécessaire à ce niveau ; seul l'`IFERROR` englobant
+ * (`avecIferror_()`, `03_Erreurs.gs`) en a besoin, et le fournit via
+ * `appel_()` (V4.1.4).
  *
  * @param {string} namedValue Plage nommée de la valeur à sommer (ex. CHANTIERS_CA_HT).
  * @param {number} monthIndex 1 (janvier) à 12 (décembre).

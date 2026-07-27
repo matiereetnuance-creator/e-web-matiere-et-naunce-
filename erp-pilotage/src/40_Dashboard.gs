@@ -41,15 +41,20 @@ function buildDashboardCartes_(sheet) {
 
   buildKpiCard_(sheet, row, startCols[1], width, 'OBJECTIF ANNUEL', '=' + NAMED_RANGES.OBJECTIF_CA, FORMAT_EUR, false);
 
-  var avancementFormula = '=IFERROR(' + caA1 + '/' + NAMED_RANGES.OBJECTIF_CA + ',0)';
+  // V4.1.4 : ces 2 formules sont construites ici directement (pas via
+  // avecIferror_, qui ne gère que le cas "corps + repli" simple) —
+  // elles doivent donc aussi passer par appel_() (01_Utils.gs) pour le
+  // séparateur d'arguments, comme partout ailleurs dans le projet.
+  var avancementFormula = '=' + appel_('IFERROR', [caA1 + '/' + NAMED_RANGES.OBJECTIF_CA, '0']);
   buildKpiCard_(sheet, row, startCols[2], width, 'AVANCEMENT', avancementFormula, FORMAT_PERCENT, false);
 
   buildKpiCard_(sheet, row, startCols[3], width, 'CHARGES FIXES MENSUELLES', '=' + NAMED_RANGES.CHARGES_MENSUELLES, FORMAT_EUR, false);
 
-  // V4.1.3 : plus de LET() ici (voir 01_Utils.gs, monthlyAmountFormula_)
-  // — "debut"/"fin"/"auj"/"ecoule" réinjectés directement.
-  var previsionFormula = '=IFERROR(' + caA1 + '/MAX(MIN((TODAY()-' + NAMED_RANGES.DATE_DEBUT +
-    ')/(' + NAMED_RANGES.DATE_FIN + '-' + NAMED_RANGES.DATE_DEBUT + '),1),1/365),0)';
+  // Pas de LET() ici (depuis la V4.1.3) — "debut"/"fin"/"auj"/"ecoule"
+  // réinjectés directement.
+  var ecartTemps = '(TODAY()-' + NAMED_RANGES.DATE_DEBUT + ')/(' + NAMED_RANGES.DATE_FIN + '-' + NAMED_RANGES.DATE_DEBUT + ')';
+  var ecoule = appel_('MAX', [appel_('MIN', [ecartTemps, '1']), '1/365']);
+  var previsionFormula = '=' + appel_('IFERROR', [caA1 + '/' + ecoule, '0']);
   buildKpiCard_(sheet, row, startCols[4], width, 'PRÉVISION FIN D\'ANNÉE', previsionFormula, FORMAT_EUR, true);
 
   sheet.setRowHeight(row, DESIGN.CARD_LABEL_HEIGHT);
@@ -128,8 +133,13 @@ function buildDashboardDonneesCategories_(sheet) {
   for (var i = 0; i < categories.length; i++) {
     var catCell = sheet.getRange(2 + i, col).getA1Notation();
     var montantCell = sheet.getRange(2 + i, col + 1);
-    montantCell.setFormula('=SUMPRODUCT((' + NAMED_RANGES.CHARGES_CATEGORIE + '=' + catCell + ')*(' +
-      chargesEquivalentMensuelFormula_() + '))');
+    // Un seul argument pour SUMPRODUCT ici (produit via "*") : aucun
+    // séparateur de formule requis à ce niveau ; appel_() reste utilisé
+    // par cohérence (V4.1.4) et parce que chargesEquivalentMensuelFormula_()
+    // en construit déjà en interne.
+    montantCell.setFormula('=' + appel_('SUMPRODUCT', [
+      '(' + NAMED_RANGES.CHARGES_CATEGORIE + '=' + catCell + ')*(' + chargesEquivalentMensuelFormula_() + ')'
+    ]));
     montantCell.setNumberFormat(FORMAT_EUR);
   }
   protectAsCalculated_(sheet.getRange(2, col + 1, categories.length, 1));

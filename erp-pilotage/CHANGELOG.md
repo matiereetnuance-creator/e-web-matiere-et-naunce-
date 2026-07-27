@@ -3,7 +3,63 @@
 Toutes les versions sont des révisions du même projet Apps Script
 (`erp-pilotage/`), livrées sur la branche `claude/erp-matiere-nuance-1mme8l`.
 
-## V4.1.3 — Correctif `LET()` (`#ERROR!`/`#VALUE!` en locale FR, actuelle)
+## V4.1.4 — Audit systémique du séparateur de formule (actuelle)
+
+**Correction d'une attribution erronée en V4.1.3.** Le correctif
+précédent supprimait `LET()` en considérant cette fonction comme seule
+en cause. Un test réel, rigoureux, effectué par le client sur son
+classeur (locale française) a prouvé le contraire : la formule déjà
+corrigée `=IFERROR(SUMPRODUCT((YEAR(CHANTIERS_DATE)=PARAM_EXERCICE)*
+CHANTIERS_CA_HT),0)` — sans aucun `LET()` — échouait encore avec
+"Erreur d'analyse de formule". Test de contrôle apporté par le
+client : `=IFERROR(1/0,0)` échoue, `=IFERROR(1/0;0)` fonctionne. Cette
+preuve établit le vrai mécanisme : **`Range.setFormula()`/
+`setFormulas()` n'effectue AUCUNE traduction automatique du séparateur
+d'arguments** — la formule doit déjà être écrite avec le séparateur
+réellement attendu par la locale du classeur (`;` en français, `,` en
+anglais), quelle que soit la fonction utilisée. `LET()` n'était qu'un
+symptôme parmi d'autres, pas la cause : virgule inversée
+d'attribution corrigée ici après audit complet plutôt que par un
+nouveau correctif ponctuel, comme demandé.
+
+**Mécanisme centralisé (`01_Utils.gs`)** :
+- `formulaSep_()` : détecte le séparateur réellement attendu par la
+  locale du classeur (`Spreadsheet.getSpreadsheetLocale()` +
+  `Intl.NumberFormat` du runtime V8 — teste si la locale affiche les
+  décimales avec une virgule) et le met en cache pour l'exécution.
+  Approche indépendante de la locale, sans liste de langues codée en
+  dur à maintenir — vérifiée sur fr/de/es/it/pt/nl/ru (virgule
+  décimale → `;`) et en/en-US/en-GB (point décimal → `,`).
+- `appel_(nomFonction, args)` : construit `"NOM(arg1<sep>arg2<sep>...)"`
+  avec ce séparateur. Point de passage **unique** désormais pour toute
+  construction de formule du projet — plus aucune virgule écrite en
+  dur entre deux arguments de formule nulle part dans `src/`.
+
+**Audit exhaustif de toutes les formules du projet** (recherche de
+tout `setFormula`/`setFormulas`/`whenFormulaSatisfied` et de tout appel
+de fonction à plusieurs arguments dans `src/*.gs`, pas seulement les
+formules déjà corrigées en V4.1.3) :
+
+| Formule | Avant | Statut |
+|---|---|---|
+| `avecIferror_()` (`03_Erreurs.gs`) — utilisée par `monthlyAmountFormula_`, `annualAmountFormula_`, Prévisionnel (Objectif/Ecart/Total), Accueil (Exercice) | virgule en dur | **Corrigé** (`appel_`) |
+| Dashboard, carte "AVANCEMENT" | virgule en dur (ne passait pas par `avecIferror_`) | **Corrigé** |
+| Dashboard, carte "PRÉVISION FIN D'ANNÉE" | 3 virgules en dur (`MIN`/`MAX`/`IFERROR`) | **Corrigé** |
+| `chargesEquivalentMensuelFormula_()` (`20_Charges.gs`) — `IF`/`IFS`, utilisée par la carte "CHARGES MENSUELLES" et la répartition par catégorie du Dashboard | virgules en dur | **Corrigé** |
+| Accueil, bouton "Ouvrir le Dashboard" (`HYPERLINK`) | virgule en dur (ne passait par aucun helper) | **Corrigé** — expliquait les erreurs déjà signalées sur Accueil, non couvertes par le diagnostic `LET()` de la V4.1.3 |
+| Mise en forme conditionnelle (Charges "Non", Prévisionnel "dépassé"/"atteint") — `whenFormulaSatisfied` | aucune virgule (comparaisons/arithmétique pures) | **Vérifié conforme, aucun changement nécessaire** |
+| Formats numériques (`FORMAT_EUR`, `FORMAT_PERCENT`...) et validations de saisie (`requireNumberBetween`, `requireDate`...) | — | **Vérifié hors sujet** : mécanisme API différent (motif de format ICU / arguments numériques natifs), non concerné par la traduction de formule |
+
+**Fichiers modifiés** : `01_Utils.gs` (nouveaux `formulaSep_()` /
+`appel_()`), `03_Erreurs.gs`, `40_Dashboard.gs`, `20_Charges.gs`,
+`05_Accueil.gs`, `ARCHITECTURE.md`, `KNOWN_LIMITATIONS.md`.
+**Non modifiés** : `50_Previsionnel.gs`, `60_Analyse.gs` (leurs
+formules passaient déjà entièrement par `avecIferror_()`/
+`monthlyAmountFormula_()`, corrigés à la source) ; aucune valeur ni
+logique métier changée — même résultat de calcul dans tous les cas,
+uniquement la syntaxe de formule.
+
+## V4.1.3 — Correctif `LET()` (`#ERROR!`/`#VALUE!` en locale FR)
 
 Correctif suite au **quatrième retour d'exécution réelle** du projet :
 installation V4.1.2 terminée avec succès, mais de nombreuses cellules

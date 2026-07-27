@@ -43,7 +43,9 @@ function buildAccueilBouton_(sheet) {
   var dashboard = getRequiredSheet_(SHEETS.DASHBOARD);
   var bouton = sheet.getRange('A5:B6');
   bouton.merge();
-  bouton.setFormula('=HYPERLINK("#gid=' + dashboard.getSheetId() + '","Ouvrir le Dashboard  →")');
+  // V4.1.4 : via appel_() (01_Utils.gs) plutôt qu'une virgule écrite en
+  // dur entre les 2 arguments de HYPERLINK (voir CHANGELOG.md V4.1.4).
+  bouton.setFormula('=' + appel_('HYPERLINK', ['"#gid=' + dashboard.getSheetId() + '"', '"Ouvrir le Dashboard  →"']));
   bouton.setBackground(COLORS.ACCENT)
     .setFontFamily(FONT).setFontSize(DESIGN.BUTTON_FONT_SIZE).setFontWeight('bold').setFontColor(COLORS.WHITE)
     .setHorizontalAlignment('center').setVerticalAlignment('middle');

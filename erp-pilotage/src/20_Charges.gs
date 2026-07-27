@@ -85,22 +85,27 @@ function buildChargesPlagesNommees_(sheet) {
  * Réutilisée pour les deux cartes KPI et pour la répartition par
  * catégorie (Dashboard, puis Analyse qui la réutilise) : la durcir
  * ici (V3) suffit à protéger les deux.
+ *
+ * Construite via `appel_()` (`01_Utils.gs`, V4.1.4) plutôt qu'avec des
+ * virgules écrites en dur entre les arguments de `IF`/`IFS`/`IFERROR` —
+ * ces virgules doivent être des points-virgules sur un classeur dont
+ * la locale utilise la virgule comme séparateur décimal (confirmé par
+ * test réel sur un classeur en locale française).
+ *
  * @return {string} Corps de formule SANS le "=" initial (voir avecIferror_).
  */
 function chargesEquivalentMensuelFormula_() {
   var actif = NAMED_RANGES.CHARGES_ACTIF;
   var periodicite = NAMED_RANGES.CHARGES_PERIODICITE;
   var montant = NAMED_RANGES.CHARGES_MONTANT_HT;
-  var corps = [
-    'IF(', actif, '<>"Oui", 0,',
-    ' IFS(',
-    periodicite, '="Mensuelle", ', montant, ',',
-    periodicite, '="Trimestrielle", ', montant, '/3,',
-    periodicite, '="Annuelle", ', montant, '/12,',
-    'TRUE, 0',
-    '))'
-  ].join('');
-  return 'IFERROR(' + corps + ',0)';
+  var ifs = appel_('IFS', [
+    periodicite + '="Mensuelle"', montant,
+    periodicite + '="Trimestrielle"', montant + '/3',
+    periodicite + '="Annuelle"', montant + '/12',
+    'TRUE', '0'
+  ]);
+  var corps = appel_('IF', [actif + '<>"Oui"', '0', ifs]);
+  return appel_('IFERROR', [corps, '0']);
 }
 
 /**
@@ -114,11 +119,12 @@ function chargesEquivalentMensuelFormula_() {
  * pixels qui doit être uniforme (V4), pas le nombre de colonnes.
  */
 function buildChargesCartes_(sheet) {
-  // V4.1.3 : SUMPRODUCT (déjà utilisé ailleurs dans le projet pour
-  // sommer ce même calcul, ex. Dashboard, 40_Dashboard.gs) plutôt que
-  // LET(...,SUM(...)) — voir 01_Utils.gs, monthlyAmountFormula_, pour
-  // la raison (traduction de locale non fiable pour LET).
-  var mensuelFormula = avecIferror_('SUMPRODUCT(' + chargesEquivalentMensuelFormula_() + ')', 0);
+  // SUMPRODUCT (déjà utilisé ailleurs dans le projet pour sommer ce
+  // même calcul, ex. Dashboard, 40_Dashboard.gs) plutôt que
+  // LET(...,SUM(...)) — voir 01_Utils.gs, monthlyAmountFormula_. Un
+  // seul argument ici (aucun séparateur de formule nécessaire à ce
+  // niveau) ; avecIferror_() gère celui de l'IFERROR englobant.
+  var mensuelFormula = avecIferror_(appel_('SUMPRODUCT', [chargesEquivalentMensuelFormula_()]), 0);
   var valeurMensuelle = buildKpiCard_(sheet, 3, 1, 2, 'CHARGES MENSUELLES', mensuelFormula, FORMAT_EUR, true);
   setNamedRange_(NAMED_RANGES.CHARGES_MENSUELLES, valeurMensuelle);
 

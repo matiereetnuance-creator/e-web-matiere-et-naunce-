@@ -223,21 +223,30 @@ Deux mécanismes distincts, à ne pas confondre :
    générateurs sont exactement ce que le Dashboard appelle pour ses
    propres cartes et sa table cachée.
 
-**Limite importante d'`IFERROR` (V4.1.3)** : `IFERROR` ne rattrape que
-les erreurs d'**évaluation** (`#REF!`, `#N/A`, `#VALUE!`, `#NOM?`,
-division par zéro) — jamais une erreur de **syntaxe** (`#ERROR!`,
-"formule invalide"). Si la formule ne peut pas être analysée du tout,
-`IFERROR` lui-même fait partie de la formule non analysée et ne peut
-rien intercepter. C'est précisément ce qui s'est produit avec
-`LET()` : cette fonction n'était pas retraduite de façon fiable par
-Sheets pour les locales à séparateur `;` (dont le français) lorsque la
-formule est écrite via `setFormula()`/`setFormulas()` — contrairement
-à `SUMPRODUCT`/`IFERROR`/`IF`/`IFS`/`YEAR`/`MONTH`, bien plus anciennes
-et traduites de façon fiable depuis longtemps. `avecIferror_()`
-enveloppait bien ces formules, mais ne pouvait pas les protéger d'une
-erreur de ce type. Toutes les formules du projet ont donc été
-réécrites sans `LET()` (voir CHANGELOG.md V4.1.3) — uniquement des
-fonctions dont la traduction de locale est éprouvée.
+**Limite importante d'`IFERROR`** : `IFERROR` ne rattrape que les
+erreurs d'**évaluation** (`#REF!`, `#N/A`, `#VALUE!`, `#NOM?`, division
+par zéro) — jamais une erreur de **syntaxe** (`#ERROR!`, "formule
+invalide"). Si la formule ne peut pas être analysée du tout, `IFERROR`
+lui-même fait partie de la formule non analysée et ne peut rien
+intercepter. `avecIferror_()` enveloppe bien les formules générées par
+le script, mais ne peut pas les protéger d'une erreur de syntaxe.
+
+**Séparateur d'arguments de formule (V4.1.4, corrige une attribution
+erronée en V4.1.3)** : `Range.setFormula()`/`setFormulas()`
+n'effectue AUCUNE traduction automatique du séparateur d'arguments —
+confirmé par un test réel du client, pas une supposition
+(`=IFERROR(1/0,0)` échoue sur un classeur en locale française,
+`=IFERROR(1/0;0)` fonctionne). La V4.1.3 avait attribué ce problème à
+`LET()` spécifiquement ; le test a prouvé que TOUTE virgule utilisée
+comme séparateur d'argument est concernée, quelle que soit la
+fonction (`IFERROR`, `IF`, `IFS`, `HYPERLINK`...). Toutes les formules
+du projet passent désormais par `appel_(nomFonction, args)`
+(`01_Utils.gs`), qui utilise `formulaSep_()` pour détecter le
+séparateur réellement attendu par la locale du classeur — voir §13
+(performance/robustesse) pour le détail technique de la détection.
+Plus aucune virgule n'est écrite en dur entre deux arguments de
+formule nulle part dans `src/` (audit exhaustif, voir CHANGELOG.md
+V4.1.4 et §19 pour le détail technique de la détection de locale).
 
 **Repli Chantiers** : si une colonne attendue est introuvable,
 `ensureChantiersLinks_()` (`30_Chantiers.gs`) ne laisse jamais une
@@ -448,3 +457,49 @@ valeurs KPI phares par carte).
   centralisé dans `COLORS` / `FONT` (`00_Constantes.gs`) et
   `computeChartSize_()` (`01_Utils.gs`) — jamais de valeur répétée dans
   les modules de feuilles.
+
+## 19. Séparateur de formule et locale (V4.1.4)
+
+Fait confirmé par test réel sur le classeur du client (locale
+française), pas une supposition : `Range.setFormula()`/`setFormulas()`
+n'effectue **aucune traduction automatique** du séparateur d'arguments
+d'une formule. La formule doit déjà contenir le séparateur réellement
+attendu par la locale du classeur — `;` pour une locale à virgule
+décimale (français, allemand, espagnol, italien, portugais,
+néerlandais, russe...), `,` pour une locale à point décimal (anglais).
+Écrire une virgule là où le classeur attend un point-virgule produit
+"Erreur d'analyse de formule" (`#ERROR!`), pour n'importe quelle
+fonction — y compris la plus simple (`IFERROR(1/0,0)`), pas seulement
+les fonctions récentes comme `LET()` (la V4.1.3 avait attribué le
+problème à `LET()` spécifiquement ; un test de contrôle du client a
+prouvé que ce n'était pas la vraie cause — voir CHANGELOG.md V4.1.4).
+
+**Mécanisme centralisé** (`01_Utils.gs`) :
+
+```
+formulaSep_()  → ";" ou "," selon la locale RÉELLE du classeur, mis en
+                 cache pour l'exécution (même principe que getSpreadsheet_()).
+                 Détection : Spreadsheet.getSpreadsheetLocale() + Intl.NumberFormat
+                 (runtime V8 d'Apps Script) — teste empiriquement si la locale
+                 formate les décimales avec une virgule. Indépendant de la
+                 locale : aucune liste de langues codée en dur à maintenir.
+
+appel_(nom, args)  → construit "NOM(arg1<sep>arg2<sep>...)" avec ce séparateur.
+```
+
+**Règle du projet depuis la V4.1.4** : toute formule à plusieurs
+arguments doit être construite via `appel_()` (directement, ou
+indirectement via `avecIferror_()` qui l'utilise déjà) — plus jamais
+de virgule écrite en dur entre deux arguments de formule. Un futur
+ajout de formule qui contournerait `appel_()` réintroduirait
+exactement ce bug ; c'est le seul point de vigilance à conserver pour
+toute évolution future du moteur de calcul.
+
+Les formats numériques (`FORMAT_EUR`, `FORMAT_PERCENT`...) et les
+règles de validation de saisie (`requireNumberBetween()`,
+`requireDate()`...) ne sont **pas** concernés par ce mécanisme : les
+premiers utilisent un motif de format ICU (la virgule y est un
+séparateur de milliers dans le motif, jamais retraduite non plus, mais
+ce n'est pas une formule) et les secondes reçoivent des arguments
+JavaScript natifs (pas une chaîne de formule à analyser) — deux
+chemins d'API distincts, vérifiés indemnes lors de l'audit V4.1.4.

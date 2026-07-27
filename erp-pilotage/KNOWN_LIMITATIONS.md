@@ -56,34 +56,35 @@
   2/3 ("L'option graphique n'est plus compatible : chartArea.bottom").
   Corrigé en `width`/`height` en pourcentage (voir CHANGELOG.md,
   ARCHITECTURE.md §15).
-- **Troisième cas confirmé (V4.1.3)** : `LET()`, utilisée dans 4
-  générateurs de formule (`monthlyAmountFormula_()`,
-  `annualAmountFormula_()`, la carte "PRÉVISION FIN D'ANNÉE" du
-  Dashboard, la carte "CHARGES MENSUELLES" de Charges), n'est pas
-  retraduite de façon fiable par Google Sheets pour les locales dont
-  le séparateur d'arguments natif est `;` (dont le français) lorsque
-  la formule est écrite via `setFormula()`/`setFormulas()` — d'où de
-  nombreux `#ERROR!`/`#VALUE!` sur un classeur en locale FR (Dashboard,
-  Charges, Prévisionnel, Analyse), révélés par l'installation réelle
-  V4.1.2. `avecIferror_()` ne pouvait pas protéger ces cellules : une
-  erreur de syntaxe (`#ERROR!`) empêche l'analyse de la formule
-  entière, `IFERROR` inclus (voir ARCHITECTURE.md §9). Corrigé en
-  réécrivant les 4 formules sans `LET()`, avec uniquement des
-  fonctions dont la traduction de locale est éprouvée depuis longtemps
-  (`SUMPRODUCT`, `IF`, `IFS`, `YEAR`, `MONTH`, `MAX`, `MIN`, `TODAY`) —
-  voir CHANGELOG.md. **Aucune autre fonction récente de la famille
-  LAMBDA (`LAMBDA`, `MAP`, `REDUCE`, `BYROW`, `BYCOL`, `SCAN`,
-  `MAKEARRAY`) n'est utilisée dans le projet** — vérifié par recherche
-  exhaustive dans `src/*.gs` ; `LET()` était la seule.
+- **Troisième cas confirmé, et attribution corrigée (V4.1.3 → V4.1.4)** :
+  la V4.1.3 attribuait les `#ERROR!`/`#VALUE!` observés sur un classeur
+  en locale française à `LET()` spécifiquement. Un test de contrôle du
+  client a prouvé que ce n'était pas la vraie cause : une formule déjà
+  "corrigée" en V4.1.3 (`=IFERROR(SUMPRODUCT(...),0)`, sans aucun
+  `LET()`) échouait encore avec "Erreur d'analyse de formule" ; et
+  `=IFERROR(1/0,0)` échoue tandis que `=IFERROR(1/0;0)` fonctionne. La
+  vraie cause, confirmée par ce test : **`Range.setFormula()`/
+  `setFormulas()` n'effectue AUCUNE traduction automatique du
+  séparateur d'arguments** — la formule doit déjà contenir le
+  séparateur réellement attendu par la locale du classeur, quelle que
+  soit la fonction utilisée (`IFERROR`, `IF`, `IFS`, `HYPERLINK`...),
+  pas seulement `LET()`. Voir ARCHITECTURE.md §19 pour le détail du
+  mécanisme corrigé (`formulaSep_()` / `appel_()`, détection de locale
+  via `Intl.NumberFormat`, audit exhaustif de toutes les formules du
+  projet) et CHANGELOG.md V4.1.4.
 
-  Trois erreurs de la même famille (construction d'API/formule non
+  Quatre erreurs de la même famille (construction d'API/formule non
   détectable par une vérification de syntaxe JavaScript, uniquement
-  révélée par l'exécution réelle sur un vrai classeur) en trois
-  installations consécutives — renforce l'idée qu'une revue par un
-  compte Google test avant chaque livraison reste la seule
-  vérification fiable des appels d'API Apps Script/Google Sheets et de
-  la syntaxe de formule réellement interprétée par le moteur de calcul
-  (par opposition à sa seule syntaxe JavaScript de construction).
+  révélée par l'exécution réelle sur un vrai classeur — dont une
+  attribution de cause initialement incorrecte, elle-même corrigée
+  seulement par un second test réel plus précis) en quatre
+  installations consécutives — renforce plus que jamais l'idée qu'une
+  revue par un compte Google test avant chaque livraison reste la
+  seule vérification fiable des appels d'API Apps Script/Google
+  Sheets et de la syntaxe de formule réellement interprétée par le
+  moteur de calcul (par opposition à sa seule syntaxe JavaScript de
+  construction, ou à un raisonnement non vérifié sur le comportement
+  supposé de l'API).
 - **Limite d'exécution de 6 minutes — confirmée en conditions réelles
   (V4.1).** Le premier retour d'exécution réelle du projet (V4
   installée par le client sur un vrai classeur) a montré que

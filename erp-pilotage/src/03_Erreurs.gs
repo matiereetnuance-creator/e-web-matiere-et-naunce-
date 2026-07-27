@@ -56,6 +56,12 @@ function afficherErreur_(titre, message) {
  * d'afficher une erreur. N'affecte jamais le résultat du chemin normal
  * (sans erreur) : ce n'est jamais un changement de logique métier.
  *
+ * Utilise `appel_()` (`01_Utils.gs`, V4.1.4) plutôt qu'une virgule
+ * écrite en dur entre `corpsFormule` et `repli` — cette virgule doit
+ * être un point-virgule sur un classeur dont la locale utilise la
+ * virgule comme séparateur décimal (ex. français), sous peine de
+ * "Erreur d'analyse de formule" (confirmé par test réel).
+ *
  * @param {string} corpsFormule Expression de formule, SANS le "=" initial.
  * @param {(number|string)=} repli Valeur de repli (0 par défaut).
  * @return {string} Formule complète, prête pour setFormula().
@@ -63,5 +69,5 @@ function afficherErreur_(titre, message) {
 function avecIferror_(corpsFormule, repli) {
   if (repli === undefined) repli = 0;
   var repliFormule = (typeof repli === 'string') ? '"' + repli + '"' : repli;
-  return '=IFERROR(' + corpsFormule + ',' + repliFormule + ')';
+  return '=' + appel_('IFERROR', [corpsFormule, repliFormule]);
 }
