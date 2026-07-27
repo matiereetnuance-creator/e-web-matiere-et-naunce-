@@ -23,6 +23,7 @@ function buildAnalyse_() {
   sheet.setColumnWidths(1, DESIGN.WIDE_GRID_COLUMNS, DESIGN.WIDE_COLUMN_WIDTH);
 
   buildAnalyseTitre_(sheet);
+  buildAnalyseSousTitre_(sheet);
   buildAnalyseDonneesMensuelles_(sheet);
   buildAnalyseGraphiques_(sheet);
 
@@ -34,6 +35,14 @@ function buildAnalyseTitre_(sheet) {
   titre.merge().setValue('ANALYSE');
   styleTitle_(titre);
   sheet.setRowHeight(1, DESIGN.HEADER_HEIGHT);
+}
+
+/** Légende discrète sous le titre (V5.2) — cohérence avec les autres feuilles. */
+function buildAnalyseSousTitre_(sheet) {
+  var sousTitre = sheet.getRange('A2:F2');
+  sousTitre.merge().setValue('Chiffre d\'affaires, marge et charges, mois par mois');
+  stylePageSubtitle_(sousTitre);
+  sheet.setRowHeight(2, DESIGN.SUBHEADER_HEIGHT);
 }
 
 /**
@@ -67,17 +76,18 @@ function buildAnalyseDonneesMensuelles_(sheet) {
   protectAsCalculated_(sheet.getRange(2, col + 1, 12, 2));
 }
 
+var ANALYSE_CHART_ROW = 4;
 var ANALYSE_CHART_ROWSPAN = 13;
 var ANALYSE_CHART_COLSPAN = 7;
-var ANALYSE_CHART_CATEGORIES_ROW = 20;
+var ANALYSE_CHART_CATEGORIES_ROW = 21;
 
 function buildAnalyseGraphiques_(sheet) {
   var col = ANALYSE_HELPER_COL;
 
-  var tailleCa = computeChartSize_(sheet, 1, ANALYSE_CHART_COLSPAN, 3, ANALYSE_CHART_ROWSPAN);
+  var tailleCa = computeChartSize_(sheet, 1, ANALYSE_CHART_COLSPAN, ANALYSE_CHART_ROW, ANALYSE_CHART_ROWSPAN);
   var chartCa = creerGraphiqueBase_(sheet, Charts.ChartType.COLUMN)
     .addRange(sheet.getRange(1, col, 13, 2)) // Mois, CA
-    .setPosition(3, 1, 0, 0)
+    .setPosition(ANALYSE_CHART_ROW, 1, 0, 0)
     .setOption('title', 'CA par mois')
     .setOption('colors', [COLORS.ACCENT])
     .setOption('width', tailleCa.width)
@@ -86,11 +96,11 @@ function buildAnalyseGraphiques_(sheet) {
   sheet.insertChart(chartCa);
 
   var colStartMarge = 1 + ANALYSE_CHART_COLSPAN;
-  var tailleMarge = computeChartSize_(sheet, colStartMarge, ANALYSE_CHART_COLSPAN, 3, ANALYSE_CHART_ROWSPAN);
+  var tailleMarge = computeChartSize_(sheet, colStartMarge, ANALYSE_CHART_COLSPAN, ANALYSE_CHART_ROW, ANALYSE_CHART_ROWSPAN);
   var chartMarge = creerGraphiqueBase_(sheet, Charts.ChartType.COLUMN)
     .addRange(sheet.getRange(1, col, 13, 1))     // Mois
     .addRange(sheet.getRange(1, col + 2, 13, 1)) // Marge
-    .setPosition(3, colStartMarge, 0, 0)
+    .setPosition(ANALYSE_CHART_ROW, colStartMarge, 0, 0)
     .setOption('title', 'Marge par mois')
     .setOption('colors', [COLORS.INK])
     .setOption('width', tailleMarge.width)

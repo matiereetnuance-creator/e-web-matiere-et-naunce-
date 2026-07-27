@@ -7,8 +7,8 @@
  * et la plus robuste, aucun paramètre de saisonnalité n'étant demandé).
  */
 
-var PREVISIONNEL_HEADER_ROW = 3;
-var PREVISIONNEL_FIRST_ROW = 4; // Janvier
+var PREVISIONNEL_HEADER_ROW = 4;
+var PREVISIONNEL_FIRST_ROW = 5; // Janvier
 var PREVISIONNEL_TABLE_COLUMNS = 4; // Mois, Objectif, Réalisé, Ecart
 var PREVISIONNEL_CHART_ROWSPAN = 16;
 
@@ -36,6 +36,7 @@ function buildPrevisionnel_() {
   }
 
   buildPrevisionnelTitre_(sheet);
+  buildPrevisionnelSousTitre_(sheet);
   buildPrevisionnelEnTete_(sheet);
   buildPrevisionnelLignesMois_(sheet);
   buildPrevisionnelLigneTotal_(sheet);
@@ -50,6 +51,14 @@ function buildPrevisionnelTitre_(sheet) {
   titre.merge().setValue('PRÉVISIONNEL');
   styleTitle_(titre);
   sheet.setRowHeight(1, DESIGN.HEADER_HEIGHT);
+}
+
+/** Légende discrète sous le titre (V5.2) — cohérence avec Accueil/Dashboard/Charges. */
+function buildPrevisionnelSousTitre_(sheet) {
+  var sousTitre = sheet.getRange('A2:D2');
+  sousTitre.merge().setValue('Objectif mensuel comparé au chiffre d\'affaires réalisé');
+  stylePageSubtitle_(sousTitre);
+  sheet.setRowHeight(2, DESIGN.SUBHEADER_HEIGHT);
 }
 
 function buildPrevisionnelEnTete_(sheet) {

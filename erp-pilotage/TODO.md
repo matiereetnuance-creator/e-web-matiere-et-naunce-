@@ -76,6 +76,16 @@ nécessaire pour une mise en production sereine.
   d'une grille) : toujours lisible sur 1000 lignes ? Si un détail
   manque de définition, ajuster `DESIGN`/`COLORS` plutôt que de
   réintroduire une bordure complète.
+- [ ] **V5.2 — Vérifier que la valeur KPI en 32pt tient dans la largeur
+  des cartes** (2 colonnes × 137px = 274px) pour les plus grands
+  montants attendus (ex. objectif annuel à 6 chiffres) : le texte
+  déborde-t-il proprement dans la colonne d'espacement voisine (pas de
+  contenu dessus, donc sans casse) ou faut-il réduire légèrement
+  `KPI_VALUE_FONT_SIZE` ? Vérifier aussi que les 6 sous-titres "eyebrow"
+  (Accueil, Dashboard, Charges, Prévisionnel, Analyse, Paramètres)
+  s'affichent avec assez d'air par rapport au titre et au contenu qui
+  suit, et que le quadrillage vertical des graphiques a bien disparu
+  sans rendre les graphiques moins lisibles.
 
 ## Quand le temps le permet
 

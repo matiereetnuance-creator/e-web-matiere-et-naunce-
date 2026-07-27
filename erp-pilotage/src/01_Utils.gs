@@ -459,7 +459,10 @@ function creerGraphiqueBase_(sheet, type) {
     // titre gras façon "widget générique" — désencombre le canevas du
     // graphique, cohérent avec l'esprit "épuré" demandé par le client.
     .setOption('titleTextStyle', { color: COLORS.INK_MUTED, fontSize: DESIGN.NOTE_FONT_SIZE, bold: false })
-    .setOption('hAxis', { textStyle: texteAxe, gridlines: { color: COLORS.BORDER }, baselineColor: COLORS.BORDER })
+    // V5.2 : quadrillage vertical (hAxis, catégories) masqué — seul le
+    // quadrillage horizontal (vAxis, valeurs) reste, utile pour lire
+    // les montants ; "peu de quadrillage", demande explicite du client.
+    .setOption('hAxis', { textStyle: texteAxe, gridlines: { color: 'transparent' }, baselineColor: COLORS.BORDER })
     .setOption('vAxis', { textStyle: texteAxe, gridlines: { color: COLORS.BORDER }, baselineColor: COLORS.BORDER })
     .setOption('legend', { textStyle: texteAxe, position: 'none' })
     // chartArea n'accepte que left/top/width/height (backgroundColor à

@@ -3,7 +3,60 @@
 Toutes les versions sont des révisions du même projet Apps Script
 (`erp-pilotage/`), livrées sur la branche `claude/erp-matiere-nuance-1mme8l`.
 
-## V5.1.0 — Design premium : "une application, pas un tableur" (actuelle)
+## V5.2.0 — Design premium, round 2 : hiérarchie renforcée + cohérence totale (actuelle)
+
+Retour client sur la V5.1 : "la direction est très bonne", demande
+d'aller plus loin sur la qualité perçue, avec un principe explicite —
+**moins d'éléments mais parfaitement dessinés, plutôt qu'un ERP riche
+mais chargé**. Le client annonce aussi geler le moteur de calcul à
+partir de maintenant : plus aucune modification de formule ou de
+logique métier sauf bug avéré, les prochaines versions se concentrant
+sur design/ergonomie/confort d'utilisation. Cette version applique ce
+principe strictement : aucune formule, aucun calcul, aucune plage
+nommée nouvelle — uniquement mise en page et hiérarchie visuelle.
+
+- **Hiérarchie typographique renforcée** (`DESIGN`, `00_Constantes.gs`) :
+  `KPI_VALUE_FONT_SIZE` 26→32pt — la valeur d'une carte KPI est
+  maintenant plus grande que le titre de page (`TITLE_FONT_SIZE` 22pt),
+  cohérent avec "les KPI sont l'élément principal du Dashboard".
+  `CARD_HEIGHT` 46→58px, `CARD_LABEL_HEIGHT` 22→24px, `TABLE_ROW_HEIGHT`
+  28→30px, `SUBHEADER_HEIGHT` 30→32px — plus d'air partout où le
+  client l'a demandé ("l'œil doit respirer").
+- **Graphiques encore plus sobres** (`creerGraphiqueBase_()`) :
+  quadrillage vertical (catégories) masqué entièrement, seul le
+  quadrillage horizontal (valeurs, déjà très léger) subsiste — "peu de
+  quadrillage" au sens propre.
+- **Sous-titres "eyebrow" étendus à tout le classeur** (introduits en
+  V5.1 sur Accueil/Dashboard uniquement) : désormais aussi sur Charges,
+  Prévisionnel, Analyse et Paramètres — "toutes les feuilles doivent
+  donner l'impression d'appartenir à la même application". Charges,
+  Prévisionnel et Analyse décalent leur contenu généré d'une ligne pour
+  garder un espace respirant après le sous-titre (sûr : aucune donnée
+  persistante déplacée, ces 3 feuilles sont 100 % régénérées à chaque
+  installation) ; Paramètres n'est volontairement PAS décalée : ses
+  cellules de saisie réelles (`B4:B9`, `B12:B15`) ne bougent jamais.
+- **Coins arrondis : demandés, évalués, non réalisables** — Google
+  Sheets n'expose aucune propriété de rayon de bordure sur une cellule
+  et la seule forme aux coins arrondis possible dans un classeur (un
+  Dessin inséré manuellement) n'est pas accessible depuis Apps Script.
+  Documenté clairement plutôt que contourné par un faux-semblant — voir
+  KNOWN_LIMITATIONS.md.
+
+**Fichiers modifiés** : `00_Constantes.gs`, `01_Utils.gs`,
+`20_Charges.gs`, `50_Previsionnel.gs`, `60_Analyse.gs`,
+`10_Parametres.gs`, `ARCHITECTURE.md`, `README.md`,
+`KNOWN_LIMITATIONS.md`, `RECETTE.md`.
+**Non modifiés** : `40_Dashboard.gs`, `05_Accueil.gs` (déjà
+conformes depuis la V5.1 — bénéficient automatiquement de la nouvelle
+échelle `DESIGN`), `30_Chantiers.gs` (feuille du client, jamais de
+titre/sous-titre de notre fait), `99_Installation.gs`, `02_Menu.gs`.
+Aucune formule, aucune plage nommée nouvelle, aucune logique métier
+changée — conformément à l'annonce du client de figer le moteur.
+
+**Non vérifié par exécution réelle** (comme tout changement visuel
+depuis la V4) — voir KNOWN_LIMITATIONS.md.
+
+## V5.1.0 — Design premium : "une application, pas un tableur"
 
 Demande client explicite, priorité entièrement design/UX cette fois
 (aucune nouvelle fonctionnalité) : direction artistique inspirée de

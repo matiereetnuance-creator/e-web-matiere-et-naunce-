@@ -31,6 +31,7 @@ function buildParametres_() {
   // colonne B (lignes 4 à 9 et 12 à 15, cellules de saisie) n'est
   // jamais touchée ici.
   sheet.getRange('A1:B1').breakApart().clearContent().clearFormat();
+  sheet.getRange('A2:B2').breakApart().clearContent().clearFormat();
   sheet.getRange('A3').clearContent().clearFormat();
   sheet.getRange('A4:A9').clearContent().clearFormat();
   sheet.getRange('A11').clearContent().clearFormat();
@@ -38,6 +39,7 @@ function buildParametres_() {
   sheet.getRange('H1:M200').clearContent().clearFormat();
 
   buildParametresTitre_(sheet);
+  buildParametresSousTitre_(sheet);
   buildParametresGeneraux_(sheet);
   buildParametresChantiersMapping_(sheet);
   buildParametresListes_(sheet);
@@ -87,6 +89,19 @@ function buildParametresTitre_(sheet) {
   titre.merge().setValue('PARAMÈTRES');
   styleTitle_(titre);
   sheet.setRowHeight(1, DESIGN.HEADER_HEIGHT);
+}
+
+/**
+ * Légende discrète sous le titre (V5.2) — cohérence avec les autres
+ * feuilles. Pas de décalage de ligne ici (contrairement à
+ * Charges/Prévisionnel/Analyse) : B4:B9/B12:B15 sont des cellules de
+ * saisie réelles du client, jamais déplacées.
+ */
+function buildParametresSousTitre_(sheet) {
+  var sousTitre = sheet.getRange('A2:B2');
+  sousTitre.merge().setValue('Réglages de l\'exercice et connexion à vos tableaux');
+  stylePageSubtitle_(sousTitre);
+  sheet.setRowHeight(2, DESIGN.SUBHEADER_HEIGHT);
 }
 
 /** Réglages généraux de l'exercice — chaque champ a sa propre validation stricte (V3). */

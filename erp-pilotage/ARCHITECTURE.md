@@ -52,8 +52,8 @@ entre feuilles — voir §3.
 | `CHARGES_MONTANT_HT` | Charges | E8:E1000 | `buildCharges_()` | Saisie (colonne) |
 | `CHARGES_PERIODICITE` | Charges | D8:D1000 | `buildCharges_()` | Saisie (colonne) |
 | `CHARGES_ACTIF` | Charges | H8:H1000 | `buildCharges_()` | Saisie (colonne) |
-| `CHARGES_MENSUELLES` | Charges | B4 (carte KPI) | `buildCharges_()` | Calculée |
-| `CHARGES_ANNUELLES` | Charges | E4 (carte KPI) | `buildCharges_()` | Calculée |
+| `CHARGES_MENSUELLES` | Charges | B5 (carte KPI, V5.2 — sous-titre en ligne 2) | `buildCharges_()` | Calculée |
+| `CHARGES_ANNUELLES` | Charges | E5 (carte KPI, V5.2 — sous-titre en ligne 2) | `buildCharges_()` | Calculée |
 | `CHANTIERS_CA_HT` | Chantiers (existante) | colonne trouvée par en-tête, 5000 lignes | `ensureChantiersLinks_()` | Lecture seule |
 | `CHANTIERS_MARGE_HT` | Chantiers (existante) | colonne trouvée par en-tête, 5000 lignes | `ensureChantiersLinks_()` | Lecture seule |
 | `CHANTIERS_DATE` | Chantiers (existante) | colonne trouvée par en-tête, 5000 lignes | `ensureChantiersLinks_()` | Lecture seule |
@@ -668,3 +668,55 @@ de design V4/V5, aucun rendu réel n'a pu être vérifié à l'écran (voir
 KNOWN_LIMITATIONS.md) : ces choix sont fondés sur des principes de
 design bien établis (flat design, hiérarchie typographique, diviseurs
 plutôt que grilles), pas sur une capture d'écran réelle.
+
+### V5.2 — hiérarchie renforcée, cohérence totale
+
+Retour client sur la V5.1 : bonne direction, mais objectif d'aller
+encore plus loin — "moins d'éléments mais parfaitement dessinés". Le
+client annonce aussi geler le moteur de calcul à partir de cette
+version : plus aucune modification de formule/logique métier sauf
+bug, uniquement design/ergonomie désormais.
+
+- **KPI = élément visuellement dominant** : `KPI_VALUE_FONT_SIZE`
+  passe à 32pt, au-dessus de `TITLE_FONT_SIZE` (22pt) — inversion
+  volontaire de la hiérarchie "évidente" (titre de page toujours plus
+  gros) au profit de "les KPI sont l'élément principal du Dashboard"
+  (demande client explicite). `CARD_HEIGHT` (58px) et
+  `CARD_LABEL_HEIGHT` (24px) augmentés pour plus d'air autour des
+  chiffres — seul levier disponible en l'absence de véritable
+  "padding" CSS dans l'API Sheets (voir V4.1.1, `Range.setPadding()`
+  n'existe pas).
+- **Quadrillage de graphique réduit au strict utile**
+  (`creerGraphiqueBase_()`) : `hAxis.gridlines.color` passe à
+  `'transparent'` — plus aucune ligne verticale (catégories), seules
+  les lignes horizontales de référence (valeurs, `vAxis`) subsistent,
+  déjà très légères (`COLORS.BORDER`).
+- **Sous-titres "eyebrow" partout** : étendus de Accueil/Dashboard
+  (V5.1) à Charges, Prévisionnel, Analyse et Paramètres —
+  `stylePageSubtitle_()` est désormais appelé sur les 6 feuilles
+  script-gérées (Chantiers exclue : ce n'est pas notre titre à poser).
+  Sur Charges/Prévisionnel/Analyse (100 % régénérées, aucune donnée
+  persistante), le contenu généré est décalé d'une ligne pour garder
+  un espace respirant après le sous-titre, exactement comme
+  Accueil/Dashboard en V5.1 : Charges (cartes ligne 3→4,
+  `CHARGES_MENSUELLES`/`CHARGES_ANNUELLES` désormais en B5/E5 — voir
+  §2), Prévisionnel (`PREVISIONNEL_HEADER_ROW` 3→4,
+  `PREVISIONNEL_FIRST_ROW` 4→5 — tout le reste du fichier est calculé
+  à partir de ces deux constantes, aucune autre valeur à ajuster à la
+  main), Analyse (nouvelle constante `ANALYSE_CHART_ROW` = 4,
+  remplaçant un littéral `3` codé en dur à 2 endroits ; `ANALYSE_
+  CHART_CATEGORIES_ROW` 20→21). **Paramètres n'est volontairement PAS
+  décalée** : `PARAM_CELLS` (B4:B9, B12:B15) sont des cellules de
+  saisie réelles du client — les décaler aurait exigé de renuméroter
+  toute la constante et risqué de désynchroniser des données déjà
+  saisies chez un client réel ; le sous-titre y est simplement ajouté
+  en ligne 2 sans rien pousser en dessous.
+- **Coins arrondis : demandés, non réalisables.** Aucune propriété de
+  rayon de bordure n'existe sur un `Range` Sheets ; la seule primitive
+  aux coins arrondis (un Dessin inséré manuellement, menu Insertion ▸
+  Dessin) n'est pas pilotable depuis `SpreadsheetApp`/Apps Script.
+  Documenté honnêtement (voir KNOWN_LIMITATIONS.md) plutôt que
+  contourné par une fausse solution — la combinaison cartes sans
+  bordure + espacement généreux + hiérarchie typographique reste le
+  meilleur équivalent atteignable dans les limites réelles de la
+  plateforme.

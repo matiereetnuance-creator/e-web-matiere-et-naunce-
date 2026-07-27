@@ -2,6 +2,24 @@
 
 ## Limites de la plateforme Google Sheets / Apps Script
 
+- **Coins arrondis : techniquement impossibles sur des cellules
+  (demande client V5.2, non réalisable, pas contournée).** Une cellule
+  Google Sheets est toujours un rectangle strict — l'API `Range` ne
+  propose aucune propriété de rayon de bordure (`border-radius` n'a
+  pas d'équivalent), et aucune combinaison de bordures ne peut simuler
+  un angle arrondi (une bordure Sheets est toujours un segment droit).
+  La seule façon d'obtenir une forme aux coins arrondis dans un
+  classeur Google Sheets est d'insérer manuellement un **Dessin**
+  (menu Insertion ▸ Dessin) : un objet flottant, positionné par-dessus
+  la grille, non lié à des cellules — et surtout **non accessible
+  depuis Apps Script** (le service `SpreadsheetApp` n'expose aucune
+  méthode pour créer ou positionner un Dessin par script). Impossible
+  à automatiser de façon fiable et réinstallable, donc écarté plutôt
+  que bricolé. La V5.1/V5.2 compensent par d'autres moyens réellement
+  disponibles : cartes sans bordure (aplat de couleur pur, V5.1),
+  espacement généreux, hiérarchie typographique — c'est cette
+  combinaison, pas des coins arrondis, qui donne l'impression
+  "logicielle" recherchée dans les limites réelles de la plateforme.
 - **Graphiques non fluides** : un graphique Sheets est un objet de
   taille fixe une fois posé. `computeChartSize_()` l'adapte à la
   géométrie de la feuille à chaque (ré)installation, mais il ne se

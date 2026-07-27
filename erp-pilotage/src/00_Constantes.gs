@@ -88,17 +88,21 @@ var FONT = 'Roboto';
 // du client — remplace intégralement l'échelle V4 (plus dense, pensée
 // pour un écran de 15 pouces). Aucune formule ni logique métier
 // n'est concernée par ce changement, uniquement la mise en page.
+//
+// V5.2 : hiérarchie typographique renforcée (titre < KPI, KPI = élément
+// principal du Dashboard) et cartes plus aérées — demande explicite du
+// client ("beaucoup d'air autour des chiffres").
 // ------------------------------------------------------------------
 
 var DESIGN = {
   // Hauteurs de ligne (pixels)
   HEADER_HEIGHT: 48,        // ligne de titre de feuille
-  SUBHEADER_HEIGHT: 30,     // ligne de sous-titre de section
+  SUBHEADER_HEIGHT: 32,     // ligne de sous-titre de section / de page
   INPUT_ROW_HEIGHT: 28,     // ligne de saisie (Paramètres)
-  CARD_LABEL_HEIGHT: 22,    // ligne libellé d'une carte KPI
-  CARD_HEIGHT: 46,          // ligne valeur d'une carte KPI
+  CARD_LABEL_HEIGHT: 24,    // ligne libellé d'une carte KPI
+  CARD_HEIGHT: 58,          // ligne valeur d'une carte KPI (V5.2 : +air)
   TABLE_HEADER_HEIGHT: 32,  // ligne d'en-tête de tableau
-  TABLE_ROW_HEIGHT: 28,     // ligne de donnée de tableau
+  TABLE_ROW_HEIGHT: 30,     // ligne de donnée de tableau
 
   // Grille pleine largeur (V5) — Dashboard, Prévisionnel, Analyse :
   // 14 colonnes × 137px ≈ 1918px, calibrée pour un moniteur de bureau
@@ -107,11 +111,12 @@ var DESIGN = {
   WIDE_GRID_COLUMNS: 14,
   WIDE_COLUMN_WIDTH: 137,
 
-  // Typographie (points)
+  // Typographie (points) — échelle V5.2 : titre (22) < valeur KPI (32),
+  // les KPI étant "l'élément principal du Dashboard" (demande client).
   TITLE_FONT_SIZE: 22,
   SUBTITLE_FONT_SIZE: 12,
   KPI_LABEL_FONT_SIZE: 10,
-  KPI_VALUE_FONT_SIZE: 26,
+  KPI_VALUE_FONT_SIZE: 32,
   TABLE_HEADER_FONT_SIZE: 11,
   TABLE_BODY_FONT_SIZE: 11,
   INPUT_FONT_SIZE: 12,

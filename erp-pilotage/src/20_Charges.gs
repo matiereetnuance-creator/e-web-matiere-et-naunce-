@@ -28,6 +28,7 @@ function buildCharges_() {
   sheet.setColumnWidth(8, 90);  // Actif
 
   buildChargesTitre_(sheet);
+  buildChargesSousTitre_(sheet);
   buildChargesEnTete_(sheet);
 
   var namedRanges = buildChargesPlagesNommees_(sheet);
@@ -46,6 +47,14 @@ function buildChargesTitre_(sheet) {
   titreRange.merge().setValue('CHARGES FIXES');
   styleTitle_(titreRange);
   sheet.setRowHeight(1, DESIGN.HEADER_HEIGHT);
+}
+
+/** Légende discrète sous le titre (V5.2) — cohérence avec Accueil/Dashboard. */
+function buildChargesSousTitre_(sheet) {
+  var sousTitre = sheet.getRange('A2:C2');
+  sousTitre.merge().setValue('Vos charges fixes, saisies ici et réparties automatiquement ailleurs');
+  stylePageSubtitle_(sousTitre);
+  sheet.setRowHeight(2, DESIGN.SUBHEADER_HEIGHT);
 }
 
 /** En-tête du tableau, avec notes explicatives sur les colonnes les moins évidentes. */
@@ -131,15 +140,15 @@ function buildChargesCartes_(sheet) {
   // seul argument ici (aucun séparateur de formule nécessaire à ce
   // niveau) ; avecIferror_() gère celui de l'IFERROR englobant.
   var mensuelFormula = avecIferror_(appel_('SUMPRODUCT', [chargesEquivalentMensuelFormula_()]), 0);
-  var valeurMensuelle = buildKpiCard_(sheet, 3, 1, 2, 'CHARGES MENSUELLES', mensuelFormula, FORMAT_EUR, true);
+  var valeurMensuelle = buildKpiCard_(sheet, 4, 1, 2, 'CHARGES MENSUELLES', mensuelFormula, FORMAT_EUR, true);
   setNamedRange_(NAMED_RANGES.CHARGES_MENSUELLES, valeurMensuelle);
 
   var annuelFormula = avecIferror_(valeurMensuelle.getA1Notation() + '*12', 0);
-  var valeurAnnuelle = buildKpiCard_(sheet, 3, 5, 4, 'CHARGES ANNUELLES', annuelFormula, FORMAT_EUR, false);
+  var valeurAnnuelle = buildKpiCard_(sheet, 4, 5, 4, 'CHARGES ANNUELLES', annuelFormula, FORMAT_EUR, false);
   setNamedRange_(NAMED_RANGES.CHARGES_ANNUELLES, valeurAnnuelle);
 
-  sheet.setRowHeight(3, DESIGN.CARD_LABEL_HEIGHT);
-  sheet.setRowHeight(4, DESIGN.CARD_HEIGHT);
+  sheet.setRowHeight(4, DESIGN.CARD_LABEL_HEIGHT);
+  sheet.setRowHeight(5, DESIGN.CARD_HEIGHT);
 }
 
 /** Listes déroulantes + contrôles de saisie stricts (V3, point validation des données). */

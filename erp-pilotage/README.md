@@ -277,7 +277,7 @@ classeur. Le détail (bibliothèque d'erreurs, validations de saisie,
 mise en forme conditionnelle sobre, protections) est documenté dans
 `ARCHITECTURE.md` §9 à §13.
 
-## Design premium — "une application, pas un tableur" (V5.1)
+## Design premium — "une application, pas un tableur" (V5.2)
 
 Objectif : que le classeur donne l'impression d'un logiciel
 professionnel (Apple / Linear / Notion / Stripe Dashboard / Framer),
@@ -302,15 +302,23 @@ jamais surchargé, occupant pleinement un grand écran de bureau
   pas un trait. Même police, mêmes marges, même hiérarchie
   titre/valeur (`buildKpiCard_()`, seule fonction du projet qui
   construise une carte).
-- **Sous-titres "eyebrow" (V5.1)** : une courte légende de contexte
-  sous le titre principal d'Accueil et de Dashboard (ex. "Chiffre
-  d'affaires, marge et charges de l'exercice en cours") — hiérarchie
-  titre → contexte → contenu, en quelques secondes.
+- **Sous-titres "eyebrow" sur les 6 feuilles script-gérées (V5.1 puis
+  V5.2)** : une courte légende de contexte sous chaque titre principal
+  (ex. "Chiffre d'affaires, marge et charges de l'exercice en cours")
+  — hiérarchie titre → contexte → contenu, en quelques secondes,
+  cohérente sur Accueil, Dashboard, Charges, Prévisionnel, Analyse et
+  Paramètres (Chantiers exclue : feuille du client, jamais notre titre
+  à poser).
 - **Un seul style de graphique** (`creerGraphiqueBase_()`,
-  `01_Utils.gs`) : même police, mêmes couleurs d'axes/grille/légende,
-  même respiration (`chartArea`) sur les 6 graphiques du classeur ;
-  titre de graphique allégé (V5.1, non gras, discret) pour laisser la
-  donnée dominer visuellement sa propre étiquette.
+  `01_Utils.gs`) : même police, mêmes couleurs d'axes/légende, même
+  respiration (`chartArea`) sur les 6 graphiques du classeur ; titre de
+  graphique allégé (V5.1, non gras, discret) et quadrillage vertical
+  masqué (V5.2, seules les lignes de référence horizontales
+  subsistent) pour laisser la donnée dominer.
+- **KPI = élément visuellement dominant (V5.2)** : la valeur d'une
+  carte KPI (32pt) est désormais plus grande que le titre de la page
+  (22pt) — "les KPI sont l'élément principal du Dashboard", demande
+  client explicite. Cartes plus hautes (+air autour des chiffres).
 - **Palette strictement limitée** à blanc, gris très clair, anthracite
   et l'accent Matière & Nuance (vérifié : aucune autre teinte dans le
   code — voir `ARCHITECTURE.md` §16).
@@ -318,15 +326,25 @@ jamais surchargé, occupant pleinement un grand écran de bureau
   la bordure 4 côtés (V1-V5) est remplacée par un simple diviseur
   horizontal — élimine l'effet "tableur Excel" sur les 1000 lignes de
   Charges, sans changer le contenu ni les colonnes.
+- **Coins arrondis : demandés en V5.2, non réalisables** — aucune
+  propriété de rayon de bordure n'existe sur une cellule Google
+  Sheets ; documenté honnêtement plutôt que contourné (voir
+  `KNOWN_LIMITATIONS.md`).
 
 ## Journal des évolutions
 
 Voir **[`CHANGELOG.md`](CHANGELOG.md)** pour l'historique complet.
-En bref : **V5.1.0** (design premium, priorité 100% UX — cartes KPI et
-bouton sans bordure, cellules de saisie en diviseur de ligne plutôt
-qu'en grille, titres de graphique allégés, sous-titres "eyebrow" sur
-Accueil/Dashboard ; direction Notion/Linear/Stripe/Apple/Framer ;
-aucune logique métier modifiée) ; **V5.0.0** (cahier des charges
+En bref : **V5.2.0** (moteur de calcul figé à la demande du client —
+design uniquement désormais : KPI plus grands que le titre de page
+[32pt vs 22pt], cartes plus aérées, quadrillage de graphique réduit au
+strict utile, sous-titres "eyebrow" étendus à tout le classeur ;
+demande de coins arrondis documentée comme non réalisable sur des
+cellules Sheets plutôt que contournée ; aucune formule ni logique
+métier modifiée) ; **V5.1.0** (design premium, priorité 100% UX —
+cartes KPI et bouton sans bordure, cellules de saisie en diviseur de
+ligne plutôt qu'en grille, titres de graphique allégés, sous-titres
+"eyebrow" sur Accueil/Dashboard ; direction Notion/Linear/Stripe/Apple/
+Framer ; aucune logique métier modifiée) ; **V5.0.0** (cahier des charges
 client : Chantiers/Charges seuls tableaux de saisie — architecture
 déjà en place, formalisée en règle ; harmonisation visuelle de
 Chantiers, une première pour ce projet — couleurs/gel/largeurs/vue
