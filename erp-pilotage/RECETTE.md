@@ -15,7 +15,7 @@ Classeur de test : **📊 Matière & Nuance – Pilotage TEST 2026**
    `📊 Matière & Nuance – Pilotage TEST 2026`.
 2. Ouvrir *Extensions ▸ Apps Script*.
 3. Supprimer le fichier `Code.gs` par défaut.
-4. Pour chacun des 18 fichiers de `erp-pilotage/src/` (voir liste dans
+4. Pour chacun des 19 fichiers de `erp-pilotage/src/` (voir liste dans
    `README.md`), créer un fichier du même nom et coller le contenu.
 5. Ouvrir `appsscript.json` du projet (icône ⚙️ *Paramètres du projet
    ▸ Afficher le fichier manifeste "appsscript.json"*) et remplacer
