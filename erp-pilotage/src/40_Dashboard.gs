@@ -17,10 +17,11 @@ function buildDashboard_() {
   sheet.setColumnWidths(1, DESIGN.WIDE_GRID_COLUMNS, DESIGN.WIDE_COLUMN_WIDTH); // un seul appel plutôt que 14 (V4.1, perf)
 
   buildDashboardTitre_(sheet);
+  buildDashboardSousTitre_(sheet);
   buildDashboardCartes_(sheet);
   buildDashboardGraphiques_(sheet);
 
-  sheet.setFrozenRows(1);
+  sheet.setFrozenRows(2);
   sheet.hideColumns(DASHBOARD_HELPER_COL_MOIS, 6);
 }
 
@@ -31,8 +32,16 @@ function buildDashboardTitre_(sheet) {
   sheet.setRowHeight(1, DESIGN.HEADER_HEIGHT);
 }
 
+/** Légende discrète sous le titre (V5.1) — orientation immédiate, style "eyebrow" Notion/Linear. */
+function buildDashboardSousTitre_(sheet) {
+  var sousTitre = sheet.getRange('A2:F2');
+  sousTitre.merge().setValue('Chiffre d\'affaires, marge et charges de l\'exercice en cours');
+  stylePageSubtitle_(sousTitre);
+  sheet.setRowHeight(2, DESIGN.SUBHEADER_HEIGHT);
+}
+
 function buildDashboardCartes_(sheet) {
-  var row = 3;
+  var row = 4;
   var width = 2;
   var startCols = [1, 4, 7, 10, 13]; // A, D, G, J, M — colonne C/F/I/L = espace
 
@@ -66,7 +75,7 @@ function buildDashboardCartes_(sheet) {
 }
 
 // Ancrage des 2 graphiques : colonnes/lignes couvertes (voir computeChartSize_).
-var DASHBOARD_CHART_ROW = 7;
+var DASHBOARD_CHART_ROW = 8;
 var DASHBOARD_CHART_ROWSPAN = 14;
 var DASHBOARD_CHART_CA_COLSPAN = 7;
 var DASHBOARD_CHART_REPARTITION_COLSPAN = 6;

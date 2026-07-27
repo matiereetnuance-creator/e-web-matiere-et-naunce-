@@ -135,13 +135,20 @@
   pratique (nécessiterait la suppression de la feuille Charges
   elle-même, ce qui casserait de toute façon ses propres indicateurs
   et serait détecté par Diagnostic).
-- **Rendu visuel du système de design (V4) non vérifié à l'écran** :
-  `DESIGN` centralise des valeurs choisies par raisonnement (échelle
-  typographique, espacements, largeurs de cartes) mais jamais vues
-  rendues dans un vrai Google Sheets. Les tailles de police des axes
-  de graphiques (`creerGraphiqueBase_()`) et les couleurs de grille
-  sont dans la même situation. À ajuster après la première
-  installation réelle si un détail paraît trop serré ou trop aéré.
+- **Rendu visuel du système de design (V4/V5/V5.1) non vérifié à
+  l'écran** : `DESIGN` centralise des valeurs choisies par raisonnement
+  (échelle typographique, espacements, largeurs de cartes) mais
+  jamais vues rendues dans un vrai Google Sheets. Les tailles de
+  police des axes de graphiques (`creerGraphiqueBase_()`) et les
+  couleurs de grille sont dans la même situation. **V5.1** ajoute à
+  cette liste : cartes KPI/bouton Accueil sans bordure (aplat de
+  couleur seul), cellules de saisie en diviseur de ligne plutôt qu'en
+  grille 4 côtés, titres de graphique allégés, sous-titres "eyebrow" —
+  choix fondés sur des principes de design établis (flat design,
+  hiérarchie typographique), jamais sur une capture d'écran réelle. À
+  ajuster après la première installation réelle si un détail paraît
+  trop serré, trop aéré, ou si l'absence de bordure rend une carte/un
+  champ de saisie insuffisamment lisible en pratique.
 - **`CHANTIERS_STATUT` relié mais non utilisé comme filtre** (voir
   ROADMAP.md) : deviner la mauvaise valeur aurait faussé
   silencieusement tous les indicateurs de CA/marge — jugé plus sûr de

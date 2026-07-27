@@ -277,51 +277,62 @@ classeur. Le détail (bibliothèque d'erreurs, validations de saisie,
 mise en forme conditionnelle sobre, protections) est documenté dans
 `ARCHITECTURE.md` §9 à §13.
 
-## Design premium, grand écran (V5)
+## Design premium — "une application, pas un tableur" (V5.1)
 
 Objectif : que le classeur donne l'impression d'un logiciel
-professionnel (Apple / Linear / Notion / Stripe / Arc), pas d'un
-tableur — sobre, épuré, haut de gamme, et occupant pleinement un grand
-écran de bureau (~1920px), demande explicite du client en V5.
-Concrètement :
+professionnel (Apple / Linear / Notion / Stripe Dashboard / Framer),
+pas d'un tableur — élégant, minimaliste, haut de gamme, très lisible,
+jamais surchargé, occupant pleinement un grand écran de bureau
+(~1920px). Concrètement :
 
 - **Un seul système de design** (`DESIGN`, `00_Constantes.gs`) :
-  toutes les hauteurs de ligne, espacements, tailles de police du
-  classeur viennent de là — `HEADER_HEIGHT`, `CARD_HEIGHT`,
-  `SECTION_SPACING`, `TITLE_FONT_SIZE`, `SUBTITLE_FONT_SIZE`,
-  `BORDER_COLOR`, `CARD_BACKGROUND`, etc. Aucune valeur de mise en
-  page n'est écrite en dur dans un module de feuille.
+  toutes les hauteurs de ligne, tailles de police et largeurs de
+  grille du classeur viennent de là — `HEADER_HEIGHT`, `CARD_HEIGHT`,
+  `TITLE_FONT_SIZE`, `SUBTITLE_FONT_SIZE`, `BORDER_COLOR`,
+  `CARD_BACKGROUND`, etc. Aucune valeur de mise en page n'est écrite
+  en dur dans un module de feuille.
 - **Grille pleine largeur (V5)** : `WIDE_GRID_COLUMNS` (14) ×
   `WIDE_COLUMN_WIDTH` (137px) ≈ 1918px sur Dashboard et Analyse — le
   graphique de Prévisionnel s'étend sur la même largeur, son petit
   tableau mensuel restant à une largeur de lecture confortable. Voir
   `ARCHITECTURE.md` §21.
-- **Titres identiques sur les 7 feuilles** (`styleTitle_()`), y
-  compris Accueil (qui avait sa propre taille en V1-V3).
-- **Cartes KPI strictement uniformes** : même police, mêmes marges,
-  même hiérarchie titre/valeur (`buildKpiCard_()`, seule fonction du
-  projet qui construise une carte). Les 2 cartes de Charges ont été
-  ajustées (2 puis 4 colonnes) pour peser le même poids visuel (~390px
-  contre ~380px) malgré des colonnes de tableau de largeurs très
-  différentes en dessous.
+- **Cartes KPI et bouton Accueil sans bordure (V5.1)** : un aplat de
+  couleur seul, sans contour, à la manière des "stat tiles"
+  Stripe/Linear — c'est le contraste de fond qui délimite la carte,
+  pas un trait. Même police, mêmes marges, même hiérarchie
+  titre/valeur (`buildKpiCard_()`, seule fonction du projet qui
+  construise une carte).
+- **Sous-titres "eyebrow" (V5.1)** : une courte légende de contexte
+  sous le titre principal d'Accueil et de Dashboard (ex. "Chiffre
+  d'affaires, marge et charges de l'exercice en cours") — hiérarchie
+  titre → contexte → contenu, en quelques secondes.
 - **Un seul style de graphique** (`creerGraphiqueBase_()`,
   `01_Utils.gs`) : même police, mêmes couleurs d'axes/grille/légende,
-  même respiration (`chartArea`) sur les 6 graphiques du classeur.
+  même respiration (`chartArea`) sur les 6 graphiques du classeur ;
+  titre de graphique allégé (V5.1, non gras, discret) pour laisser la
+  donnée dominer visuellement sa propre étiquette.
 - **Palette strictement limitée** à blanc, gris très clair, anthracite
   et l'accent Matière & Nuance (vérifié : aucune autre teinte dans le
   code — voir `ARCHITECTURE.md` §16).
-- **Bordures de saisie neutres** plutôt qu'accent doré (un aplat doré
-  sur 1000 lignes de saisie lisait comme bruyant, pas discret).
+- **Cellules de saisie : diviseur de ligne, pas une grille (V5.1)** :
+  la bordure 4 côtés (V1-V5) est remplacée par un simple diviseur
+  horizontal — élimine l'effet "tableur Excel" sur les 1000 lignes de
+  Charges, sans changer le contenu ni les colonnes.
 
 ## Journal des évolutions
 
 Voir **[`CHANGELOG.md`](CHANGELOG.md)** pour l'historique complet.
-En bref : **V5.0.0** (cahier des charges client : Chantiers/Charges
-seuls tableaux de saisie — architecture déjà en place, formalisée en
-règle ; harmonisation visuelle de Chantiers, une première pour ce
-projet — couleurs/gel/largeurs/vue filtrée, jamais de contenu touché ;
-design revu pour un grand écran de bureau ~1920px ; aucune logique
-métier modifiée) ; **V4.1.4** (audit systémique du séparateur de formule —
+En bref : **V5.1.0** (design premium, priorité 100% UX — cartes KPI et
+bouton sans bordure, cellules de saisie en diviseur de ligne plutôt
+qu'en grille, titres de graphique allégés, sous-titres "eyebrow" sur
+Accueil/Dashboard ; direction Notion/Linear/Stripe/Apple/Framer ;
+aucune logique métier modifiée) ; **V5.0.0** (cahier des charges
+client : Chantiers/Charges seuls tableaux de saisie — architecture
+déjà en place, formalisée en règle ; harmonisation visuelle de
+Chantiers, une première pour ce projet — couleurs/gel/largeurs/vue
+filtrée, jamais de contenu touché ; design revu pour un grand écran de
+bureau ~1920px ; aucune logique métier modifiée) ; **V4.1.4** (audit
+systémique du séparateur de formule —
 `setFormula()`/`setFormulas()` n'effectue aucune traduction
 automatique de la virgule vers le point-virgule pour une locale FR,
 quelle que soit la fonction ; corrige une attribution erronée à

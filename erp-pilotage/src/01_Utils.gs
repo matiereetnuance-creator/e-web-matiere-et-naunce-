@@ -111,6 +111,20 @@ function styleSubtitle_(range) {
     .setVerticalAlignment('middle');
 }
 
+/**
+ * Style d'un sous-titre de page (V5.1) — légende discrète sous le
+ * titre principal d'une feuille (ex. "Vue d'ensemble de l'activité"),
+ * jamais grasse, à la différence de `styleSubtitle_()` (en-tête de
+ * section, ex. "Paramètres généraux") : deux rôles différents, deux
+ * styles différents.
+ */
+function stylePageSubtitle_(range) {
+  range.setFontFamily(FONT)
+    .setFontSize(DESIGN.SUBTITLE_FONT_SIZE)
+    .setFontColor(COLORS.INK_MUTED)
+    .setVerticalAlignment('middle');
+}
+
 /** Style d'un libellé de carte KPI (petit, discret, majuscules). */
 function styleCardLabel_(range) {
   range.setFontFamily(FONT)
@@ -131,10 +145,12 @@ function styleCardValue_(range, accent) {
 
 /**
  * Construit une carte KPI simple : libellé sur la ligne `row`,
- * valeur (formule) sur la ligne `row + 1`, fond gris très clair,
- * bordure fine, valeur protégée car calculée. Toutes les cartes du
- * classeur passent par cette unique fonction — c'est ce qui garantit
- * qu'elles ont exactement le même style (V3, point UX).
+ * valeur (formule) sur la ligne `row + 1`, fond gris très clair, SANS
+ * bordure (V5.1 — style "tuile plate" façon Stripe/Notion : c'est le
+ * contraste de fond qui délimite la carte, pas un contour), valeur
+ * protégée car calculée. Toutes les cartes du classeur passent par
+ * cette unique fonction — c'est ce qui garantit qu'elles ont
+ * exactement le même style (V3, point UX).
  *
  * @param {Sheet} sheet
  * @param {number} row Ligne du libellé (la valeur est sur row + 1).
@@ -159,7 +175,6 @@ function buildKpiCard_(sheet, row, col, width, label, formula, numberFormat, acc
   if (numberFormat) valueRange.setNumberFormat(numberFormat);
 
   cardRange.setBackground(COLORS.CARD_BG);
-  applyThinBorder_(cardRange);
   labelRange.setBackground(COLORS.CARD_BG);
   valueRange.setBackground(COLORS.CARD_BG);
   labelRange.setHorizontalAlignment('left');
@@ -170,22 +185,21 @@ function buildKpiCard_(sheet, row, col, width, label, formula, numberFormat, acc
   return valueRange;
 }
 
-/** Bordure fine et unie tout autour d'une plage (charte : bordures fines, aucune ombre). */
-function applyThinBorder_(range) {
-  range.setBorder(true, true, true, true, false, false, COLORS.BORDER, SpreadsheetApp.BorderStyle.SOLID);
-}
-
 /**
  * Marque une plage comme cellule de saisie (fond légèrement teinté).
- * V4 : bordure neutre (BORDER_COLOR) plutôt qu'accent — un aplat
- * doré sur 1000 lignes de saisie lisait comme "bruyant" plutôt que
- * discret ; le fond teinté suffit à signaler une zone éditable,
- * l'accent reste réservé aux éléments réellement mis en avant
- * (bouton Accueil, valeurs KPI phares).
+ *
+ * V5.1 : diviseur horizontal uniquement (bas de la plage + entre
+ * chaque ligne si la plage en couvre plusieurs), plus aucune bordure
+ * verticale — la grille complète à 4 côtés (V4) lisait comme "effet
+ * tableur Excel" sur les 1000 lignes de Charges ; un simple diviseur
+ * de ligne façon tableau d'application moderne (Notion, Linear) reste
+ * lisible sans surcharger visuellement. Sur une cellule unique
+ * (Paramètres), ce même réglage ne trace qu'un discret soulignement,
+ * façon champ de formulaire web.
  */
 function styleInputCell_(range) {
   range.setBackground(COLORS.INPUT_BG);
-  range.setBorder(true, true, true, true, false, false, COLORS.BORDER, SpreadsheetApp.BorderStyle.SOLID);
+  range.setBorder(false, false, true, false, false, true, COLORS.BORDER, SpreadsheetApp.BorderStyle.SOLID);
   range.setFontFamily(FONT).setFontSize(DESIGN.INPUT_FONT_SIZE).setFontColor(COLORS.INK);
 }
 
@@ -441,7 +455,10 @@ function creerGraphiqueBase_(sheet, type) {
     .setChartType(type)
     .setOption('fontName', FONT)
     .setOption('backgroundColor', COLORS.WHITE)
-    .setOption('titleTextStyle', { color: COLORS.INK, fontSize: DESIGN.SUBTITLE_FONT_SIZE, bold: true })
+    // V5.1 : titre allégé (légende discrète, non gras) plutôt qu'un
+    // titre gras façon "widget générique" — désencombre le canevas du
+    // graphique, cohérent avec l'esprit "épuré" demandé par le client.
+    .setOption('titleTextStyle', { color: COLORS.INK_MUTED, fontSize: DESIGN.NOTE_FONT_SIZE, bold: false })
     .setOption('hAxis', { textStyle: texteAxe, gridlines: { color: COLORS.BORDER }, baselineColor: COLORS.BORDER })
     .setOption('vAxis', { textStyle: texteAxe, gridlines: { color: COLORS.BORDER }, baselineColor: COLORS.BORDER })
     .setOption('legend', { textStyle: texteAxe, position: 'none' })

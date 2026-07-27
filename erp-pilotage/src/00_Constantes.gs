@@ -100,10 +100,6 @@ var DESIGN = {
   TABLE_HEADER_HEIGHT: 32,  // ligne d'en-tête de tableau
   TABLE_ROW_HEIGHT: 28,     // ligne de donnée de tableau
 
-  // Espacements
-  SECTION_SPACING: 1,       // lignes vides entre deux sections d'une feuille
-  CARD_GAP_COLS: 1,         // colonnes d'espace entre deux cartes KPI
-
   // Grille pleine largeur (V5) — Dashboard, Prévisionnel, Analyse :
   // 14 colonnes × 137px ≈ 1918px, calibrée pour un moniteur de bureau
   // classique (1920px), plutôt que l'ancienne hypothèse V1-V4 "tient

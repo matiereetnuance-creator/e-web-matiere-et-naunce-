@@ -59,7 +59,7 @@ entre feuilles — voir §3.
 | `CHANTIERS_DATE` | Chantiers (existante) | colonne trouvée par en-tête, 5000 lignes | `ensureChantiersLinks_()` | Lecture seule |
 | `CHANTIERS_STATUT` | Chantiers (existante) | colonne trouvée par en-tête, 5000 lignes | `ensureChantiersLinks_()` | Lecture seule (reliée, non filtrée — voir README) |
 | `PARAM_CHANTIERS_FALLBACK_VIDE` | Paramètres | M1 (masquée, toujours vide) | `buildParametres_()` | Technique (V3, repli d'erreur) |
-| `DASHBOARD_CA_REALISE` | Dashboard | B4 (carte KPI) | `buildDashboard_()` | Calculée |
+| `DASHBOARD_CA_REALISE` | Dashboard | B5 (carte KPI, V5.1 — sous-titre en ligne 2) | `buildDashboard_()` | Calculée |
 
 Toutes les créations/mises à jour de plages nommées passent par
 `setNamedRange_()` (`01_Utils.gs`), qui supprime l'ancienne définition
@@ -155,8 +155,9 @@ réglages de Paramètres).
 Deux régimes coexistent, jamais mélangés sur une même cellule :
 
 - **Cellule de saisie** (`styleInputCell_()`) : fond légèrement teinté,
-  bordure couleur accent, jamais protégée, jamais écrasée par une
-  réinstallation si elle contient déjà une valeur. La liste exhaustive
+  diviseur horizontal discret (V5.1, plus de grille 4 côtés — voir
+  §22), jamais protégée, jamais écrasée par une réinstallation si elle
+  contient déjà une valeur. La liste exhaustive
   de ces plages est centralisée dans `EDITABLE_RANGES`
   (`00_Constantes.gs`) — c'est la source unique de vérité que
   `reappliquerProtectionsFormules_()` consulte pour savoir ce qu'il ne
@@ -347,7 +348,6 @@ de police. `DESIGN` est la source unique de vérité, en trois familles :
   (sous-titre de section), `INPUT_ROW_HEIGHT` (ligne de saisie),
   `CARD_LABEL_HEIGHT` / `CARD_HEIGHT` (carte KPI), `TABLE_HEADER_HEIGHT`
   / `TABLE_ROW_HEIGHT` (tableaux).
-- **Espacements** : `SECTION_SPACING`, `CARD_GAP_COLS`.
 - **Grille pleine largeur (V5)** : `WIDE_GRID_COLUMNS` (14) ×
   `WIDE_COLUMN_WIDTH` (137px) ≈ 1918px — voir §21.
 - **Typographie** : `TITLE_FONT_SIZE`, `SUBTITLE_FONT_SIZE`,
@@ -432,7 +432,9 @@ saisie (`styleInputCell_()`) est passée de la couleur d'accent à
 `BORDER_COLOR` (gris neutre) — un aplat doré sur 1000 lignes de
 saisie lisait comme "bruyant" plutôt que "discret". L'accent reste
 réservé aux éléments réellement mis en avant (bouton Accueil, 2
-valeurs KPI phares par carte).
+valeurs KPI phares par carte). La V5.1 va plus loin : cette bordure
+neutre ne trace plus qu'un diviseur horizontal (voir §22), et les
+cartes KPI/le bouton Accueil n'ont plus aucune bordure du tout.
 
 ## 17. Journal technique, À propos, Export PDF (V4)
 
@@ -602,3 +604,67 @@ de bureau classique (1920px) plutôt que l'ancienne hypothèse V1-V4
   accompagner la nouvelle échelle typographique, sans tenter de
   l'étirer sur toute la largeur (resterait disproportionné pour son
   contenu).
+
+## 22. Design premium — "application, pas un tableur" (V5.1)
+
+Demande client explicite : direction artistique inspirée de Notion /
+Linear / Stripe Dashboard / Apple / Framer — élégant, minimaliste,
+jamais surchargé, sans "effet tableur Excel". Contrairement à la V4
+(qui avait déjà unifié un système de design) et à la V5 (qui avait
+élargi la grille pour un grand écran), cette passe **retire de la
+matière visuelle** plutôt que d'en ajouter — moins de contours, moins
+de poids typographique sur le superflu, plus de hiérarchie sur
+l'essentiel.
+
+- **Cartes KPI et bouton Accueil sans bordure** (`buildKpiCard_()`,
+  `buildAccueilBouton_()`) : `applyThinBorder_()` a été supprimée du
+  projet (plus aucun appelant). Une carte KPI n'est plus qu'un aplat
+  de couleur (`COLORS.CARD_BG`) sans contour — c'est le contraste avec
+  le fond blanc de la page qui délimite la carte, pas un trait, à la
+  manière des "stat tiles" Stripe/Linear. Un contour, même fin, se
+  voit toujours comme un élément d'interface ("un cadre") ; son
+  absence se voit comme du contenu qui respire.
+- **Cellules de saisie : diviseur de ligne plutôt que grille**
+  (`styleInputCell_()`) : la bordure 4 côtés (V1-V5) est remplacée par
+  un unique diviseur horizontal (`setBorder(false, false, true, false,
+  false, true, ...)` — bas de plage + toutes les lignes intérieures,
+  aucun trait vertical). Appliquée aussi bien aux 1000 lignes de
+  Charges (où l'effet "grille Excel" était le plus marqué) qu'aux
+  cellules uniques de Paramètres (où elle se lit comme un simple
+  soulignement de champ de formulaire web). Le contenu, les colonnes
+  et la logique de saisie ne changent pas — uniquement le trait qui
+  les entoure.
+- **Titres de graphique allégés** (`creerGraphiqueBase_()`) :
+  `titleTextStyle` passe de gras/`INK`/`SUBTITLE_FONT_SIZE` à
+  non-gras/`INK_MUTED`/`NOTE_FONT_SIZE` — le titre se lit comme une
+  légende discrète plutôt qu'un en-tête de widget, pour que le
+  graphique lui-même (la donnée) domine visuellement sa propre
+  étiquette.
+- **Sous-titres "eyebrow"** (`stylePageSubtitle_()`, nouveau) : une
+  courte légende non grasse sous le titre principal d'Accueil et de
+  Dashboard (ex. "Chiffre d'affaires, marge et charges de l'exercice
+  en cours") — apporte un niveau de hiérarchie supplémentaire (titre →
+  contexte → contenu) sans ajouter de donnée, à la manière d'un
+  en-tête de page Notion/Linear. Distincte de `styleSubtitle_()`
+  (gras, utilisée pour les en-têtes de SECTION comme "Paramètres
+  généraux") : deux rôles, deux styles. Dashboard décale ses cartes
+  d'une ligne (row 3→4) et son ancrage de graphiques d'une ligne
+  (`DASHBOARD_CHART_ROW` 7→8) pour garder un espace respirant après le
+  sous-titre ; `DASHBOARD_CA_REALISE` se trouve donc désormais en B5
+  (et non plus B4 — voir §2). Accueil décale de même son "Exercice"
+  (ligne 3→4) et son bouton (lignes 5:6→6:7).
+- **Nettoyage** : `SECTION_SPACING` et `CARD_GAP_COLS` (`DESIGN`)
+  n'ont jamais été réellement câblés dans la mise en page depuis leur
+  introduction en V4 — supprimés plutôt que laissés comme constantes
+  mortes (cohérent avec la discipline "pas de code mort" du projet,
+  V3 §10).
+
+**Ce qui n'a volontairement pas changé** : la grille pleine largeur
+(V5, §21), le système de couleurs (déjà restreint, §16), les hauteurs/
+tailles de police (déjà généreuses depuis la V5) — cette passe affine
+des DÉTAILS de rendu (contours, poids des titres, hiérarchie
+textuelle), elle ne redessine pas la structure. Comme pour le système
+de design V4/V5, aucun rendu réel n'a pu être vérifié à l'écran (voir
+KNOWN_LIMITATIONS.md) : ces choix sont fondés sur des principes de
+design bien établis (flat design, hiérarchie typographique, diviseurs
+plutôt que grilles), pas sur une capture d'écran réelle.

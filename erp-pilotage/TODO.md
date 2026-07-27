@@ -68,6 +68,14 @@ nécessaire pour une mise en production sereine.
 - [ ] Vérifier le rendu du menu **À propos** et du **journal
   technique** (Pilotage ▸ Afficher le journal) après quelques
   installations/diagnostics.
+- [ ] **V5.1 — Vérifier à l'œil le rendu "sans bordure"** des cartes
+  KPI (Dashboard, Charges) et du bouton Accueil : confirmer que l'aplat
+  de couleur seul suffit à les distinguer visuellement du fond de page
+  (sans contour, la limite de la carte doit rester nette). Vérifier
+  aussi les cellules de saisie de Charges (diviseur de ligne au lieu
+  d'une grille) : toujours lisible sur 1000 lignes ? Si un détail
+  manque de définition, ajuster `DESIGN`/`COLORS` plutôt que de
+  réintroduire une bordure complète.
 
 ## Quand le temps le permet
 

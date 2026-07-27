@@ -3,7 +3,55 @@
 Toutes les versions sont des révisions du même projet Apps Script
 (`erp-pilotage/`), livrées sur la branche `claude/erp-matiere-nuance-1mme8l`.
 
-## V5.0.0 — "Chantiers-first" : design grand écran + harmonisation Chantiers/Charges (actuelle)
+## V5.1.0 — Design premium : "une application, pas un tableur" (actuelle)
+
+Demande client explicite, priorité entièrement design/UX cette fois
+(aucune nouvelle fonctionnalité) : direction artistique inspirée de
+Notion, Linear, Stripe Dashboard, Apple, Framer — élégant, minimaliste,
+haut de gamme, jamais surchargé, sans "effet tableur Excel". Cette
+version **retire de la matière visuelle** plutôt que d'en ajouter :
+moins de contours, moins de poids sur le superflu, plus de hiérarchie
+sur l'essentiel. Aucune formule, aucun calcul, aucune logique métier
+modifiée ; Chantiers et Charges restent structurellement intacts
+(contenu, en-têtes, colonnes) — seule leur présentation, déjà
+retouchée en V5.0, est encore affinée ici.
+
+- **Cartes KPI et bouton Accueil sans bordure** : `applyThinBorder_()`
+  supprimée du projet. Une carte KPI n'est plus qu'un aplat de couleur
+  sans contour (style "stat tile" Stripe/Linear) — c'est le contraste
+  avec le fond de page qui la délimite, pas un trait.
+- **Cellules de saisie : diviseur de ligne plutôt que grille**
+  (`styleInputCell_()`) : la bordure 4 côtés (V1-V5) devient un simple
+  diviseur horizontal — élimine l'effet "grille Excel" sur les 1000
+  lignes de Charges, se lit comme un soulignement de champ de
+  formulaire sur les cellules de Paramètres. Contenu et colonnes
+  inchangés.
+- **Titres de graphique allégés** (`creerGraphiqueBase_()`) : non-gras,
+  couleur atténuée, taille réduite — se lisent comme une légende, pas
+  comme un en-tête de widget ; la donnée domine visuellement.
+- **Sous-titres "eyebrow"** (`stylePageSubtitle_()`, nouveau) : courte
+  légende de contexte sous le titre d'Accueil et de Dashboard (ex.
+  "Chiffre d'affaires, marge et charges de l'exercice en cours") —
+  hiérarchie titre → contexte → contenu, sans ajouter de donnée.
+- **Nettoyage** : `applyThinBorder_()`, `SECTION_SPACING` et
+  `CARD_GAP_COLS` (jamais réellement câblés dans la mise en page)
+  supprimés du projet plutôt que laissés comme code/constantes morts.
+
+**Fichiers modifiés** : `01_Utils.gs`, `05_Accueil.gs`,
+`40_Dashboard.gs`, `00_Constantes.gs`, `ARCHITECTURE.md`, `README.md`,
+`RECETTE.md`.
+**Non modifiés** : `20_Charges.gs`, `30_Chantiers.gs`,
+`50_Previsionnel.gs`, `60_Analyse.gs`, `99_Installation.gs`,
+`02_Menu.gs` (aucun changement requis — bénéficient automatiquement
+des styles partagés modifiés dans `01_Utils.gs`) ; aucune valeur ni
+logique métier changée.
+
+**Non vérifié par exécution réelle** (comme tout ce qui touche au
+rendu visuel depuis la V4) : ces choix reposent sur des principes de
+design établis (flat design, hiérarchie typographique), pas sur une
+capture d'écran d'un vrai classeur — voir KNOWN_LIMITATIONS.md.
+
+## V5.0.0 — "Chantiers-first" : design grand écran + harmonisation Chantiers/Charges
 
 Cahier des charges client explicite (6 règles) : Chantiers et Charges
 restent les SEULS tableaux de saisie du classeur, sans aucune double
