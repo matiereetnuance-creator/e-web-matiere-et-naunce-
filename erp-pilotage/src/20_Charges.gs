@@ -16,14 +16,16 @@ function buildCharges_() {
   removeAllProtections_(sheet);
   sheet.setHiddenGridlines(true);
 
-  sheet.setColumnWidth(1, 170); // Catégorie
-  sheet.setColumnWidth(2, 220); // Libellé
-  sheet.setColumnWidth(3, 150); // Fournisseur
-  sheet.setColumnWidth(4, 120); // Périodicité
-  sheet.setColumnWidth(5, 110); // Montant HT
-  sheet.setColumnWidth(6, 80);  // TVA
-  sheet.setColumnWidth(7, 110); // Date de début
-  sheet.setColumnWidth(8, 80);  // Actif
+  // V5 : largeurs élargies (règle n°4 — meilleure lisibilité), même
+  // ordre de colonnes qu'avant (règle n°3 — structure de saisie intacte).
+  sheet.setColumnWidth(1, 190); // Catégorie
+  sheet.setColumnWidth(2, 260); // Libellé
+  sheet.setColumnWidth(3, 180); // Fournisseur
+  sheet.setColumnWidth(4, 140); // Périodicité
+  sheet.setColumnWidth(5, 130); // Montant HT
+  sheet.setColumnWidth(6, 90);  // TVA
+  sheet.setColumnWidth(7, 130); // Date de début
+  sheet.setColumnWidth(8, 90);  // Actif
 
   buildChargesTitre_(sheet);
   buildChargesEnTete_(sheet);
@@ -32,6 +34,10 @@ function buildCharges_() {
   buildChargesCartes_(sheet);
   buildChargesValidations_(sheet, namedRanges);
   buildChargesMiseEnFormeConditionnelle_(sheet);
+
+  // V5, règle n°4 : gel de l'en-tête + vue filtrée — jamais de contenu
+  // ni de colonne touchés (voir harmoniserTableauSaisie_, 01_Utils.gs).
+  harmoniserTableauSaisie_(sheet, CHARGES_HEADER_ROW, CHARGES_LAST_DATA_ROW, CHARGES_COLUMNS.length, 'Charges — vue filtrée');
 }
 
 function buildChargesTitre_(sheet) {

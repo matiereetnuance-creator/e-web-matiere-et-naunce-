@@ -10,6 +10,7 @@
  * séparée, avec son propre budget de 6 minutes :
  *
  *   Étape 1/3 : Paramètres + Charges + connexion à Chantiers
+ *              (+ harmonisation visuelle Charges/Chantiers, V5)
  *   Étape 2/3 : Dashboard + Prévisionnel + Analyse
  *   Étape 3/3 : Accueil + protections + rangement des onglets
  *
@@ -22,11 +23,19 @@
  * pas les étapes déjà construites (voir ARCHITECTURE.md §4).
  */
 
-/** Étape 1/3 : Paramètres, Charges, connexion à Chantiers. Retourne les en-têtes Chantiers manquants. */
+/**
+ * Étape 1/3 : Paramètres, Charges, connexion à Chantiers, puis
+ * harmonisation visuelle de Chantiers (V5 — `harmoniserChantiers_()`,
+ * `30_Chantiers.gs` : couleurs/gel/largeurs/vue filtrée, jamais de
+ * contenu ni de colonne touchés). Retourne les en-têtes Chantiers
+ * manquants.
+ */
 function installerEtape1_() {
   buildParametres_();
   buildCharges_();
-  return ensureChantiersLinks_();
+  var enTetesManquants = ensureChantiersLinks_();
+  harmoniserChantiers_();
+  return enTetesManquants;
 }
 
 /** Étape 2/3 : Dashboard, Prévisionnel, Analyse — suppose l'étape 1 déjà faite. */

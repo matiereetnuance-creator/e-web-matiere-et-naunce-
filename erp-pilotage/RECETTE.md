@@ -42,10 +42,11 @@ dépasser cette limite lors d'une toute première installation. Chaque
    normal pour un script personnel : cliquer *Paramètres avancés ▸
    Accéder à [nom du projet] (dangereux)*. C'est votre propre script,
    pas une application tierce.
-4. Confirmer dans la boîte de dialogue ("Continuer ?"). Une boîte de
-   dialogue "Étape 1/3 terminée" doit s'afficher (éventuellement avec
-   un avertissement sur le mapping Chantiers — normal sur un classeur
-   vierge, voir §3 ci-dessous).
+4. Confirmer dans la boîte de dialogue ("Continuer ?") — le texte
+   mentionne désormais aussi l'harmonisation visuelle de Chantiers et
+   Charges (V5). Une boîte de dialogue "Étape 1/3 terminée" doit
+   s'afficher (éventuellement avec un avertissement sur le mapping
+   Chantiers — normal sur un classeur vierge, voir §3 ci-dessous).
 5. Cliquer **Pilotage ▸ 🛠️ Installation ▸ 2️⃣ Étape 2/3 — Dashboard +
    Prévisionnel + Analyse**, confirmer. Boîte "Étape 2/3 terminée".
 6. Cliquer **Pilotage ▸ 🛠️ Installation ▸ 3️⃣ Étape 3/3 —
@@ -65,9 +66,9 @@ Cocher chaque ligne. Toute case ✗ = noter le message d'erreur exact
 |---|---|---|---|
 | 1 | 7 onglets créés | En bas de l'écran : `01 - Accueil`, `02 - Dashboard`, `03 - Chantiers`, `04 - Charges`, `05 - Paramètres`, `06 - Prévisionnel`, `07 - Analyse`, dans cet ordre | |
 | 2 | Tous les menus présents | Menu **Pilotage** contient : Accueil, Dashboard, Exporter un rapport PDF…, Actualiser les listes déroulantes, Vérifier la structure Chantiers, Réappliquer les protections, Diagnostic, Afficher le journal, Nouvel exercice…, Installation (sous-menu à 3 étapes), À propos… | |
-| 3 | Diagnostic opérationnel | **Pilotage ▸ 🩺 Diagnostic** → une boîte de dialogue s'affiche avec un score (ex. "X/Y contrôles réussis") et 7 sections (Feuilles, Plages nommées, Protections, Colonnes Chantiers, Paramètres obligatoires, Graphiques, Listes). Sur un classeur vierge juste installé, "Colonnes Chantiers" et "Paramètres obligatoires" peuvent afficher ✗ — c'est attendu (voir §4). Aucune erreur technique ne doit apparaître à la place du rapport. | |
+| 3 | Diagnostic opérationnel | **Pilotage ▸ 🩺 Diagnostic** → une boîte de dialogue s'affiche avec un score (ex. "X/Y contrôles réussis") et 8 sections (Feuilles, Plages nommées, Protections, Colonnes Chantiers, Paramètres obligatoires, Graphiques, Listes, **Harmonisation visuelle — V5**). Sur un classeur vierge juste installé, "Colonnes Chantiers" et "Paramètres obligatoires" peuvent afficher ✗ — c'est attendu (voir §4). Aucune erreur technique ne doit apparaître à la place du rapport. | |
 | 4 | Journal fonctionne | **Pilotage ▸ 🗒️ Afficher le journal** → au moins 4 lignes visibles (les 3 étapes d'installation du §2 + le diagnostic du point précédent), avec date/heure lisible | |
-| 5 | Menu À propos fonctionne | **Pilotage ▸ ℹ️ À propos…** → boîte affichant "Version : 4.1.4 (Premium)", une date de build, un auteur, "Dernier diagnostic : [date récente]", "Dernière installation : [date récente]" | |
+| 5 | Menu À propos fonctionne | **Pilotage ▸ ℹ️ À propos…** → boîte affichant "Version : 5.0.0 (Chantiers-first)", une date de build, un auteur, "Dernier diagnostic : [date récente]", "Dernière installation : [date récente]" | |
 | 6 | Export PDF fonctionne | **Pilotage ▸ 📄 Exporter un rapport PDF…** → 1ʳᵉ fois : autorisation Drive à accepter (normal, 1ʳᵉ capacité du projet à utiliser Drive) ; ensuite une boîte de dialogue donne un lien Drive vers le PDF généré. Ouvrir le lien : le PDF doit contenir Dashboard, Prévisionnel, Analyse, sans donnée technique | |
 | 7 | Menu Nouvel exercice présent | **Pilotage ▸ 🆕 Nouvel exercice…** visible dans le menu (ne pas cliquer pendant cette phase : voir §5) | |
 | 8 | Aucune erreur Apps Script | Aucune boîte "Exception" ou "Erreur de script", ni de message "Exceeded maximum execution time", à aucun moment du déploiement, des 3 étapes d'installation ou des points 1 à 7 ci-dessus ; dans l'éditeur Apps Script, *Exécutions* (icône horloge à gauche) ne montre aucune exécution en échec (❌) | |
@@ -95,6 +96,26 @@ absent, ou plantage).
   supplémentaire inutile pour cette recette).
 - Ne pas saisir de données métier (Charges, Chantiers, Paramètres) —
   demandé explicitement pour cette Phase 1.
+
+## 6bis. Phase 2 (V5) — Harmonisation visuelle Chantiers, sur une COPIE du vrai classeur
+
+⚠️ Le classeur de test de cette recette est **vierge** (aucune vraie
+feuille Chantiers) : les points ci-dessus ne peuvent donc pas vérifier
+concrètement ce que fait `harmoniserChantiers_()` sur le VRAI tableau
+Chantiers du client — c'est la première fois que ce projet touche à
+la mise en forme de cette feuille (voir CHANGELOG.md V5, KNOWN_LIMITATIONS.md).
+Avant d'exécuter l'Étape 1/3 sur le classeur réel, il est recommandé de :
+
+1. Dupliquer le classeur réel (*Fichier ▸ Créer une copie*).
+2. Sur la copie, exécuter **Pilotage ▸ Installation ▸ Étape 1/3**.
+3. Comparer Chantiers avant/après : le texte des en-têtes, toutes les
+   valeurs des cellules et l'ordre des colonnes doivent être
+   **strictement identiques**. Seule l'apparence doit changer (couleur
+   d'en-tête, gel de la 1ʳᵉ ligne, largeurs de colonnes, un filtre —
+   vue filtrée ou classique selon `KNOWN_LIMITATIONS.md`).
+4. Si tout est conforme, relancer l'Étape 1/3 sur le fichier réel.
+   Sinon, ne pas relancer et signaler l'écart constaté (cellule
+   exacte, avant/après).
 
 ## 6. Retour des résultats
 

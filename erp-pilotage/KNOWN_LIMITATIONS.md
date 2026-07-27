@@ -109,6 +109,18 @@
 - **Export PDF nécessite le service Drive**, jamais utilisé avant la
   V4 : la première exécution demandera à l'utilisateur d'autoriser un
   périmètre OAuth plus large (accès Drive pour déposer le fichier).
+- **Vue filtrée (V5, `creerVueFiltree_()`, `01_Utils.gs`) non vérifiée
+  par exécution réelle.** Première fois que ce projet utilise le
+  service avancé "Sheets API" (`appsscript.json` →
+  `enabledAdvancedServices`) plutôt que le seul service `SpreadsheetApp`
+  de base — surface d'API la plus récente et la moins éprouvée du
+  projet à ce jour, exactement le type de construction qui s'est déjà
+  révélée fragile 3 fois de suite (V4.1.1, V4.1.2, V4.1.3/V4.1.4) sans
+  exécution réelle pour la valider. Un repli automatique sur un filtre
+  classique (`creerFiltreClassique_()`) protège l'installation dans
+  tous les cas (jamais d'échec bloquant pour cette seule raison), mais
+  seule une exécution réelle confirmera si la vraie vue filtrée
+  fonctionne comme prévu. Voir TODO.md pour le test recommandé.
 
 ## Risques acceptés (décisions explicites, pas des oublis)
 
@@ -148,6 +160,19 @@
   sans confirmation client explicite — facilement ajustable dans
   `buildPrevisionnelMiseEnFormeConditionnelle_()` (`50_Previsionnel.gs`)
   si un autre seuil est préféré.
+- **`harmoniserChantiers_()` (V5) touche à Chantiers pour la première
+  fois de tout ce projet** — strictement en mise en forme (couleurs,
+  gel, largeurs, vue filtrée), jamais en contenu/en-têtes/colonnes/
+  protections, et explicitement autorisé par le client (cahier des
+  charges V5, règle n°4). Ce changement de posture (après plusieurs
+  versions à ne JAMAIS toucher cette feuille par précaution maximale,
+  suite à l'incident réel documenté dans CLAUDE.md concernant le site
+  public — pas Chantiers lui-même, mais qui illustre le niveau de
+  prudence attendu par ce client sur ses données réelles) mérite une
+  vérification à l'œil particulièrement attentive lors de la première
+  exécution réelle sur le vrai classeur (voir TODO.md) : confirmer que
+  ni le texte des en-têtes, ni les valeurs, ni l'ordre des colonnes
+  n'ont bougé, uniquement l'apparence.
 - **`assistantNouvelExercice()` suppose que le fichier source est déjà
   correctement installé** (il vérifie seulement que Paramètres existe,
   pas l'intégralité de la structure). Créer un nouvel exercice à partir

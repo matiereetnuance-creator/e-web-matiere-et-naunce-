@@ -73,9 +73,12 @@ function confirmerEtInstallerEtape1() {
   var ui = SpreadsheetApp.getUi();
   var reponse = ui.alert(
     'Installation — Étape 1/3 : Paramètres + Charges',
-    'Construit/reconstruit Paramètres et Charges, et relie Chantiers par ' +
-    'en-tête. Les données déjà saisies (réglages, lignes de Charges) ne ' +
-    'sont jamais effacées.\n\nContinuer ?',
+    'Construit/reconstruit Paramètres et Charges, relie Chantiers par ' +
+    'en-tête, et harmonise visuellement Charges et Chantiers (couleurs, ' +
+    'gel de l\'en-tête, largeurs, vue filtrée — V5). Les données déjà ' +
+    'saisies (réglages, lignes de Charges, contenu de Chantiers) ne sont ' +
+    'jamais effacées ; ni les en-têtes, ni les colonnes de Chantiers ne ' +
+    'sont jamais modifiés.\n\nContinuer ?',
     ui.ButtonSet.YES_NO);
   if (reponse !== ui.Button.YES) return;
 

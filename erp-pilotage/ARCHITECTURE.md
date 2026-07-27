@@ -17,6 +17,14 @@ générées par le script et doivent survivre à toute réinstallation :
   Charges!A8:H1000) ;
 - la feuille **Chantiers**, entièrement possédée par le client.
 
+**Nuance V5** : depuis la V5, le script applique une harmonisation
+purement **visuelle** à Chantiers et Charges (couleurs d'en-tête, gel,
+largeurs, vue filtrée — voir §19 et §20) ; ce principe général reste
+vrai au sens qui compte : ni le **contenu**, ni les **en-têtes**, ni
+les **colonnes**, ni la **logique** de ces deux tableaux ne sont
+jamais générés ou modifiés par le script — seule leur présentation
+l'est, avec l'accord explicite du client (cahier des charges V5).
+
 Toute formule du classeur qui a besoin d'une donnée passe par une
 **plage nommée**, jamais par une référence de cellule brute (`Feuille!A1`)
 ni par une valeur écrite en dur. C'est le seul mécanisme de couplage
@@ -340,12 +348,21 @@ de police. `DESIGN` est la source unique de vérité, en trois familles :
   `CARD_LABEL_HEIGHT` / `CARD_HEIGHT` (carte KPI), `TABLE_HEADER_HEIGHT`
   / `TABLE_ROW_HEIGHT` (tableaux).
 - **Espacements** : `SECTION_SPACING`, `CARD_GAP_COLS`.
+- **Grille pleine largeur (V5)** : `WIDE_GRID_COLUMNS` (14) ×
+  `WIDE_COLUMN_WIDTH` (137px) ≈ 1918px — voir §21.
 - **Typographie** : `TITLE_FONT_SIZE`, `SUBTITLE_FONT_SIZE`,
   `KPI_LABEL_FONT_SIZE`, `KPI_VALUE_FONT_SIZE`, `TABLE_HEADER_FONT_SIZE`,
   `TABLE_BODY_FONT_SIZE`, `INPUT_FONT_SIZE`, `BUTTON_FONT_SIZE`,
   `NOTE_FONT_SIZE`. Plus deux alias couleur (`BORDER_COLOR`,
   `CARD_BACKGROUND`) pointant vers `COLORS`, pour un vocabulaire
   "design system" explicite.
+
+**V5 — échelle revue pour un grand écran.** Toutes les valeurs de
+`DESIGN` ont été augmentées (ex. `CARD_HEIGHT` 34→46px,
+`KPI_VALUE_FONT_SIZE` 20→26pt, `TITLE_FONT_SIZE` 20→22pt) pour un rendu
+plus aéré/haut de gamme, demande explicite du client. Remplace
+intégralement l'échelle V4 (plus dense, pensée pour un écran de 15
+pouces) — voir §21 pour le détail de la grille pleine largeur.
 
 `DESIGN` remplace intégralement l'ancien `ROW_HEIGHT` (V3) : toute
 référence à `ROW_HEIGHT.*` a été migrée, et les tailles de police qui
@@ -503,3 +520,85 @@ séparateur de milliers dans le motif, jamais retraduite non plus, mais
 ce n'est pas une formule) et les secondes reçoivent des arguments
 JavaScript natifs (pas une chaîne de formule à analyser) — deux
 chemins d'API distincts, vérifiés indemnes lors de l'audit V4.1.4.
+
+## 20. Harmonisation visuelle Chantiers/Charges (V5)
+
+Cahier des charges client V5, règle n°4 : les seules améliorations
+autorisées sur Chantiers et Charges sont visuelles (largeurs, hauteurs,
+gel des volets, filtres, couleurs) — jamais de contenu, d'en-tête, de
+colonne ni de logique. Deux fonctions dédiées :
+
+- **`harmoniserChantiers_()`** (`30_Chantiers.gs`) : première fois que
+  ce projet applique une quelconque mise en forme à Chantiers (jusqu'à
+  la V5, cette feuille n'était même pas stylée, par excès de prudence).
+  Applique `styleTableHeaderVisuel_()` (couleurs d'en-tête, **sans**
+  protection — voir ci-dessous), `autoResizeColumns()` (largeurs
+  ajustées au contenu réel, car la structure/le nombre de colonnes de
+  Chantiers n'est pas connu à l'avance), une hauteur de ligne uniforme
+  sur une plage large mais bornée par `getMaxRows()`
+  (`harmoniserLignesChantiers_()` — ne provoque jamais d'erreur même
+  sur une feuille dont la taille de grille est inconnue), puis
+  `harmoniserTableauSaisie_()` (gel + vue filtrée, voir §21). **Ne
+  touche jamais aux en-têtes, aux valeurs, aux colonnes ni à l'état de
+  protection existant de Chantiers** — `removeAllProtections_()` n'est
+  volontairement jamais appelé sur cette feuille, à la différence de
+  toutes les autres : une protection posée par le client lui-même sur
+  sa propre feuille doit survivre à toute réinstallation. Appelée
+  depuis `installerEtape1_()` juste après `ensureChantiersLinks_()`.
+- **`styleTableHeaderVisuel_()` vs `styleTableHeader_()`**
+  (`01_Utils.gs`) : la seconde (utilisée par Charges, Prévisionnel...)
+  ajoute une protection "avertissement" en plus du style visuel — la
+  première n'ajoute **aucune** protection, réservée à Chantiers pour
+  ne jamais interférer avec un état de protection que le script ne
+  possède pas.
+- **Charges** (`20_Charges.gs`, `buildCharges_()`) : largeurs de
+  colonnes légèrement élargies (V5) + `harmoniserTableauSaisie_()`, en
+  plus de ce qui existait déjà (validations, mise en forme
+  conditionnelle). `removeAllProtections_()` reste appelé ici comme
+  avant : Charges est entièrement générée/gérée par ce script (à
+  l'exception des lignes de saisie elles-mêmes), contrairement à
+  Chantiers.
+
+## 21. Vues filtrées et grille pleine largeur (V5)
+
+**Vue filtrée avec repli automatique.** `creerVueFiltree_()`
+(`01_Utils.gs`) crée une vue filtrée nommée (filtre personnel, propre à
+chaque utilisateur, contrairement à un filtre classique partagé) via
+le service avancé "Sheets API"
+(`Sheets.Spreadsheets.batchUpdate(...)`, `appsscript.json` →
+`dependencies.enabledAdvancedServices`). Idempotent : toute vue
+filtrée du même nom déjà posée par une précédente installation est
+supprimée avant d'en recréer une. Si ce service n'est pas activé pour
+le projet (ou toute autre erreur), repli automatique et silencieux sur
+un filtre classique (`creerFiltreClassique_()`, `Range.createFilter()`)
+— l'installation ne peut jamais échouer pour cette seule raison.
+Fonctionnalité non vérifiée par exécution réelle (voir
+KNOWN_LIMITATIONS.md) : c'est la première fois que ce projet utilise
+un service avancé plutôt que le seul service `SpreadsheetApp` de base.
+
+**Grille pleine largeur.** `DESIGN.WIDE_GRID_COLUMNS` (14) ×
+`DESIGN.WIDE_COLUMN_WIDTH` (137px) ≈ 1918px, calibrée pour un moniteur
+de bureau classique (1920px) plutôt que l'ancienne hypothèse V1-V4
+"écran de 15 pouces sans défilement" :
+
+- **Dashboard** (`40_Dashboard.gs`) et **Analyse** (`60_Analyse.gs`)
+  fixent directement leurs 14 colonnes à cette largeur — aucun autre
+  changement de mise en page, `computeChartSize_()` recalcule
+  automatiquement des graphiques plus grands à partir de la géométrie
+  réelle des colonnes. Corrige au passage une incohérence héritée de
+  la V4 : Analyse ne fixait explicitement que 8 colonnes sur 14
+  réellement utilisées par son 2ᵉ graphique ("Marge par mois", qui
+  démarre en colonne 8), les colonnes 9-14 dépendant jusqu'ici de la
+  largeur par défaut de Sheets.
+- **Prévisionnel** (`50_Previsionnel.gs`) garde son tableau à une
+  largeur de lecture confortable (4 colonnes, largeurs modérément
+  augmentées) ; seul le graphique en dessous s'étend sur la grille
+  pleine largeur, via des colonnes E:N ajoutées uniquement comme
+  cadrage (largeur calculée pour compléter les 1918px visés,
+  `Math.round(...)`), jamais de contenu. C'est le graphique, pas le
+  petit tableau mensuel, qui incarne "toute la largeur de l'écran".
+- **Accueil** (`05_Accueil.gs`) reste volontairement étroite (titre,
+  exercice, bouton) — ses 2 colonnes ont simplement été élargies pour
+  accompagner la nouvelle échelle typographique, sans tenter de
+  l'étirer sur toute la largeur (resterait disproportionné pour son
+  contenu).

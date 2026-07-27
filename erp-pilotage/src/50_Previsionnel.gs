@@ -9,18 +9,31 @@
 
 var PREVISIONNEL_HEADER_ROW = 3;
 var PREVISIONNEL_FIRST_ROW = 4; // Janvier
-var PREVISIONNEL_CHART_COLSPAN = 4;
+var PREVISIONNEL_TABLE_COLUMNS = 4; // Mois, Objectif, Réalisé, Ecart
 var PREVISIONNEL_CHART_ROWSPAN = 16;
 
-/** Construit entièrement la feuille Prévisionnel (100% générée, aucune donnée de saisie). */
+/**
+ * Construit entièrement la feuille Prévisionnel (100% générée, aucune
+ * donnée de saisie). V5 : le tableau (4 colonnes) garde une largeur de
+ * lecture confortable ; le graphique en dessous, lui, s'étend sur
+ * toute la grille pleine largeur (DESIGN.WIDE_GRID_COLUMNS, colonnes
+ * E:N ajoutées uniquement comme largeur de cadrage pour le graphique,
+ * jamais de contenu) — c'est le graphique, pas le petit tableau
+ * mensuel, qui doit occuper "toute la largeur de l'écran".
+ */
 function buildPrevisionnel_() {
   var sheet = getOrCreateSheet_(SHEETS.PREVISIONNEL);
   resetSheet_(sheet);
 
-  sheet.setColumnWidth(1, 140);
-  sheet.setColumnWidth(2, 130);
-  sheet.setColumnWidth(3, 130);
-  sheet.setColumnWidth(4, 130);
+  var largeursTable = [180, 170, 170, 170]; // Mois, Objectif, Réalisé, Ecart
+  largeursTable.forEach(function (largeur, i) { sheet.setColumnWidth(i + 1, largeur); });
+
+  var largeurTableTotale = largeursTable.reduce(function (a, b) { return a + b; }, 0);
+  var colonnesCadrage = DESIGN.WIDE_GRID_COLUMNS - PREVISIONNEL_TABLE_COLUMNS;
+  if (colonnesCadrage > 0) {
+    var largeurCadrage = Math.round((DESIGN.WIDE_GRID_COLUMNS * DESIGN.WIDE_COLUMN_WIDTH - largeurTableTotale) / colonnesCadrage);
+    sheet.setColumnWidths(PREVISIONNEL_TABLE_COLUMNS + 1, colonnesCadrage, largeurCadrage);
+  }
 
   buildPrevisionnelTitre_(sheet);
   buildPrevisionnelEnTete_(sheet);
@@ -141,7 +154,7 @@ function buildPrevisionnelGraphique_(sheet) {
   var totalRow = PREVISIONNEL_FIRST_ROW + 12;
   var dataRange = sheet.getRange(PREVISIONNEL_HEADER_ROW, 1, totalRow - PREVISIONNEL_HEADER_ROW, 3); // Mois, Objectif, Réalisé
   var chartRow = totalRow + 2;
-  var taille = computeChartSize_(sheet, 1, PREVISIONNEL_CHART_COLSPAN, chartRow, PREVISIONNEL_CHART_ROWSPAN);
+  var taille = computeChartSize_(sheet, 1, DESIGN.WIDE_GRID_COLUMNS, chartRow, PREVISIONNEL_CHART_ROWSPAN);
 
   var chart = creerGraphiqueBase_(sheet, Charts.ChartType.COLUMN)
     .addRange(dataRange)

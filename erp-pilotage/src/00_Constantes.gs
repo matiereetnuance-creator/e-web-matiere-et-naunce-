@@ -77,39 +77,50 @@ var CHART_CATEGORY_COLORS = [
 var FONT = 'Roboto';
 
 // ------------------------------------------------------------------
-// Système de design (V4) — grille, hauteurs, espacements, typographie.
+// Système de design (V5) — grille, hauteurs, espacements, typographie.
 // Source unique de vérité pour toute valeur de mise en page : aucun
 // module de feuille ne doit écrire un pixel, une taille de police ou
 // un espacement en dur. C'est ce qui garantit que les 7 feuilles
-// suivent exactement la même grille visuelle (même hauteur de titre,
-// même style de carte, même hiérarchie typographique) — l'objectif
-// premium de la V4.
+// suivent exactement la même grille visuelle.
+//
+// V5 : échelle revue pour un rendu "épuré / haut de gamme" occupant
+// pleinement un écran de bureau classique (~1920px), demande explicite
+// du client — remplace intégralement l'échelle V4 (plus dense, pensée
+// pour un écran de 15 pouces). Aucune formule ni logique métier
+// n'est concernée par ce changement, uniquement la mise en page.
 // ------------------------------------------------------------------
 
 var DESIGN = {
   // Hauteurs de ligne (pixels)
-  HEADER_HEIGHT: 40,        // ligne de titre de feuille
-  SUBHEADER_HEIGHT: 26,     // ligne de sous-titre de section
-  INPUT_ROW_HEIGHT: 26,     // ligne de saisie (Paramètres)
-  CARD_LABEL_HEIGHT: 20,    // ligne libellé d'une carte KPI
-  CARD_HEIGHT: 34,          // ligne valeur d'une carte KPI
-  TABLE_HEADER_HEIGHT: 28,  // ligne d'en-tête de tableau
-  TABLE_ROW_HEIGHT: 24,     // ligne de donnée de tableau
+  HEADER_HEIGHT: 48,        // ligne de titre de feuille
+  SUBHEADER_HEIGHT: 30,     // ligne de sous-titre de section
+  INPUT_ROW_HEIGHT: 28,     // ligne de saisie (Paramètres)
+  CARD_LABEL_HEIGHT: 22,    // ligne libellé d'une carte KPI
+  CARD_HEIGHT: 46,          // ligne valeur d'une carte KPI
+  TABLE_HEADER_HEIGHT: 32,  // ligne d'en-tête de tableau
+  TABLE_ROW_HEIGHT: 28,     // ligne de donnée de tableau
 
   // Espacements
   SECTION_SPACING: 1,       // lignes vides entre deux sections d'une feuille
   CARD_GAP_COLS: 1,         // colonnes d'espace entre deux cartes KPI
 
+  // Grille pleine largeur (V5) — Dashboard, Prévisionnel, Analyse :
+  // 14 colonnes × 137px ≈ 1918px, calibrée pour un moniteur de bureau
+  // classique (1920px), plutôt que l'ancienne hypothèse V1-V4 "tient
+  // sur un écran de 15 pouces sans défiler".
+  WIDE_GRID_COLUMNS: 14,
+  WIDE_COLUMN_WIDTH: 137,
+
   // Typographie (points)
-  TITLE_FONT_SIZE: 20,
-  SUBTITLE_FONT_SIZE: 11,
-  KPI_LABEL_FONT_SIZE: 9,
-  KPI_VALUE_FONT_SIZE: 20,
-  TABLE_HEADER_FONT_SIZE: 10,
-  TABLE_BODY_FONT_SIZE: 10,
-  INPUT_FONT_SIZE: 11,
-  BUTTON_FONT_SIZE: 13,
-  NOTE_FONT_SIZE: 9,
+  TITLE_FONT_SIZE: 22,
+  SUBTITLE_FONT_SIZE: 12,
+  KPI_LABEL_FONT_SIZE: 10,
+  KPI_VALUE_FONT_SIZE: 26,
+  TABLE_HEADER_FONT_SIZE: 11,
+  TABLE_BODY_FONT_SIZE: 11,
+  INPUT_FONT_SIZE: 12,
+  BUTTON_FONT_SIZE: 14,
+  NOTE_FONT_SIZE: 10,
 
   // Couleurs de référence (vocabulaire "design system" — alias directs
   // vers COLORS, défini juste au-dessus)
@@ -247,6 +258,14 @@ EDITABLE_RANGES[SHEETS.CHARGES] = [
 // ------------------------------------------------------------------
 
 var CHANTIERS_HEADER_ROW = 1;
+
+// Plage de lignes de données considérée pour les plages nommées
+// (ensureChantiersLinks_, 30_Chantiers.gs) et l'harmonisation visuelle
+// V5 (harmoniserChantiers_, 30_Chantiers.gs) — large et fixe pour
+// éviter toute fonction volatile et rester valide même si Chantiers
+// grossit, sans jamais dépasser les lignes réellement disponibles sur
+// la feuille (voir harmoniserLignesChantiers_).
+var CHANTIERS_PLAGE_LIGNES = 5000;
 
 var CHANTIERS_FIELDS = [
   { key: 'CA_HT', row: 12, label: 'Colonne « CA HT »', defaultHeader: 'CA HT', headerNamedRange: NAMED_RANGES.CHANTIERS_HEADER_CA_HT, dataNamedRange: NAMED_RANGES.CHANTIERS_CA_HT },

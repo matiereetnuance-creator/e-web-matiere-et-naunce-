@@ -8,17 +8,30 @@ protections d'un classeur Google Sheets, sans base de données externe.
 Ce module est indépendant du site web (`public/`) présent dans le
 reste de ce dépôt — même client, outil différent (pilotage interne).
 
-## Architecture
+## Architecture — Chantiers/Charges-first (V5)
+
+Cahier des charges client V5 : **Chantiers et Charges sont les SEULS
+tableaux de saisie du classeur**, et alimentent automatiquement tout
+le reste (Dashboard, Prévisionnel, Analyse, tous les indicateurs) sans
+aucune double saisie — c'était déjà l'architecture du projet depuis la
+V1 (formules `monthlyAmountFormula_`/`annualAmountFormula_`/
+`chargesEquivalentMensuelFormula_`, `01_Utils.gs`/`20_Charges.gs`), la
+V5 le formalise en règle explicite. **Toutes les autres feuilles
+(Accueil, Dashboard, Prévisionnel, Analyse) sont des vues de pilotage
+pures : aucune saisie n'y est jamais possible**, chaque cellule non
+vide y est une formule protégée.
 
 7 feuilles, dans cet ordre :
 
-1. `01 - Accueil` — titre, exercice, bouton vers le Dashboard
-2. `02 - Dashboard` — 5 KPI + 2 graphiques, tient sur un écran
-3. `03 - Chantiers` — **existe déjà chez le client, jamais modifiée**
-4. `04 - Charges` — base des charges fixes + 2 cartes KPI
-5. `05 - Paramètres` — réglages de l'exercice + listes déroulantes
-6. `06 - Prévisionnel` — vue mensuelle Objectif / Réalisé / Ecart
-7. `07 - Analyse` — 3 graphiques (CA, Marge, Charges par catégorie)
+1. `01 - Accueil` — titre, exercice, bouton vers le Dashboard (vue pure)
+2. `02 - Dashboard` — 5 KPI + 2 graphiques (vue pure)
+3. `03 - Chantiers` — **existe déjà chez le client ; contenu, en-têtes,
+   colonnes et logique jamais modifiés — seule sa présentation peut
+   l'être depuis la V5, voir plus bas**
+4. `04 - Charges` — base des charges fixes (saisie) + 2 cartes KPI
+5. `05 - Paramètres` — réglages de l'exercice + listes déroulantes (saisie)
+6. `06 - Prévisionnel` — vue mensuelle Objectif / Réalisé / Ecart (vue pure)
+7. `07 - Analyse` — 3 graphiques (CA, Marge, Charges par catégorie) (vue pure)
 
 ```
 erp-pilotage/
@@ -29,8 +42,8 @@ erp-pilotage/
 ├── TODO.md                  Actions restantes avant mise en production
 ├── KNOWN_LIMITATIONS.md     Limites Google Sheets et risques acceptés
 └── src/
-    ├── VERSION.gs            Numéro de version, date de build, auteur — source unique (V4)
-    ├── 00_Constantes.gs      Source unique de vérité (noms, couleurs, système de design, mapping Chantiers)
+    ├── VERSION.gs            Numéro de version, date de build, auteur — source unique
+    ├── 00_Constantes.gs      Source unique de vérité (noms, couleurs, système de design grand écran V5, mapping Chantiers)
     ├── 01_Utils.gs           Fonctions réutilisables (cartes KPI, protections, formules, style des graphiques)
     ├── 02_Menu.gs            Menu "Pilotage"
     ├── 03_Erreurs.gs         Bibliothèque de gestion des erreurs (V3)
@@ -40,7 +53,7 @@ erp-pilotage/
     ├── 07_APropos.gs         Menu Pilotage ▸ À propos (V4)
     ├── 10_Parametres.gs
     ├── 20_Charges.gs
-    ├── 30_Chantiers.gs       Lecture par en-tête uniquement, aucune écriture sur la feuille existante
+    ├── 30_Chantiers.gs       Lecture par en-tête + harmonisation visuelle (V5) ; contenu/en-têtes/colonnes jamais écrits
     ├── 40_Dashboard.gs
     ├── 50_Previsionnel.gs
     ├── 60_Analyse.gs
@@ -90,6 +103,18 @@ indicateurs. Le paramètre `extraCondition` de `monthlyAmountFormula_()`
 / `annualAmountFormula_()` (`01_Utils.gs`) est prêt à l'emploi pour le
 brancher dès que nécessaire.
 
+### Harmonisation visuelle de Chantiers (V5, nouveau)
+
+Le cahier des charges V5 autorise explicitement des améliorations
+**strictement visuelles** sur Chantiers (couleurs d'en-tête, gel de la
+ligne d'en-tête, largeurs de colonnes, vue filtrée) — jamais de
+contenu, d'en-tête, de colonne ni de logique touchés, et jamais son
+état de protection existant modifié. `harmoniserChantiers_()`
+(`30_Chantiers.gs`) s'exécute automatiquement lors de l'Étape 1/3 de
+l'installation. Voir `ARCHITECTURE.md` §20 pour le détail technique et
+`TODO.md` pour la vérification recommandée avant mise en production
+(tester sur une copie du classeur avant le fichier réel).
+
 ## Déploiement
 
 ### Option A — clasp (recommandé)
@@ -136,10 +161,18 @@ limite lors d'une toute première installation sur un classeur vierge
 une exécution indépendante, avec son propre budget de temps :
 
 1. **1️⃣ Étape 1/3 — Paramètres + Charges** (relie aussi Chantiers par
-   en-tête).
+   en-tête, puis harmonise visuellement Charges et Chantiers — V5).
 2. **2️⃣ Étape 2/3 — Dashboard + Prévisionnel + Analyse.**
 3. **3️⃣ Étape 3/3 — Finalisation** (Accueil, protections, rangement
    des onglets).
+
+**Vue filtrée (V5, optionnel)** : pour que Charges/Chantiers obtiennent
+une vraie vue filtrée personnelle (plutôt qu'un filtre classique
+partagé), activez une fois le service avancé "Google Sheets API" dans
+l'éditeur Apps Script (icône `+` à côté de "Services"). Sans cette
+étape, l'installation fonctionne quand même : elle utilise
+automatiquement un filtre classique à la place (voir
+`KNOWN_LIMITATIONS.md`).
 
 Une confirmation est demandée avant chaque étape, et une boîte de
 dialogue en fin d'étape indique la suite. Lancer une étape avant la
@@ -227,7 +260,7 @@ qu'aucun `build*_()` n'ait besoin de retourner sur la copie.
 | 🔄 Actualiser les listes déroulantes | Ré-applique les validations de Charges sans tout reconstruire |
 | ✅ Vérifier la structure Chantiers | Contrôle le mapping B12:B15 contre la vraie feuille Chantiers |
 | 🔒 Réappliquer les protections | Ré-arme le filet de sécurité (V3) sans reconstruire les feuilles |
-| 🩺 Diagnostic | 7 contrôles automatiques, rapport clair (V3) |
+| 🩺 Diagnostic | 8 contrôles automatiques, rapport clair (V3, harmonisation visuelle ajoutée en V5) |
 | 🗒️ Afficher le journal | Les 20 derniers événements techniques enregistrés (V4) |
 | 🆕 Nouvel exercice… | Crée une copie du classeur pour l'année suivante (voir section dédiée) |
 | 🛠️ Installation (en 3 étapes) | (Re)construit tout le classeur en 3 clics séparés, sans jamais effacer les données saisies (V4.1 — voir "Première installation") |
@@ -244,18 +277,25 @@ classeur. Le détail (bibliothèque d'erreurs, validations de saisie,
 mise en forme conditionnelle sobre, protections) est documenté dans
 `ARCHITECTURE.md` §9 à §13.
 
-## Design premium (V4)
+## Design premium, grand écran (V5)
 
 Objectif : que le classeur donne l'impression d'un logiciel
 professionnel (Apple / Linear / Notion / Stripe / Arc), pas d'un
-tableur. Concrètement :
+tableur — sobre, épuré, haut de gamme, et occupant pleinement un grand
+écran de bureau (~1920px), demande explicite du client en V5.
+Concrètement :
 
 - **Un seul système de design** (`DESIGN`, `00_Constantes.gs`) :
-  toutes les hauteurs de ligne, espacements, tailles de police et
-  paddings du classeur viennent de là — `HEADER_HEIGHT`, `CARD_HEIGHT`,
+  toutes les hauteurs de ligne, espacements, tailles de police du
+  classeur viennent de là — `HEADER_HEIGHT`, `CARD_HEIGHT`,
   `SECTION_SPACING`, `TITLE_FONT_SIZE`, `SUBTITLE_FONT_SIZE`,
   `BORDER_COLOR`, `CARD_BACKGROUND`, etc. Aucune valeur de mise en
   page n'est écrite en dur dans un module de feuille.
+- **Grille pleine largeur (V5)** : `WIDE_GRID_COLUMNS` (14) ×
+  `WIDE_COLUMN_WIDTH` (137px) ≈ 1918px sur Dashboard et Analyse — le
+  graphique de Prévisionnel s'étend sur la même largeur, son petit
+  tableau mensuel restant à une largeur de lecture confortable. Voir
+  `ARCHITECTURE.md` §21.
 - **Titres identiques sur les 7 feuilles** (`styleTitle_()`), y
   compris Accueil (qui avait sa propre taille en V1-V3).
 - **Cartes KPI strictement uniformes** : même police, mêmes marges,
@@ -276,7 +316,12 @@ tableur. Concrètement :
 ## Journal des évolutions
 
 Voir **[`CHANGELOG.md`](CHANGELOG.md)** pour l'historique complet.
-En bref : **V4.1.4** (audit systémique du séparateur de formule —
+En bref : **V5.0.0** (cahier des charges client : Chantiers/Charges
+seuls tableaux de saisie — architecture déjà en place, formalisée en
+règle ; harmonisation visuelle de Chantiers, une première pour ce
+projet — couleurs/gel/largeurs/vue filtrée, jamais de contenu touché ;
+design revu pour un grand écran de bureau ~1920px ; aucune logique
+métier modifiée) ; **V4.1.4** (audit systémique du séparateur de formule —
 `setFormula()`/`setFormulas()` n'effectue aucune traduction
 automatique de la virgule vers le point-virgule pour une locale FR,
 quelle que soit la fonction ; corrige une attribution erronée à

@@ -14,7 +14,13 @@ function buildAnalyse_() {
   var sheet = getOrCreateSheet_(SHEETS.ANALYSE);
   resetSheet_(sheet);
 
-  sheet.setColumnWidths(1, 8, 95); // un seul appel plutôt que 8 (V4.1, perf)
+  // V5 : 14 colonnes (et non 8) — le graphique "Marge par mois" démarre
+  // en colonne 8 et s'étend jusqu'à la colonne 14 (ANALYSE_CHART_COLSPAN
+  // = 7 colonnes à partir de colStartMarge = 8) ; ne fixer que les 8
+  // premières laissait les colonnes 9-14 à la largeur par défaut de
+  // Sheets, faussant légèrement la taille calculée de ce graphique par
+  // rapport à celui du CA (corrige une incohérence héritée de la V4).
+  sheet.setColumnWidths(1, DESIGN.WIDE_GRID_COLUMNS, DESIGN.WIDE_COLUMN_WIDTH);
 
   buildAnalyseTitre_(sheet);
   buildAnalyseDonneesMensuelles_(sheet);

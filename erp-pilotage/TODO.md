@@ -6,6 +6,24 @@ nécessaire pour une mise en production sereine.
 
 ## Bloquant
 
+- [ ] **V5 — Tester l'harmonisation visuelle de Chantiers sur une
+  COPIE du vrai classeur avant toute exécution en production.**
+  `harmoniserChantiers_()` (`30_Chantiers.gs`) touche à la mise en
+  forme de Chantiers pour la première fois de tout ce projet. Même si
+  le contenu/en-têtes/colonnes ne sont jamais modifiés (vérifié par
+  lecture de code), c'est un changement de posture important sur la
+  feuille la plus sensible du classeur — dupliquer le classeur réel
+  (Fichier ▸ Créer une copie), lancer l'Étape 1/3 sur la copie, et
+  confirmer à l'œil qu'aucun texte d'en-tête, aucune valeur ni aucun
+  ordre de colonne n'a bougé avant de lancer l'installation sur le
+  fichier réel.
+- [ ] **V5 — Vérifier si la vue filtrée (Chantiers/Charges) a
+  réellement été créée**, ou si le repli sur filtre classique s'est
+  déclenché (Diagnostic ▸ section "🎛️ Harmonisation visuelle", ou
+  Données ▸ Vues filtrées dans le menu Google Sheets). Si le repli
+  s'est déclenché, activer le service avancé "Google Sheets API"
+  (Apps Script ▸ Services ▸ +) puis relancer l'Étape 1/3 pour obtenir
+  une vraie vue filtrée personnelle (voir KNOWN_LIMITATIONS.md).
 - [ ] **Vérifier le mapping Chantiers réel.** Ouvrir Paramètres!B12:B15
   sur le classeur du client et corriger les 4 en-têtes pour qu'ils
   correspondent exactement à ceux de l'onglet Chantiers existant.
@@ -31,7 +49,8 @@ nécessaire pour une mise en production sereine.
 ## Important
 
 - [ ] Lancer Pilotage ▸ Diagnostic après la première installation et
-  vérifier que les 7 sections sont toutes ✓.
+  vérifier que les 8 sections sont toutes ✓ (V5 ajoute "🎛️
+  Harmonisation visuelle").
 - [ ] Décider si `CHANTIERS_STATUT` doit filtrer le CA/marge réalisés
   (voir ROADMAP.md) — sinon laisser tel quel (tout chantier avec un
   CA HT et une date dans l'exercice compte comme réalisé).
@@ -58,10 +77,13 @@ nécessaire pour une mise en production sereine.
 - [ ] Vérifier le rendu des couleurs de mise en forme conditionnelle à
   l'écran (les valeurs hexadécimales ont été choisies sans aperçu
   visuel réel — voir KNOWN_LIMITATIONS.md).
-- [ ] Vérifier à l'œil le rendu du système de design V4 (tailles de
-  police des graphiques, largeur des 2 cartes Charges, hauteurs de
-  ligne des tableaux) et ajuster `DESIGN` (`00_Constantes.gs`) si un
-  détail paraît trop serré ou trop aéré.
-- [ ] Envisager l'orientation paysage pour l'export PDF si le
-  Dashboard (large grille de 14 colonnes) paraît trop compressé en A4
-  portrait (`construireUrlExportPdf_()`, `95_Export.gs`).
+- [ ] Vérifier à l'œil le rendu du système de design V5 (grand écran,
+  1918px sur Dashboard/Analyse/Prévisionnel — tailles de police,
+  largeur des 2 cartes Charges, hauteurs de ligne des tableaux) et
+  ajuster `DESIGN` (`00_Constantes.gs`) si un détail paraît trop serré
+  ou trop aéré, en particulier sur un écran plus petit qu'un moniteur
+  de bureau classique (portable, tablette).
+- [ ] Envisager l'orientation paysage pour l'export PDF, d'autant plus
+  probable à être nécessaire depuis la V5 (grille de 14 colonnes ×
+  137px ≈ 1918px, plus large qu'en V4) si le Dashboard paraît compressé
+  en A4 portrait (`construireUrlExportPdf_()`, `95_Export.gs`).

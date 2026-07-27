@@ -189,8 +189,14 @@ function styleInputCell_(range) {
   range.setFontFamily(FONT).setFontSize(DESIGN.INPUT_FONT_SIZE).setFontColor(COLORS.INK);
 }
 
-/** Style d'un en-tête de tableau de données (Charges, Prévisionnel...) — identique partout (V4). */
-function styleTableHeader_(range) {
+/**
+ * Style visuel d'un en-tête de tableau (fond anthracite, texte blanc
+ * gras), SANS protection (V5) — utilisé pour Chantiers, dont ce projet
+ * ne doit jamais altérer l'état de protection (feuille du client, non
+ * gérée par ce script). Voir `styleTableHeader_()` pour la version
+ * protégée utilisée sur les tableaux générés par le script.
+ */
+function styleTableHeaderVisuel_(range) {
   range.setFontFamily(FONT)
     .setFontSize(DESIGN.TABLE_HEADER_FONT_SIZE)
     .setFontWeight('bold')
@@ -198,7 +204,89 @@ function styleTableHeader_(range) {
     .setBackground(COLORS.INK)
     .setVerticalAlignment('middle')
     .setHorizontalAlignment('left');
+}
+
+/** Style d'un en-tête de tableau de données (Charges, Prévisionnel...) — identique partout (V4), avec protection avertissement. */
+function styleTableHeader_(range) {
+  styleTableHeaderVisuel_(range);
   protectAsCalculated_(range, 'En-tête de tableau — ne pas modifier');
+}
+
+/**
+ * Harmonisation visuelle d'un tableau de saisie existant — Charges et
+ * Chantiers, les deux SEULS tableaux de saisie du classeur (V5, règle
+ * n°4 du cahier des charges) : gel de la ligne d'en-tête + vue
+ * filtrée. Ne touche JAMAIS au contenu, aux en-têtes ni aux colonnes —
+ * uniquement de la présentation.
+ *
+ * @param {Sheet} sheet
+ * @param {number} headerRow Ligne d'en-tête (1-based).
+ * @param {number} lastDataRow Dernière ligne de données à couvrir (filtre).
+ * @param {number} lastCol Dernière colonne du tableau.
+ * @param {string} nomVue Nom de la vue filtrée créée/remplacée.
+ */
+function harmoniserTableauSaisie_(sheet, headerRow, lastDataRow, lastCol, nomVue) {
+  sheet.setFrozenRows(headerRow);
+  creerVueFiltree_(sheet, headerRow, lastDataRow, lastCol, nomVue);
+}
+
+/**
+ * Crée (ou remplace) une vue filtrée nommée sur la plage donnée, via le
+ * service avancé "Sheets API" (seul moyen d'obtenir une vraie vue
+ * filtrée personnelle depuis Apps Script — le service de base
+ * SpreadsheetApp n'expose que le filtre classique, partagé). Si ce
+ * service n'est pas activé pour ce projet (ou toute autre erreur),
+ * repli automatique et silencieux sur un filtre classique
+ * (`creerFiltreClassique_`) : l'installation ne doit jamais échouer
+ * pour cette seule raison — voir KNOWN_LIMITATIONS.md (fonctionnalité
+ * non vérifiée par exécution réelle, cet environnement de
+ * développement n'ayant aucun accès à un compte Google).
+ */
+function creerVueFiltree_(sheet, headerRow, lastDataRow, lastCol, nomVue) {
+  try {
+    var ss = getSpreadsheet_();
+    var sheetId = sheet.getSheetId();
+    var meta = Sheets.Spreadsheets.get(ss.getId(), { fields: 'sheets(properties.sheetId,filterViews(filterViewId,title))' });
+    var feuilleDistante = (meta.sheets || []).filter(function (s) { return s.properties.sheetId === sheetId; })[0];
+    var requetes = [];
+
+    if (feuilleDistante && feuilleDistante.filterViews) {
+      feuilleDistante.filterViews
+        .filter(function (vue) { return vue.title === nomVue; })
+        .forEach(function (vue) { requetes.push({ deleteFilterView: { filterId: vue.filterViewId } }); });
+    }
+
+    requetes.push({
+      addFilterView: {
+        filter: {
+          title: nomVue,
+          range: {
+            sheetId: sheetId,
+            startRowIndex: headerRow - 1,
+            endRowIndex: lastDataRow,
+            startColumnIndex: 0,
+            endColumnIndex: lastCol
+          }
+        }
+      }
+    });
+
+    Sheets.Spreadsheets.batchUpdate({ requests: requetes }, ss.getId());
+  } catch (e) {
+    creerFiltreClassique_(sheet, headerRow, lastDataRow, lastCol);
+  }
+}
+
+/**
+ * Repli : filtre classique (partagé) sur la plage donnée, utilisé si
+ * le service avancé "Sheets API" n'est pas activé pour ce projet.
+ * Idempotent : supprime tout filtre classique déjà posé avant d'en
+ * reposer un, pour ne jamais accumuler d'erreur "filtre déjà existant".
+ */
+function creerFiltreClassique_(sheet, headerRow, lastDataRow, lastCol) {
+  var filtreExistant = sheet.getFilter();
+  if (filtreExistant) filtreExistant.remove();
+  sheet.getRange(headerRow, 1, lastDataRow - headerRow + 1, lastCol).createFilter();
 }
 
 /** Applique une liste déroulante (validation stricte : saisie hors liste refusée) à partir d'une plage nommée. */

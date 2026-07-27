@@ -27,7 +27,8 @@ function diagnosticERP() {
     diagnostiquerChantiers_(),
     diagnostiquerParametresObligatoires_(),
     diagnostiquerGraphiques_(),
-    diagnostiquerListes_()
+    diagnostiquerListes_(),
+    diagnostiquerHarmonisationVisuelle_()
   ];
 
   var total = 0;
@@ -122,6 +123,36 @@ function diagnostiquerGraphiques_() {
     return { label: nom + ' : ' + trouve + '/' + attendu + ' graphique(s)', ok: trouve === attendu };
   });
   return creerRapportSection_('📈 Graphiques', verifications);
+}
+
+/**
+ * ✓ Charges et Chantiers ont-ils bien leur ligne d'en-tête gelée et un
+ * filtre actif (vue filtrée ou, à défaut, filtre classique — V5, règle
+ * n°4) ? Purement en lecture, y compris pour Chantiers.
+ */
+function diagnostiquerHarmonisationVisuelle_() {
+  var feuilles = [
+    { nom: SHEETS.CHARGES, headerRow: CHARGES_HEADER_ROW },
+    { nom: SHEETS.CHANTIERS, headerRow: CHANTIERS_HEADER_ROW }
+  ];
+  var verifications = [];
+  feuilles.forEach(function (f) {
+    var sheet = getSheetSafe_(f.nom);
+    verifications.push({ label: f.nom + ' — en-tête gelé', ok: !!sheet && sheet.getFrozenRows() >= f.headerRow });
+    verifications.push({ label: f.nom + ' — filtre actif', ok: !!sheet && (!!sheet.getFilter() || possedeVueFiltree_(sheet)) });
+  });
+  return creerRapportSection_('🎛️ Harmonisation visuelle', verifications);
+}
+
+/** Vrai si la feuille possède au moins une vue filtrée (service avancé Sheets API — voir creerVueFiltree_, 01_Utils.gs). */
+function possedeVueFiltree_(sheet) {
+  try {
+    var meta = Sheets.Spreadsheets.get(getSpreadsheet_().getId(), { fields: 'sheets(properties.sheetId,filterViews.filterViewId)' });
+    var feuilleDistante = (meta.sheets || []).filter(function (s) { return s.properties.sheetId === sheet.getSheetId(); })[0];
+    return !!feuilleDistante && !!feuilleDistante.filterViews && feuilleDistante.filterViews.length > 0;
+  } catch (e) {
+    return false;
+  }
 }
 
 /** ✓ Les listes techniques (Paramètres, colonnes masquées) contiennent-elles des valeurs ? */

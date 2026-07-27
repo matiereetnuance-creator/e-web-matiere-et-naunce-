@@ -1,8 +1,10 @@
 /**
  * Module "02 - Dashboard"
  *
- * L'onglet principal : doit tenir sur un seul écran de 15 pouces,
- * sans défilement. 5 indicateurs clés + 2 graphiques, rien d'autre.
+ * L'onglet principal : 5 indicateurs clés + 2 graphiques, rien
+ * d'autre. Grille pleine largeur calibrée pour un grand écran de
+ * bureau (~1920px, V5 — DESIGN.WIDE_COLUMN_WIDTH) plutôt que
+ * l'ancienne hypothèse V1-V4 "écran de 15 pouces sans défilement".
  */
 
 var DASHBOARD_HELPER_COL_MOIS = 17;      // Q — données mensuelles (masquées)
@@ -12,7 +14,7 @@ function buildDashboard_() {
   var sheet = getOrCreateSheet_(SHEETS.DASHBOARD);
   resetSheet_(sheet);
 
-  sheet.setColumnWidths(1, 14, 95); // un seul appel plutôt que 14 (V4.1, perf)
+  sheet.setColumnWidths(1, DESIGN.WIDE_GRID_COLUMNS, DESIGN.WIDE_COLUMN_WIDTH); // un seul appel plutôt que 14 (V4.1, perf)
 
   buildDashboardTitre_(sheet);
   buildDashboardCartes_(sheet);

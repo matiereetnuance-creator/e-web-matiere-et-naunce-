@@ -3,7 +3,80 @@
 Toutes les versions sont des révisions du même projet Apps Script
 (`erp-pilotage/`), livrées sur la branche `claude/erp-matiere-nuance-1mme8l`.
 
-## V4.1.4 — Audit systémique du séparateur de formule (actuelle)
+## V5.0.0 — "Chantiers-first" : design grand écran + harmonisation Chantiers/Charges (actuelle)
+
+Cahier des charges client explicite (6 règles) : Chantiers et Charges
+restent les SEULS tableaux de saisie du classeur, sans aucune double
+saisie ; toutes les autres feuilles (Accueil, Dashboard, Prévisionnel,
+Analyse) sont des vues de pilotage pures ; seules des améliorations
+visuelles sont autorisées sur Chantiers/Charges (jamais de contenu, de
+colonne ni de logique touchés) ; design entièrement revu, sobre et
+haut de gamme, pour occuper pleinement un grand écran de bureau.
+
+**Ce qui était déjà vrai avant la V5** (vérifié, pas supposé) :
+Chantiers et Charges alimentaient déjà automatiquement Dashboard,
+Prévisionnel et Analyse sans aucune double saisie (`monthlyAmountFormula_`,
+`annualAmountFormula_`, `chargesEquivalentMensuelFormula_`) ; Accueil,
+Dashboard, Prévisionnel et Analyse étaient déjà des vues 100 % calculées,
+sans cellule de saisie. Ces règles du cahier des charges V5
+confirment donc l'architecture existante plutôt que de la changer.
+
+**Ce qui change réellement en V5** :
+
+- **Harmonisation visuelle de Chantiers (première fois, décision
+  client explicite)** : jusqu'ici, ce projet ne touchait JAMAIS à
+  Chantiers, même visuellement, par excès de prudence (voir historique
+  CLAUDE.md). `harmoniserChantiers_()` (`30_Chantiers.gs`) applique
+  désormais couleurs d'en-tête, gel de la ligne d'en-tête, largeurs de
+  colonnes auto-ajustées et vue filtrée — sans jamais toucher son
+  contenu, ses en-têtes, ses colonnes, ni son état de protection
+  existant (`removeAllProtections_()` n'est volontairement jamais
+  appelé sur cette feuille, à la différence de toutes les autres).
+- **Harmonisation visuelle de Charges** : mêmes principes (gel + vue
+  filtrée), en plus des largeurs de colonnes déjà existantes,
+  légèrement élargies.
+- **Vue filtrée avec repli automatique** (`creerVueFiltree_()`,
+  `01_Utils.gs`) : utilise le service avancé "Sheets API" pour créer
+  une vraie vue filtrée personnelle (ne modifie jamais l'affichage
+  pour d'autres utilisateurs, contrairement à un filtre classique
+  partagé) ; si ce service n'est pas activé pour le projet, repli
+  automatique et silencieux sur un filtre classique
+  (`creerFiltreClassique_()`) — l'installation ne peut jamais échouer
+  pour cette seule raison. Fonctionnalité non vérifiée par exécution
+  réelle (voir KNOWN_LIMITATIONS.md).
+- **Design grand écran (`DESIGN`, `00_Constantes.gs`)** : nouvelle
+  échelle de hauteurs/espacements/typographie, plus généreuse ("épuré,
+  haut de gamme"), et nouvelle grille pleine largeur
+  (`WIDE_GRID_COLUMNS` = 14 colonnes × `WIDE_COLUMN_WIDTH` = 137px ≈
+  1918px) pour Dashboard, Prévisionnel et Analyse — remplace
+  l'ancienne hypothèse V1-V4 "tient sur un écran de 15 pouces sans
+  défiler". Corrige au passage une incohérence héritée de la V4 :
+  Analyse ne fixait explicitement que 8 colonnes sur 14 réellement
+  utilisées par son 2ᵉ graphique, faussant légèrement sa taille par
+  rapport au 1ᵉʳ.
+- **Prévisionnel** : tableau mensuel gardé à une largeur de lecture
+  confortable ; le graphique en dessous, lui, s'étend sur la grille
+  pleine largeur (colonnes E:N ajoutées uniquement comme cadrage pour
+  le graphique, jamais de contenu).
+- **Diagnostic** : nouvelle section "🎛️ Harmonisation visuelle"
+  (8ᵉ contrôle) — vérifie le gel de l'en-tête et la présence d'un
+  filtre actif (vue filtrée ou classique) sur Charges et Chantiers.
+- **Menu** : le dialogue de confirmation de l'Étape 1/3 mentionne
+  désormais explicitement l'harmonisation visuelle de Chantiers, pour
+  un consentement éclairé la première fois que le script touche cette
+  feuille.
+
+**Fichiers modifiés** : `00_Constantes.gs`, `01_Utils.gs`,
+`20_Charges.gs`, `30_Chantiers.gs`, `40_Dashboard.gs`,
+`50_Previsionnel.gs`, `60_Analyse.gs`, `05_Accueil.gs`,
+`90_Diagnostic.gs`, `99_Installation.gs`, `02_Menu.gs`,
+`appsscript.json` (service avancé Sheets API), `README.md`,
+`ARCHITECTURE.md`, `KNOWN_LIMITATIONS.md`, `TODO.md`, `RECETTE.md`.
+**Non modifiés** : aucune formule, aucun calcul, aucune logique
+métier — uniquement la mise en page et l'ajout de deux fonctionnalités
+strictement visuelles (harmonisation Chantiers, vues filtrées).
+
+## V4.1.4 — Audit systémique du séparateur de formule
 
 **Correction d'une attribution erronée en V4.1.3.** Le correctif
 précédent supprimait `LET()` en considérant cette fonction comme seule

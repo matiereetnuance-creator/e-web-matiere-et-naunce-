@@ -68,7 +68,7 @@ function ensureChantiersLinks_() {
     sheet = creerGabaritChantiersMinimal_();
   }
 
-  var dataRows = 5000; // plage large fixe : robuste, pas de fonction volatile
+  var dataRows = CHANTIERS_PLAGE_LIGNES; // plage large fixe : robuste, pas de fonction volatile
   var lastCol = sheet.getLastColumn();
   var headers = lastCol > 0 ? sheet.getRange(CHANTIERS_HEADER_ROW, 1, 1, lastCol).getValues()[0] : [];
   var missing = [];
@@ -104,6 +104,54 @@ function creerGabaritChantiersMinimal_() {
   styleTableHeader_(sheet.getRange(CHANTIERS_HEADER_ROW, 1, 1, headers.length));
   sheet.setFrozenRows(CHANTIERS_HEADER_ROW);
   return sheet;
+}
+
+/**
+ * Harmonisation visuelle de la feuille Chantiers EXISTANTE (V5, règle
+ * n°4 du cahier des charges client) : couleurs d'en-tête, gel de la
+ * ligne d'en-tête, largeurs de colonnes, vue filtrée. Ne touche JAMAIS
+ * son contenu, ses en-têtes ni ses colonnes (règle n°1) — et, à la
+ * différence de toute autre feuille du classeur, ne touche JAMAIS non
+ * plus à son état de protection : `removeAllProtections_()` n'est
+ * jamais appelé ici, une protection posée par le client lui-même sur
+ * sa propre feuille doit survivre à toute réinstallation.
+ *
+ * Première fois que ce projet applique une quelconque mise en forme à
+ * Chantiers — jusqu'à la V5, cette feuille n'était jamais touchée,
+ * même visuellement, par excès de prudence (voir CLAUDE.md). Le client
+ * l'a explicitement autorisé (cahier des charges V5, règle n°4).
+ */
+function harmoniserChantiers_() {
+  var sheet = getSpreadsheet_().getSheetByName(SHEETS.CHANTIERS);
+  if (!sheet) return; // classeur neuf, gabarit pas encore créé — rien à harmoniser
+
+  var lastCol = sheet.getLastColumn();
+  if (lastCol === 0) return; // feuille vide
+
+  sheet.setHiddenGridlines(true);
+  styleTableHeaderVisuel_(sheet.getRange(CHANTIERS_HEADER_ROW, 1, 1, lastCol));
+  sheet.setRowHeight(CHANTIERS_HEADER_ROW, DESIGN.TABLE_HEADER_HEIGHT);
+  sheet.autoResizeColumns(1, lastCol);
+
+  var derniereLigne = harmoniserLignesChantiers_(sheet);
+  harmoniserTableauSaisie_(sheet, CHANTIERS_HEADER_ROW, derniereLigne, lastCol, 'Chantiers — vue filtrée');
+}
+
+/**
+ * Uniformise la hauteur des lignes de données sur une plage large mais
+ * toujours sûre : jamais au-delà des lignes réellement disponibles sur
+ * la feuille (`getMaxRows()`), pour ne jamais provoquer d'erreur
+ * technique sur un classeur dont la taille de grille est inconnue à
+ * l'avance. Retourne la dernière ligne couverte (réutilisée pour la
+ * vue filtrée).
+ */
+function harmoniserLignesChantiers_(sheet) {
+  var lignesDisponibles = Math.max(0, sheet.getMaxRows() - CHANTIERS_HEADER_ROW);
+  var lignes = Math.min(CHANTIERS_PLAGE_LIGNES, lignesDisponibles);
+  if (lignes > 0) {
+    sheet.setRowHeights(CHANTIERS_HEADER_ROW + 1, lignes, DESIGN.TABLE_ROW_HEIGHT);
+  }
+  return CHANTIERS_HEADER_ROW + lignes;
 }
 
 /**

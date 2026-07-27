@@ -9,8 +9,12 @@ function buildAccueil_() {
   var sheet = getOrCreateSheet_(SHEETS.ACCUEIL);
   resetSheet_(sheet);
 
-  sheet.setColumnWidth(1, 260);
-  sheet.setColumnWidth(2, 200);
+  // V5 : proportions légèrement élargies pour accompagner l'échelle
+  // typographique agrandie (DESIGN, 00_Constantes.gs) — Accueil reste
+  // une page volontairement étroite (titre, exercice, bouton), pas une
+  // grille pleine largeur comme Dashboard/Prévisionnel/Analyse.
+  sheet.setColumnWidth(1, 300);
+  sheet.setColumnWidth(2, 240);
   sheet.setHiddenGridlines(true);
 
   buildAccueilTitre_(sheet);
