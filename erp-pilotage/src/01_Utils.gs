@@ -299,7 +299,13 @@ function creerGraphiqueBase_(sheet, type) {
     .setOption('hAxis', { textStyle: texteAxe, gridlines: { color: COLORS.BORDER }, baselineColor: COLORS.BORDER })
     .setOption('vAxis', { textStyle: texteAxe, gridlines: { color: COLORS.BORDER }, baselineColor: COLORS.BORDER })
     .setOption('legend', { textStyle: texteAxe, position: 'none' })
-    .setOption('chartArea', { left: 12, top: 34, right: 12, bottom: 26 });
+    // chartArea n'accepte que left/top/width/height (backgroundColor à
+    // part) — ni "right" ni "bottom" ne sont des clés valides de l'API
+    // Google Charts ; width/height en pourcentage définissent la marge
+    // droite/basse en creux, proportionnellement à la taille réelle du
+    // graphique (V4.1.2, chaque graphique ayant une taille différente
+    // via computeChartSize_).
+    .setOption('chartArea', { left: 12, top: 34, width: '85%', height: '68%' });
 }
 
 /**

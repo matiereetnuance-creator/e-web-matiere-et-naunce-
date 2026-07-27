@@ -358,6 +358,21 @@ première fois que `40_Dashboard.gs` est modifié depuis la V2 — pour
 appeler ce générateur partagé, jamais pour changer une formule ou un
 calcul.
 
+**V4.1.2 — `chartArea` corrigé.** L'objet `chartArea` de l'API Google
+Charts n'accepte que `backgroundColor`, `left`, `top`, `width` et
+`height` — `right` et `bottom` n'existent pas et font échouer la
+construction du graphique ("L'option graphique n'est plus compatible :
+chartArea.bottom", constaté à l'exécution réelle de l'Étape 2/3).
+`creerGraphiqueBase_()` utilise désormais
+`{ left: 12, top: 34, width: '85%', height: '68%' }` : `width`/`height`
+en pourcentage définissent la marge droite/basse en creux,
+proportionnellement à la taille réelle de chaque graphique (qui varie
+selon son ancrage — voir `computeChartSize_()`), sans dépendre d'une
+clé absente de l'API. Toutes les autres options de graphique du projet
+(`fontName`, `titleTextStyle`, `hAxis`/`vAxis`, `legend`, `pieHole`,
+`colors`) ont été revérifiées à cette occasion contre l'API Google
+Charts réelle — aucune autre clé invalide trouvée.
+
 ## 16. Palette de couleurs (V4, audit)
 
 Toutes les couleurs du projet ont été extraites et vérifiées

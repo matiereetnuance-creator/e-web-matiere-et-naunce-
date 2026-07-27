@@ -276,9 +276,12 @@ tableur. Concrètement :
 ## Journal des évolutions
 
 Voir **[`CHANGELOG.md`](CHANGELOG.md)** pour l'historique complet.
-En bref : **V4.1.1** (correctif `Range.setPadding()`, méthode
-inexistante dans l'API Apps Script, qui faisait échouer l'Étape 1/3 —
-aucune logique métier modifiée) ; **V4.1** (installation en 3 étapes
+En bref : **V4.1.2** (correctif `chartArea.right`/`chartArea.bottom`,
+clés inexistantes dans l'API Google Charts, qui faisaient échouer
+l'Étape 2/3 — aucune logique métier modifiée) ; **V4.1.1** (correctif
+`Range.setPadding()`, méthode inexistante dans l'API Apps Script, qui
+faisait échouer l'Étape 1/3 — aucune logique métier modifiée) ;
+**V4.1** (installation en 3 étapes
 pour respecter la limite d'exécution de 6 minutes d'Apps Script —
 corrige un dépassement constaté lors de la première installation
 réelle ; aucune logique métier modifiée) ; **V4** (design premium —

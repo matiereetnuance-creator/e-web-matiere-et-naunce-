@@ -3,7 +3,43 @@
 Toutes les versions sont des révisions du même projet Apps Script
 (`erp-pilotage/`), livrées sur la branche `claude/erp-matiere-nuance-1mme8l`.
 
-## V4.1.1 — Correctif `Range.setPadding()` (actuelle)
+## V4.1.2 — Correctif `chartArea.right`/`chartArea.bottom` (actuelle)
+
+Correctif suite au **troisième retour d'exécution réelle** du projet :
+l'Étape 2/3 de l'installation échouait avec "L'option graphique n'est
+plus compatible : chartArea.bottom". `creerGraphiqueBase_()`
+(`01_Utils.gs`), le point de style commun aux 6 graphiques du classeur,
+définissait `chartArea: { left, top, right, bottom }` — or l'objet
+`chartArea` de l'API Google Charts (utilisée par
+`SpreadsheetApp.newChart()`) n'accepte que `backgroundColor`, `left`,
+`top`, `width` et `height` ; `right` et `bottom` ne sont pas des clés
+valides, quelle que soit la version de l'API.
+
+- **Toutes les options de graphique du projet ont été revérifiées**
+  contre l'API Google Charts réelle (`fontName`, `backgroundColor`,
+  `titleTextStyle`, `hAxis`/`vAxis` — `textStyle`/`gridlines`/
+  `baselineColor`, `legend` — `textStyle`/`position`, `pieHole`,
+  `colors`, `width`/`height`, `title`) : toutes valides, seule
+  `chartArea.right`/`chartArea.bottom` posait problème.
+- **Remplacement** : `chartArea: { left: 12, top: 34, width: '85%',
+  height: '68%' }` — `width`/`height` en pourcentage définissent la
+  marge droite/basse en creux (100 % moins la zone de tracé), de façon
+  proportionnelle à la taille réelle de chaque graphique (qui varie
+  selon son ancrage, voir `computeChartSize_()`), sans dépendre d'une
+  clé qui n'existe pas dans l'API.
+- Répercuté automatiquement sur les 6 graphiques du classeur (Dashboard
+  ×2, Prévisionnel ×1, Analyse ×3), tous construits via ce point de
+  style commun — aucun des 4 fichiers qui appellent
+  `creerGraphiqueBase_()` (`40_Dashboard.gs`, `50_Previsionnel.gs`,
+  `60_Analyse.gs`) n'a eu besoin d'être modifié.
+
+**Fichiers modifiés** : `01_Utils.gs` (`chartArea`),
+`ARCHITECTURE.md` §15, `KNOWN_LIMITATIONS.md`.
+**Non modifiés** : `40_Dashboard.gs`, `50_Previsionnel.gs`,
+`60_Analyse.gs` (consomment `creerGraphiqueBase_()` sans redéfinir
+`chartArea`), aucune formule, aucune logique métier.
+
+## V4.1.1 — Correctif `Range.setPadding()`
 
 Correctif suite au **deuxième retour d'exécution réelle** du projet :
 l'Étape 1/3 de l'installation V4.1 échouait avec `labelRange.set

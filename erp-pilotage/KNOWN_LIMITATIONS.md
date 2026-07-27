@@ -49,6 +49,18 @@
   `Range.setPadding()` restera indisponible dans l'API de base tant
   que Google ne l'y ajoute pas ; seule l'API Sheets avancée l'expose
   (`CellFormat.padding`), non activée dans ce projet.
+- **Deuxième cas confirmé (V4.1.2)** : `creerGraphiqueBase_()`
+  définissait `chartArea: { right, bottom }` — deux clés qui n'existent
+  pas dans l'API Google Charts (seuls `backgroundColor`, `left`, `top`,
+  `width`, `height` sont valides), révélé par l'échec réel de l'Étape
+  2/3 ("L'option graphique n'est plus compatible : chartArea.bottom").
+  Corrigé en `width`/`height` en pourcentage (voir CHANGELOG.md,
+  ARCHITECTURE.md §15). Deux erreurs de la même famille (méthode/clé
+  d'API inventée, non détectable par une vérification de syntaxe) sur
+  les deux premières exécutions réelles du projet — renforce l'idée
+  qu'une revue par un compte Google test avant chaque livraison reste
+  la seule vérification fiable des appels d'API Apps Script/Google
+  Charts.
 - **Limite d'exécution de 6 minutes — confirmée en conditions réelles
   (V4.1).** Le premier retour d'exécution réelle du projet (V4
   installée par le client sur un vrai classeur) a montré que
