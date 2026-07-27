@@ -35,24 +35,39 @@ var SHEET_ORDER = [
 ];
 
 // ------------------------------------------------------------------
-// Charte graphique
-// Fond blanc, cartes gris très clair, texte anthracite, une seule
-// couleur d'accent : le doré utilisé pour l'esperluette du logo
-// Matière & Nuance (identique à --gold du site public).
+// Charte graphique — palette à 4 niveaux de gris + 1 accent (V6,
+// demande client explicite : "uniquement blanc / gris très clair /
+// gris moyen / anthracite, l'accent Matière & Nuance réservé aux
+// informations importantes"). Chaque couleur ci-dessous appartient à
+// l'un de ces 5 rôles, jamais d'autre teinte (vérifié — voir
+// ARCHITECTURE.md §16 pour l'audit complet, y compris les dérivés
+// nécessaires à `CHART_CATEGORY_COLORS`).
 // ------------------------------------------------------------------
 
 var COLORS = {
+  // Blanc
   BACKGROUND: '#ffffff',
-  CARD_BG: '#f6f5f3',
-  INK: '#2b2926',       // texte anthracite
-  INK_MUTED: '#8a847a', // texte secondaire / libellés
-  ACCENT: '#c8b394',    // couleur de l'esperluette du logo
-  ACCENT_TEXT: '#5b4f3a', // texte sur fond clair nécessitant + de contraste
-  BORDER: '#e5e2dc',
-  INPUT_BG: '#fbf9f5',  // fond très légèrement teinté = cellule de saisie
   WHITE: '#ffffff',
 
-  // Mise en forme conditionnelle (V3) — toujours sobre, jamais de rouge/vert saturé.
+  // Gris très clair (fonds de carte, bordures, saisie)
+  CARD_BG: '#f6f5f3',
+  BORDER: '#e5e2dc',
+  INPUT_BG: '#fbf9f5',  // fond très légèrement teinté = cellule de saisie
+
+  // Gris moyen (texte secondaire, libellés)
+  INK_MUTED: '#8a847a',
+
+  // Anthracite (texte principal)
+  INK: '#2b2926',
+
+  // Accent Matière & Nuance — réservé aux informations importantes
+  // (2 KPI phares par carte, bouton Accueil, mise en forme conditionnelle)
+  ACCENT: '#c8b394',      // couleur de l'esperluette du logo
+  ACCENT_TEXT: '#5b4f3a', // texte sur fond clair nécessitant + de contraste
+
+  // Mise en forme conditionnelle (V3) — toujours sobre, jamais de rouge/vert
+  // saturé ; teintes dérivées de l'accent (attirent l'œil sans sortir de la
+  // palette autorisée).
   INACTIF_BG: '#f0efec',        // charge inactive (Actif = Non)
   OBJECTIF_ATTEINT_BG: '#f6f0e6', // écart >= 0 : accent très léger
   OBJECTIF_DEPASSE_BG: '#efe0c4', // écart nettement positif : accent un peu plus présent, jamais saturé
@@ -77,32 +92,52 @@ var CHART_CATEGORY_COLORS = [
 var FONT = 'Roboto';
 
 // ------------------------------------------------------------------
-// Système de design (V5) — grille, hauteurs, espacements, typographie.
-// Source unique de vérité pour toute valeur de mise en page : aucun
-// module de feuille ne doit écrire un pixel, une taille de police ou
-// un espacement en dur. C'est ce qui garantit que les 7 feuilles
-// suivent exactement la même grille visuelle.
+// DESIGN SYSTEM (V6) — source unique de vérité pour toute la mise en
+// page du classeur : marges, espacements, hauteurs, tailles de police,
+// styles de titres/sous-titres/KPI/graphiques/couleurs/alignements.
+// Aucun module de feuille n'écrit un pixel, une taille de police ou
+// une couleur en dur — tout passe par `DESIGN`/`COLORS` et par les
+// fonctions de style partagées de `01_Utils.gs` (`styleTitle_()`,
+// `styleSectionHeader_()`, `stylePageSubtitle_()`, `styleCardLabel_()`,
+// `styleCardValue_()`, `styleTableHeader_()`, `creerGraphiqueBase_()`).
+// C'est ce qui garantit qu'il n'existe AUCUNE petite différence entre
+// les feuilles (demande client V6).
 //
-// V5 : échelle revue pour un rendu "épuré / haut de gamme" occupant
-// pleinement un écran de bureau classique (~1920px), demande explicite
-// du client — remplace intégralement l'échelle V4 (plus dense, pensée
-// pour un écran de 15 pouces). Aucune formule ni logique métier
-// n'est concernée par ce changement, uniquement la mise en page.
+// Historique : V4 a introduit `DESIGN` (remplace `ROW_HEIGHT`, V3).
+// V5 a revu l'échelle pour un grand écran (~1920px, remplace
+// l'hypothèse V1-V4 "écran 15 pouces"). V5.1/V5.2 ont renforcé la
+// hiérarchie (KPI > titre) et retiré des bordures. V6 formalise
+// explicitement l'échelle typographique en 7 niveaux ci-dessous —
+// c'est la demande client V6 ("créer un véritable Design System").
 //
-// V5.2 : hiérarchie typographique renforcée (titre < KPI, KPI = élément
-// principal du Dashboard) et cartes plus aérées — demande explicite du
-// client ("beaucoup d'air autour des chiffres").
+// Échelle typographique (V6) — du plus visible au plus discret :
+//   H1   (TITLE_FONT_SIZE)          titre de feuille, 1 par feuille
+//   H2   (SECTION_HEADER_FONT_SIZE) en-tête de section dans une page
+//                                   (ex. "Paramètres généraux") — styleSectionHeader_()
+//   Sous-titre (SUBTITLE_FONT_SIZE) légende de contexte sous le H1
+//                                   (ex. "Chiffre d'affaires...") — stylePageSubtitle_()
+//   KPI  (KPI_VALUE_FONT_SIZE)      valeur d'une carte KPI — le plus
+//                                   grand de tous : "les KPI sont
+//                                   l'élément principal" (V5.2/V6)
+//   Valeurs (TABLE_BODY_FONT_SIZE ou KPI_LABEL_FONT_SIZE selon contexte)
+//   Tableau (TABLE_HEADER_FONT_SIZE / TABLE_BODY_FONT_SIZE) en-têtes et
+//                                   données de Charges/Prévisionnel
+//   Infos secondaires (NOTE_FONT_SIZE) libellés d'axes de graphique,
+//                                   légendes — jamais de note de
+//                                   cellule (rendu par Sheets, hors
+//                                   contrôle de ce projet)
 // ------------------------------------------------------------------
 
 var DESIGN = {
   // Hauteurs de ligne (pixels)
-  HEADER_HEIGHT: 48,        // ligne de titre de feuille
-  SUBHEADER_HEIGHT: 32,     // ligne de sous-titre de section / de page
-  INPUT_ROW_HEIGHT: 28,     // ligne de saisie (Paramètres)
-  CARD_LABEL_HEIGHT: 24,    // ligne libellé d'une carte KPI
-  CARD_HEIGHT: 58,          // ligne valeur d'une carte KPI (V5.2 : +air)
-  TABLE_HEADER_HEIGHT: 32,  // ligne d'en-tête de tableau
-  TABLE_ROW_HEIGHT: 30,     // ligne de donnée de tableau
+  HEADER_HEIGHT: 48,          // ligne de titre de feuille (H1)
+  SECTION_HEADER_HEIGHT: 34,  // ligne d'en-tête de section (H2) — V6
+  SUBHEADER_HEIGHT: 32,       // ligne de sous-titre de page ("eyebrow")
+  INPUT_ROW_HEIGHT: 28,       // ligne de saisie (Paramètres)
+  CARD_LABEL_HEIGHT: 24,      // ligne libellé d'une carte KPI
+  CARD_HEIGHT: 60,            // ligne valeur d'une carte KPI (V6 : +air)
+  TABLE_HEADER_HEIGHT: 32,    // ligne d'en-tête de tableau
+  TABLE_ROW_HEIGHT: 30,       // ligne de donnée de tableau
 
   // Grille pleine largeur (V5) — Dashboard, Prévisionnel, Analyse :
   // 14 colonnes × 137px ≈ 1918px, calibrée pour un moniteur de bureau
@@ -111,17 +146,20 @@ var DESIGN = {
   WIDE_GRID_COLUMNS: 14,
   WIDE_COLUMN_WIDTH: 137,
 
-  // Typographie (points) — échelle V5.2 : titre (22) < valeur KPI (32),
-  // les KPI étant "l'élément principal du Dashboard" (demande client).
-  TITLE_FONT_SIZE: 22,
-  SUBTITLE_FONT_SIZE: 12,
+  // Typographie (points) — échelle V6, 7 niveaux (voir commentaire
+  // au-dessus de DESIGN) : H1 (22) < H2 (16) ; KPI (36) reste le plus
+  // grand de tout le classeur, au-dessus même du H1 — "les KPI sont
+  // l'élément principal du Dashboard" (demande client V5.2/V6).
+  TITLE_FONT_SIZE: 22,           // H1
+  SECTION_HEADER_FONT_SIZE: 16,  // H2 — V6, distinct du sous-titre de page
+  SUBTITLE_FONT_SIZE: 12,        // Sous-titre ("eyebrow")
   KPI_LABEL_FONT_SIZE: 10,
-  KPI_VALUE_FONT_SIZE: 32,
-  TABLE_HEADER_FONT_SIZE: 11,
-  TABLE_BODY_FONT_SIZE: 11,
+  KPI_VALUE_FONT_SIZE: 36,       // KPI — le plus grand de l'échelle (V6)
+  TABLE_HEADER_FONT_SIZE: 11,    // Tableau (en-tête)
+  TABLE_BODY_FONT_SIZE: 11,      // Tableau (données) / Valeurs
   INPUT_FONT_SIZE: 12,
   BUTTON_FONT_SIZE: 14,
-  NOTE_FONT_SIZE: 10,
+  NOTE_FONT_SIZE: 10,            // Infos secondaires (légendes, axes)
 
   // Couleurs de référence (vocabulaire "design system" — alias directs
   // vers COLORS, défini juste au-dessus)

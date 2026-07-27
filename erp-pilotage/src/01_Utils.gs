@@ -99,24 +99,27 @@ function styleTitle_(range) {
 }
 
 /**
- * Style d'un sous-titre de section (ex. "Paramètres généraux"),
- * partagé pour éviter toute variation involontaire de taille/couleur
- * entre les sections d'une même feuille ou d'une feuille à l'autre (V4).
+ * Style H2 — en-tête de section à l'intérieur d'une page (ex.
+ * "Paramètres généraux", "Performance de l'exercice"), partagé pour
+ * éviter toute variation involontaire de taille/couleur entre les
+ * sections d'une même feuille ou d'une feuille à l'autre (V4, taille
+ * dédiée depuis le Design System V6 — `SECTION_HEADER_FONT_SIZE`,
+ * distincte du sous-titre de page `stylePageSubtitle_()`).
  */
-function styleSubtitle_(range) {
+function styleSectionHeader_(range) {
   range.setFontFamily(FONT)
-    .setFontSize(DESIGN.SUBTITLE_FONT_SIZE)
+    .setFontSize(DESIGN.SECTION_HEADER_FONT_SIZE)
     .setFontWeight('bold')
     .setFontColor(COLORS.INK_MUTED)
     .setVerticalAlignment('middle');
 }
 
 /**
- * Style d'un sous-titre de page (V5.1) — légende discrète sous le
- * titre principal d'une feuille (ex. "Vue d'ensemble de l'activité"),
- * jamais grasse, à la différence de `styleSubtitle_()` (en-tête de
- * section, ex. "Paramètres généraux") : deux rôles différents, deux
- * styles différents.
+ * Style "Sous-titre" — légende discrète sous le titre principal (H1)
+ * d'une feuille (ex. "Chiffre d'affaires, marge et charges de
+ * l'exercice en cours"), jamais grasse, à la différence de
+ * `styleSectionHeader_()` (H2, en-tête de section) : deux rôles
+ * différents dans le Design System (V6), deux styles différents.
  */
 function stylePageSubtitle_(range) {
   range.setFontFamily(FONT)

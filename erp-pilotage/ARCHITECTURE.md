@@ -59,7 +59,7 @@ entre feuilles — voir §3.
 | `CHANTIERS_DATE` | Chantiers (existante) | colonne trouvée par en-tête, 5000 lignes | `ensureChantiersLinks_()` | Lecture seule |
 | `CHANTIERS_STATUT` | Chantiers (existante) | colonne trouvée par en-tête, 5000 lignes | `ensureChantiersLinks_()` | Lecture seule (reliée, non filtrée — voir README) |
 | `PARAM_CHANTIERS_FALLBACK_VIDE` | Paramètres | M1 (masquée, toujours vide) | `buildParametres_()` | Technique (V3, repli d'erreur) |
-| `DASHBOARD_CA_REALISE` | Dashboard | B5 (carte KPI, V5.1 — sous-titre en ligne 2) | `buildDashboard_()` | Calculée |
+| `DASHBOARD_CA_REALISE` | Dashboard | B6 (carte KPI, V6 — en-tête H2 "Performance de l'exercice" en ligne 4) | `buildDashboard_()` | Calculée |
 
 Toutes les créations/mises à jour de plages nommées passent par
 `setNamedRange_()` (`01_Utils.gs`), qui supprime l'ancienne définition
@@ -720,3 +720,66 @@ bug, uniquement design/ergonomie désormais.
   bordure + espacement généreux + hiérarchie typographique reste le
   meilleur équivalent atteignable dans les limites réelles de la
   plateforme.
+
+## 23. Design System — référence explicite (V6)
+
+Cahier des charges client V6 : "créer un véritable Design System... je
+ne veux plus de petites différences entre les feuilles". Les
+fondations existaient déjà depuis la V4 (`DESIGN`/`COLORS`,
+`00_Constantes.gs`, fonctions de style partagées de `01_Utils.gs`) ;
+la V6 les formalise en référence explicite plutôt que de les redéfinir.
+
+### Échelle typographique — 7 niveaux
+
+| Niveau | Constante `DESIGN` | Taille | Fonction de style | Où |
+|---|---|---|---|---|
+| H1 | `TITLE_FONT_SIZE` | 22pt | `styleTitle_()` | Titre de chaque feuille (1 par feuille, les 6 gérées par le script) |
+| H2 | `SECTION_HEADER_FONT_SIZE` | 16pt | `styleSectionHeader_()` | En-tête de section dans une page (Paramètres ×3, Dashboard ×2 — V6) |
+| Sous-titre | `SUBTITLE_FONT_SIZE` | 12pt | `stylePageSubtitle_()` | Légende de contexte sous le H1 ("eyebrow", V5.1/V5.2, les 6 feuilles) |
+| KPI | `KPI_VALUE_FONT_SIZE` | 36pt | `styleCardValue_()` | Valeur d'une carte KPI — le plus grand de l'échelle |
+| Libellé KPI | `KPI_LABEL_FONT_SIZE` | 10pt | `styleCardLabel_()` | Libellé au-dessus d'une valeur KPI |
+| Tableau | `TABLE_HEADER_FONT_SIZE` / `TABLE_BODY_FONT_SIZE` | 11pt | `styleTableHeader_()` / (police directe) | En-têtes et données de Charges/Prévisionnel/listes techniques |
+| Infos secondaires | `NOTE_FONT_SIZE` | 10pt | (police directe) | Légendes de graphique, libellés d'axes |
+
+Cas particulier volontairement distinct du niveau "Tableau" : les
+cellules de **saisie** (Charges, Paramètres) utilisent
+`INPUT_FONT_SIZE` (12pt, `styleInputCell_()`) plutôt que
+`TABLE_BODY_FONT_SIZE` (11pt) — une cellule où l'on tape au clavier
+mérite un corps légèrement plus grand qu'une cellule purement
+d'affichage ; distinction assumée, pas un oubli.
+
+### Couleurs — 4 gris + 1 accent
+
+Voir `COLORS` (`00_Constantes.gs`, réorganisé par rôle en V6) et §16
+pour l'audit complet : blanc (`BACKGROUND`/`WHITE`), gris très clair
+(`CARD_BG`/`BORDER`/`INPUT_BG`), gris moyen (`INK_MUTED`), anthracite
+(`INK`), accent Matière & Nuance (`ACCENT`/`ACCENT_TEXT`, réservé aux
+informations importantes — 2 KPI phares par carte, bouton Accueil,
+mise en forme conditionnelle). Seule exception assumée :
+`CHART_CATEGORY_COLORS` (8 tons dérivés de l'accent/gris) pour la
+répartition des charges — un graphique catégoriel a structurellement
+besoin de plusieurs teintes distinguables, impossible à réduire à 4
+couleurs plates sans perdre l'information.
+
+### Espacements et hauteurs
+
+Toute hauteur de ligne vient de `DESIGN` (`HEADER_HEIGHT`,
+`SECTION_HEADER_HEIGHT`, `SUBHEADER_HEIGHT`, `CARD_LABEL_HEIGHT`/
+`CARD_HEIGHT`, `TABLE_HEADER_HEIGHT`/`TABLE_ROW_HEIGHT`) ; toute
+largeur de colonne vient de `WIDE_GRID_COLUMNS`/`WIDE_COLUMN_WIDTH`
+(grille pleine largeur, §21) ou de largeurs dédiées par feuille
+(Charges, Accueil, Prévisionnel — colonnes de contenu différent,
+largeurs différentes assumées). Le "vide" (lignes blanches entre
+sections) n'est pas un paramètre chiffré unique mais une convention
+respectée partout : une ligne de séparation entre deux blocs
+distincts, aucune ligne de séparation entre un en-tête (H2 ou
+sous-titre) et le contenu qu'il introduit — c'est ce rythme répété
+identiquement qui crée la cohérence inter-feuilles demandée, plus que
+n'importe quelle valeur numérique isolée.
+
+### Alignement
+
+Toujours à gauche pour le texte (titres, sous-titres, libellés et
+valeurs de KPI, en-têtes/données de tableau) ; centré uniquement pour
+le bouton Accueil (élément cliquable isolé, pas du texte de lecture).
+Aucune exception ailleurs dans le projet.

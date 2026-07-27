@@ -277,64 +277,83 @@ classeur. Le détail (bibliothèque d'erreurs, validations de saisie,
 mise en forme conditionnelle sobre, protections) est documenté dans
 `ARCHITECTURE.md` §9 à §13.
 
-## Design premium — "une application, pas un tableur" (V5.2)
+## Design System (V6)
 
-Objectif : que le classeur donne l'impression d'un logiciel
-professionnel (Apple / Linear / Notion / Stripe Dashboard / Framer),
-pas d'un tableur — élégant, minimaliste, haut de gamme, très lisible,
-jamais surchargé, occupant pleinement un grand écran de bureau
-(~1920px). Concrètement :
+Objectif : que le classeur donne l'impression d'une application
+professionnelle haut de gamme conçue pour Matière & Nuance, pas d'un
+tableur amélioré — élégant, minimaliste, très lisible, jamais
+surchargé. Direction artistique élargie en V6 au-delà des seuls
+logiciels de gestion : Apple, Arc Browser, Raycast, Linear, Stripe
+Dashboard, Figma (principes — simplicité, cohérence, espace,
+hiérarchie — pas copie littérale). Concrètement :
 
-- **Un seul système de design** (`DESIGN`, `00_Constantes.gs`) :
-  toutes les hauteurs de ligne, tailles de police et largeurs de
-  grille du classeur viennent de là — `HEADER_HEIGHT`, `CARD_HEIGHT`,
-  `TITLE_FONT_SIZE`, `SUBTITLE_FONT_SIZE`, `BORDER_COLOR`,
-  `CARD_BACKGROUND`, etc. Aucune valeur de mise en page n'est écrite
-  en dur dans un module de feuille.
+- **Un Design System explicite** (`DESIGN`/`COLORS`,
+  `00_Constantes.gs`) : 7 niveaux typographiques documentés — H1, H2,
+  Sous-titre, KPI, Libellé KPI, Tableau, Infos secondaires — chacun
+  avec sa taille et sa fonction de style dédiée, appliqués strictement
+  partout, sans exception. Voir `ARCHITECTURE.md` §23 pour la
+  référence complète (tableau des 7 niveaux, couleurs, espacements,
+  alignements).
 - **Grille pleine largeur (V5)** : `WIDE_GRID_COLUMNS` (14) ×
   `WIDE_COLUMN_WIDTH` (137px) ≈ 1918px sur Dashboard et Analyse — le
   graphique de Prévisionnel s'étend sur la même largeur, son petit
   tableau mensuel restant à une largeur de lecture confortable. Voir
   `ARCHITECTURE.md` §21.
+- **Dashboard, pièce maîtresse (V6, 80 % de l'effort de design)** :
+  2 en-têtes H2 — "PERFORMANCE DE L'EXERCICE" au-dessus des 5 cartes
+  KPI, "ÉVOLUTION" au-dessus des 2 graphiques — structurent la lecture
+  en deux temps (l'état actuel, puis sa tendance), sans ajouter de
+  donnée ni de calcul (moteur figé).
 - **Cartes KPI et bouton Accueil sans bordure (V5.1)** : un aplat de
   couleur seul, sans contour, à la manière des "stat tiles"
   Stripe/Linear — c'est le contraste de fond qui délimite la carte,
   pas un trait. Même police, mêmes marges, même hiérarchie
   titre/valeur (`buildKpiCard_()`, seule fonction du projet qui
   construise une carte).
-- **Sous-titres "eyebrow" sur les 6 feuilles script-gérées (V5.1 puis
-  V5.2)** : une courte légende de contexte sous chaque titre principal
+- **KPI = élément visuellement dominant** : la valeur d'une carte KPI
+  (36pt, V6) reste la plus grande de toute l'échelle, au-dessus même
+  du titre de page (22pt) — "les KPI sont l'élément principal du
+  Dashboard", demande client explicite depuis la V5.2.
+- **Sous-titres et en-têtes de section sur les 6 feuilles
+  script-gérées** : un sous-titre "eyebrow" sous chaque titre principal
   (ex. "Chiffre d'affaires, marge et charges de l'exercice en cours")
-  — hiérarchie titre → contexte → contenu, en quelques secondes,
-  cohérente sur Accueil, Dashboard, Charges, Prévisionnel, Analyse et
-  Paramètres (Chantiers exclue : feuille du client, jamais notre titre
-  à poser).
+  et, désormais distincts en taille (V6), des en-têtes H2 pour les
+  sections internes (Paramètres, Dashboard) — hiérarchie titre →
+  section → contexte → contenu, cohérente sur Accueil, Dashboard,
+  Charges, Prévisionnel, Analyse et Paramètres (Chantiers exclue :
+  feuille du client).
 - **Un seul style de graphique** (`creerGraphiqueBase_()`,
   `01_Utils.gs`) : même police, mêmes couleurs d'axes/légende, même
   respiration (`chartArea`) sur les 6 graphiques du classeur ; titre de
-  graphique allégé (V5.1, non gras, discret) et quadrillage vertical
-  masqué (V5.2, seules les lignes de référence horizontales
-  subsistent) pour laisser la donnée dominer.
-- **KPI = élément visuellement dominant (V5.2)** : la valeur d'une
-  carte KPI (32pt) est désormais plus grande que le titre de la page
-  (22pt) — "les KPI sont l'élément principal du Dashboard", demande
-  client explicite. Cartes plus hautes (+air autour des chiffres).
-- **Palette strictement limitée** à blanc, gris très clair, anthracite
-  et l'accent Matière & Nuance (vérifié : aucune autre teinte dans le
-  code — voir `ARCHITECTURE.md` §16).
+  graphique allégé et quadrillage vertical masqué pour laisser la
+  donnée dominer — les graphiques confirment une tendance, ils ne
+  doivent jamais monopoliser l'attention (demande client V6).
+- **Palette à 4 gris + 1 accent** : blanc, gris très clair, gris moyen,
+  anthracite, et l'accent Matière & Nuance réservé aux informations
+  importantes — réorganisée par rôle explicite dans le code en V6,
+  aucune teinte hors de ce cadre (vérifié — voir `ARCHITECTURE.md` §16
+  et §23).
 - **Cellules de saisie : diviseur de ligne, pas une grille (V5.1)** :
   la bordure 4 côtés (V1-V5) est remplacée par un simple diviseur
   horizontal — élimine l'effet "tableur Excel" sur les 1000 lignes de
   Charges, sans changer le contenu ni les colonnes.
-- **Coins arrondis : demandés en V5.2, non réalisables** — aucune
-  propriété de rayon de bordure n'existe sur une cellule Google
-  Sheets ; documenté honnêtement plutôt que contourné (voir
-  `KNOWN_LIMITATIONS.md`).
+- **Coins arrondis : demandés, non réalisables** — aucune propriété de
+  rayon de bordure n'existe sur une cellule Google Sheets ; documenté
+  honnêtement plutôt que contourné (voir `KNOWN_LIMITATIONS.md`).
 
 ## Journal des évolutions
 
 Voir **[`CHANGELOG.md`](CHANGELOG.md)** pour l'historique complet.
-En bref : **V5.2.0** (moteur de calcul figé à la demande du client —
+En bref : **V6.0.0** ("Design System" — refonte de l'identité
+graphique, moteur de calcul définitivement figé sauf bug ; échelle
+typographique à 7 niveaux formalisée [H1/H2/Sous-titre/KPI/Libellé/
+Tableau/Infos secondaires], niveau H2 désormais distinct du
+sous-titre de page, KPI porté à 36pt ; Dashboard devient la pièce
+maîtresse avec 2 en-têtes de section structurant la lecture
+[Performance/Évolution] sans nouvelle donnée ; palette reconfirmée à 4
+gris + 1 accent ; direction élargie à Apple/Arc/Raycast/Linear/
+Stripe/Figma ; aucune formule ni logique métier modifiée) ; **V5.2.0**
+(moteur de calcul figé à la demande du client —
 design uniquement désormais : KPI plus grands que le titre de page
 [32pt vs 22pt], cartes plus aérées, quadrillage de graphique réduit au
 strict utile, sous-titres "eyebrow" étendus à tout le classeur ;

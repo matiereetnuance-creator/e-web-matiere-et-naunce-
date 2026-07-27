@@ -1,10 +1,16 @@
 /**
  * Module "02 - Dashboard"
  *
- * L'onglet principal : 5 indicateurs clés + 2 graphiques, rien
+ * La pièce maîtresse de l'ERP (V6, 80 % de l'effort de design du
+ * projet est concentré ici) : 5 indicateurs clés + 2 graphiques, rien
  * d'autre. Grille pleine largeur calibrée pour un grand écran de
  * bureau (~1920px, V5 — DESIGN.WIDE_COLUMN_WIDTH) plutôt que
  * l'ancienne hypothèse V1-V4 "écran de 15 pouces sans défilement".
+ *
+ * V6 : 2 en-têtes H2 ("Performance de l'exercice", "Évolution")
+ * structurent la lecture en deux temps — l'état actuel, puis sa
+ * tendance — sans ajouter la moindre donnée ni le moindre calcul
+ * (moteur figé depuis la V5.2/V6, demande client explicite).
  */
 
 var DASHBOARD_HELPER_COL_MOIS = 17;      // Q — données mensuelles (masquées)
@@ -18,7 +24,9 @@ function buildDashboard_() {
 
   buildDashboardTitre_(sheet);
   buildDashboardSousTitre_(sheet);
+  buildDashboardGroupePerformance_(sheet);
   buildDashboardCartes_(sheet);
+  buildDashboardGroupeEvolution_(sheet);
   buildDashboardGraphiques_(sheet);
 
   sheet.setFrozenRows(2);
@@ -40,8 +48,24 @@ function buildDashboardSousTitre_(sheet) {
   sheet.setRowHeight(2, DESIGN.SUBHEADER_HEIGHT);
 }
 
+/** En-tête H2 (V6) au-dessus des 5 cartes KPI — "l'état actuel". */
+function buildDashboardGroupePerformance_(sheet) {
+  var groupe = sheet.getRange('A4:F4');
+  groupe.merge().setValue('PERFORMANCE DE L\'EXERCICE');
+  styleSectionHeader_(groupe);
+  sheet.setRowHeight(4, DESIGN.SECTION_HEADER_HEIGHT);
+}
+
+/** En-tête H2 (V6) au-dessus des 2 graphiques — "la tendance". */
+function buildDashboardGroupeEvolution_(sheet) {
+  var groupe = sheet.getRange('A9:F9');
+  groupe.merge().setValue('ÉVOLUTION');
+  styleSectionHeader_(groupe);
+  sheet.setRowHeight(9, DESIGN.SECTION_HEADER_HEIGHT);
+}
+
 function buildDashboardCartes_(sheet) {
-  var row = 4;
+  var row = 5;
   var width = 2;
   var startCols = [1, 4, 7, 10, 13]; // A, D, G, J, M — colonne C/F/I/L = espace
 
@@ -75,7 +99,7 @@ function buildDashboardCartes_(sheet) {
 }
 
 // Ancrage des 2 graphiques : colonnes/lignes couvertes (voir computeChartSize_).
-var DASHBOARD_CHART_ROW = 8;
+var DASHBOARD_CHART_ROW = 10;
 var DASHBOARD_CHART_ROWSPAN = 14;
 var DASHBOARD_CHART_CA_COLSPAN = 7;
 var DASHBOARD_CHART_REPARTITION_COLSPAN = 6;

@@ -8,8 +8,8 @@
  */
 
 var VERSION = {
-  NUMBER: '5.2.0',
-  BUILD_NAME: 'Premium',
+  NUMBER: '6.0.0',
+  BUILD_NAME: 'Design System',
   BUILD_DATE: '2026-07-27',
   AUTHOR: 'Matière & Nuance — Pilotage interne'
 };

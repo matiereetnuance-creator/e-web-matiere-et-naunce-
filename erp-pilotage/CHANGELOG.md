@@ -3,7 +3,74 @@
 Toutes les versions sont des révisions du même projet Apps Script
 (`erp-pilotage/`), livrées sur la branche `claude/erp-matiere-nuance-1mme8l`.
 
-## V5.2.0 — Design premium, round 2 : hiérarchie renforcée + cohérence totale (actuelle)
+## V6.0.0 — "Design System" : refonte de l'identité graphique (actuelle)
+
+Cahier des charges client explicite : "la V6 n'est pas une évolution
+technique, c'est une refonte complète de l'identité graphique". Le
+client confirme et formalise le gel du moteur de calcul (déjà amorcé
+en V5.2) : plus aucune formule, calcul ou logique métier modifié sauf
+bug, exclusivement design/ergonomie/confort d'utilisation désormais.
+Références de direction artistique élargies au-delà des seuls
+logiciels de gestion : Apple, Arc Browser, Raycast, Linear, Stripe
+Dashboard, Figma — principes (simplicité, cohérence, espace,
+hiérarchie), pas copie littérale.
+
+- **Design System formalisé explicitement** (`00_Constantes.gs`,
+  commentaire en tête de `DESIGN`) : échelle typographique à 7 niveaux
+  documentée noir sur blanc — H1, H2, Sous-titre, KPI, Valeurs,
+  Tableau, Informations secondaires — chacun mappé à une constante
+  `DESIGN.*` et une fonction de style partagée précise
+  (`styleTitle_()`, `styleSectionHeader_()`, `stylePageSubtitle_()`,
+  `styleCardLabel_()`/`styleCardValue_()`, `styleTableHeader_()`,
+  `creerGraphiqueBase_()`).
+- **Niveau H2 distinct** (nouveau) : `styleSubtitle_()` renommée
+  `styleSectionHeader_()` et dotée de sa propre taille
+  (`SECTION_HEADER_FONT_SIZE`, 16pt) — jusqu'ici, les en-têtes de
+  section ("Paramètres généraux") et les sous-titres de page
+  ("eyebrow", introduits en V5.1) partageaient la même taille (12pt),
+  différenciés seulement par la graisse. Deux rôles, deux tailles
+  désormais, comme demandé ("H1, H2, Sous-titre..." sont bien 3
+  niveaux distincts).
+- **KPI encore plus dominant** : `KPI_VALUE_FONT_SIZE` 32→36pt — reste
+  le plus grand de toute l'échelle, au-dessus même du H1. `CARD_HEIGHT`
+  58→60px.
+- **Dashboard, pièce maîtresse (80 % de l'effort de design)** : 2
+  nouveaux en-têtes H2 structurent la lecture en deux temps —
+  "PERFORMANCE DE L'EXERCICE" au-dessus des 5 cartes KPI (l'état
+  actuel), "ÉVOLUTION" au-dessus des 2 graphiques (la tendance) — sans
+  ajouter la moindre donnée ni le moindre calcul. Répond à "en 5
+  secondes je dois comprendre où j'en suis, si l'entreprise est en
+  bonne santé" par une organisation de l'information plus explicite,
+  pas par un nouvel indicateur (le moteur reste figé). *Note sur
+  "quels chantiers nécessitent mon attention" : cette lecture reste
+  portée par les indicateurs déjà existants (avancement, prévision) —
+  aucun nouveau calcul de détection n'a été ajouté, conformément au gel
+  du moteur annoncé par le client.*
+- **Palette reconfirmée à 4 gris + 1 accent** (`COLORS`,
+  `00_Constantes.gs`) : réorganisée par rôle explicite (blanc / gris
+  très clair / gris moyen / anthracite / accent) dans le code — audit
+  confirme qu'aucune valeur ne sort de ce cadre, aucune couleur
+  changée (déjà conforme depuis la V4 §16).
+- **Audit de cohérence inter-feuilles** : en-têtes de listes techniques
+  de Paramètres (colonnes masquées) alignés sur `TABLE_HEADER_FONT_SIZE`
+  /`INK_MUTED` comme partout ailleurs (correctif mineur, zéro risque
+  visuel — zone masquée). Confirmé : aucune autre divergence de style
+  trouvée entre feuilles.
+
+**Fichiers modifiés** : `00_Constantes.gs`, `01_Utils.gs`,
+`40_Dashboard.gs`, `10_Parametres.gs`, `ARCHITECTURE.md`, `README.md`,
+`RECETTE.md`.
+**Non modifiés** : `20_Charges.gs`, `30_Chantiers.gs`,
+`50_Previsionnel.gs`, `60_Analyse.gs`, `05_Accueil.gs` (bénéficient
+automatiquement de la nouvelle échelle `DESIGN` sans changement de
+code), `99_Installation.gs`, `02_Menu.gs`. Aucune formule, aucune
+plage nommée nouvelle, aucune logique métier changée — conformément
+au gel du moteur confirmé par le client.
+
+**Non vérifié par exécution réelle** (comme tout changement visuel
+depuis la V4) — voir KNOWN_LIMITATIONS.md.
+
+## V5.2.0 — Design premium, round 2 : hiérarchie renforcée + cohérence totale
 
 Retour client sur la V5.1 : "la direction est très bonne", demande
 d'aller plus loin sur la qualité perçue, avec un principe explicite —

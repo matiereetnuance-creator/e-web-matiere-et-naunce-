@@ -108,8 +108,8 @@ function buildParametresSousTitre_(sheet) {
 function buildParametresGeneraux_(sheet) {
   var sousTitre = sheet.getRange('A3');
   sousTitre.setValue('Paramètres généraux');
-  styleSubtitle_(sousTitre);
-  sheet.setRowHeight(3, DESIGN.SUBHEADER_HEIGHT);
+  styleSectionHeader_(sousTitre);
+  sheet.setRowHeight(3, DESIGN.SECTION_HEADER_HEIGHT);
 
   var anneeCourante = new Date().getFullYear();
   var rows = [
@@ -143,8 +143,8 @@ function buildParametresGeneraux_(sheet) {
 function buildParametresChantiersMapping_(sheet) {
   var sousTitre = sheet.getRange('A11');
   sousTitre.setValue('Connexion à l\'onglet Chantiers');
-  styleSubtitle_(sousTitre);
-  sheet.setRowHeight(11, DESIGN.SUBHEADER_HEIGHT);
+  styleSectionHeader_(sousTitre);
+  sheet.setRowHeight(11, DESIGN.SECTION_HEADER_HEIGHT);
 
   CHANTIERS_FIELDS.forEach(function (f) {
     var note = 'Doit correspondre EXACTEMENT à l\'intitulé de la colonne ' +
@@ -157,13 +157,13 @@ function buildParametresChantiersMapping_(sheet) {
 function buildParametresListes_(sheet) {
   var titre = sheet.getRange('H1');
   titre.setValue('Listes techniques (ne pas supprimer)');
-  styleSubtitle_(titre);
+  styleSectionHeader_(titre);
 
   var keys = Object.keys(PARAM_LISTES);
   keys.forEach(function (key) {
     var liste = PARAM_LISTES[key];
     var headerCell = sheet.getRange(liste.col + PARAM_LISTES_HEADER_ROW);
-    headerCell.setValue(liste.header).setFontFamily(FONT).setFontWeight('bold');
+    headerCell.setValue(liste.header).setFontFamily(FONT).setFontSize(DESIGN.TABLE_HEADER_FONT_SIZE).setFontWeight('bold').setFontColor(COLORS.INK_MUTED);
 
     var firstRow = PARAM_LISTES_FIRST_ROW;
     var lastRow = firstRow + liste.values.length - 1;

@@ -86,6 +86,13 @@ nécessaire pour une mise en production sereine.
   s'affichent avec assez d'air par rapport au titre et au contenu qui
   suit, et que le quadrillage vertical des graphiques a bien disparu
   sans rendre les graphiques moins lisibles.
+- [ ] **V6 — Vérifier les 2 en-têtes H2 du Dashboard** ("PERFORMANCE DE
+  L'EXERCICE" ligne 4, "ÉVOLUTION" ligne 9) : bien distincts visuellement
+  du sous-titre de page (ligne 2) par leur taille (16pt vs 12pt), et du
+  titre principal (22pt) — la hiérarchie H1 > H2 > Sous-titre doit se
+  lire d'un coup d'œil. Vérifier aussi que la valeur KPI à 36pt (montée
+  depuis 32pt en V5.2) tient toujours proprement dans la largeur des
+  cartes.
 
 ## Quand le temps le permet
 
