@@ -38,7 +38,17 @@
   Toutes les vérifications sont faites par lecture de code,
   vérification de syntaxe JavaScript et raisonnement sur le
   comportement documenté de l'API Apps Script. Voir TODO.md pour les
-  tests réels recommandés avant mise en production.
+  tests réels recommandés avant mise en production. **Confirmé par un
+  cas réel (V4.1.1)** : `buildKpiCard_()` appelait `Range.setPadding()`,
+  une méthode qui n'existe pas dans `SpreadsheetApp` — une erreur de
+  raisonnement sur l'API que `node --check` (vérification de syntaxe
+  uniquement) ne pouvait pas détecter, et qui n'est apparue qu'à la
+  première exécution réelle de l'Étape 1/3. Corrigé (voir CHANGELOG.md) ;
+  sert de rappel que la vérification de syntaxe ne garantit pas la
+  validité des appels d'API contre le vrai runtime Apps Script.
+  `Range.setPadding()` restera indisponible dans l'API de base tant
+  que Google ne l'y ajoute pas ; seule l'API Sheets avancée l'expose
+  (`CellFormat.padding`), non activée dans ce projet.
 - **Limite d'exécution de 6 minutes — confirmée en conditions réelles
   (V4.1).** Le premier retour d'exécution réelle du projet (V4
   installée par le client sur un vrai classeur) a montré que

@@ -162,10 +162,8 @@ function buildKpiCard_(sheet, row, col, width, label, formula, numberFormat, acc
   applyThinBorder_(cardRange);
   labelRange.setBackground(COLORS.CARD_BG);
   valueRange.setBackground(COLORS.CARD_BG);
-  labelRange.setHorizontalAlignment('left')
-    .setPadding(DESIGN.CARD_PADDING_TOP, DESIGN.CARD_PADDING_LEFT, 0, DESIGN.CARD_PADDING_RIGHT);
-  valueRange.setHorizontalAlignment('left')
-    .setPadding(0, DESIGN.CARD_PADDING_LEFT, DESIGN.CARD_PADDING_BOTTOM, DESIGN.CARD_PADDING_RIGHT);
+  labelRange.setHorizontalAlignment('left');
+  valueRange.setHorizontalAlignment('left');
 
   protectAsCalculated_(valueRange);
 

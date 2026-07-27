@@ -314,8 +314,7 @@ de police. `DESIGN` est la source unique de vérité, en trois familles :
   (sous-titre de section), `INPUT_ROW_HEIGHT` (ligne de saisie),
   `CARD_LABEL_HEIGHT` / `CARD_HEIGHT` (carte KPI), `TABLE_HEADER_HEIGHT`
   / `TABLE_ROW_HEIGHT` (tableaux).
-- **Espacements** : `SECTION_SPACING`, `CARD_GAP_COLS`,
-  `CARD_PADDING_LEFT/RIGHT/TOP/BOTTOM`.
+- **Espacements** : `SECTION_SPACING`, `CARD_GAP_COLS`.
 - **Typographie** : `TITLE_FONT_SIZE`, `SUBTITLE_FONT_SIZE`,
   `KPI_LABEL_FONT_SIZE`, `KPI_VALUE_FONT_SIZE`, `TABLE_HEADER_FONT_SIZE`,
   `TABLE_BODY_FONT_SIZE`, `INPUT_FONT_SIZE`, `BUTTON_FONT_SIZE`,

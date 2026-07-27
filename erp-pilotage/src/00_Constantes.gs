@@ -99,10 +99,6 @@ var DESIGN = {
   // Espacements
   SECTION_SPACING: 1,       // lignes vides entre deux sections d'une feuille
   CARD_GAP_COLS: 1,         // colonnes d'espace entre deux cartes KPI
-  CARD_PADDING_LEFT: 10,
-  CARD_PADDING_RIGHT: 10,
-  CARD_PADDING_TOP: 0,
-  CARD_PADDING_BOTTOM: 12,
 
   // Typographie (points)
   TITLE_FONT_SIZE: 20,

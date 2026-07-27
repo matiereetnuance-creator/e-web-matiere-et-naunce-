@@ -3,7 +3,34 @@
 Toutes les versions sont des révisions du même projet Apps Script
 (`erp-pilotage/`), livrées sur la branche `claude/erp-matiere-nuance-1mme8l`.
 
-## V4.1 — Installation en 3 étapes (actuelle)
+## V4.1.1 — Correctif `Range.setPadding()` (actuelle)
+
+Correctif suite au **deuxième retour d'exécution réelle** du projet :
+l'Étape 1/3 de l'installation V4.1 échouait avec `labelRange.set
+HorizontalAlignment(...).setPadding is not a function`.
+`Range.setPadding()` n'existe pas dans l'API `SpreadsheetApp`
+(`Range`) — une méthode inventée par erreur dans `buildKpiCard_()`
+(`01_Utils.gs`), jamais vérifiée contre l'API réelle avant ce retour
+d'exécution. Aucune alternative fidèle n'existe dans l'API de base
+(la marge interne d'une cellule Sheets n'est pas pilotable depuis
+`SpreadsheetApp` ; seule l'API Sheets avancée l'expose, ce qui
+demanderait d'activer un service avancé pour un espacement de
+quelques pixels — jugé hors de proportion). Les deux appels
+`.setPadding(...)` ont donc été supprimés, ainsi que les 4 constantes
+`DESIGN.CARD_PADDING_LEFT/RIGHT/TOP/BOTTOM` (`00_Constantes.gs`)
+devenues orphelines. Impact visuel : négligeable — l'alignement à
+gauche (`setHorizontalAlignment('left')`) est conservé, et l'espace
+entre bordure de carte et texte reste celui, par défaut, du rendu
+Google Sheets.
+
+**Fichiers modifiés** : `01_Utils.gs` (suppression des 2 appels
+`setPadding`), `00_Constantes.gs` (suppression des 4 constantes
+`CARD_PADDING_*` devenues orphelines), `ARCHITECTURE.md` §14,
+`KNOWN_LIMITATIONS.md`.
+**Non modifiés** : aucune autre fonction de `buildKpiCard_()`, aucune
+formule, aucune logique métier.
+
+## V4.1 — Installation en 3 étapes
 
 Correctif suite au **premier retour d'exécution réelle** du projet
 (V4 installée sur un vrai classeur Google Sheets par le client) :
