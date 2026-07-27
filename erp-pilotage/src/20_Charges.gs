@@ -114,7 +114,11 @@ function chargesEquivalentMensuelFormula_() {
  * pixels qui doit être uniforme (V4), pas le nombre de colonnes.
  */
 function buildChargesCartes_(sheet) {
-  var mensuelFormula = avecIferror_('LET(mensuel,' + chargesEquivalentMensuelFormula_() + ',SUM(mensuel))', 0);
+  // V4.1.3 : SUMPRODUCT (déjà utilisé ailleurs dans le projet pour
+  // sommer ce même calcul, ex. Dashboard, 40_Dashboard.gs) plutôt que
+  // LET(...,SUM(...)) — voir 01_Utils.gs, monthlyAmountFormula_, pour
+  // la raison (traduction de locale non fiable pour LET).
+  var mensuelFormula = avecIferror_('SUMPRODUCT(' + chargesEquivalentMensuelFormula_() + ')', 0);
   var valeurMensuelle = buildKpiCard_(sheet, 3, 1, 2, 'CHARGES MENSUELLES', mensuelFormula, FORMAT_EUR, true);
   setNamedRange_(NAMED_RANGES.CHARGES_MENSUELLES, valeurMensuelle);
 

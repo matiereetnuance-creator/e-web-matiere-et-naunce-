@@ -223,6 +223,22 @@ Deux mécanismes distincts, à ne pas confondre :
    générateurs sont exactement ce que le Dashboard appelle pour ses
    propres cartes et sa table cachée.
 
+**Limite importante d'`IFERROR` (V4.1.3)** : `IFERROR` ne rattrape que
+les erreurs d'**évaluation** (`#REF!`, `#N/A`, `#VALUE!`, `#NOM?`,
+division par zéro) — jamais une erreur de **syntaxe** (`#ERROR!`,
+"formule invalide"). Si la formule ne peut pas être analysée du tout,
+`IFERROR` lui-même fait partie de la formule non analysée et ne peut
+rien intercepter. C'est précisément ce qui s'est produit avec
+`LET()` : cette fonction n'était pas retraduite de façon fiable par
+Sheets pour les locales à séparateur `;` (dont le français) lorsque la
+formule est écrite via `setFormula()`/`setFormulas()` — contrairement
+à `SUMPRODUCT`/`IFERROR`/`IF`/`IFS`/`YEAR`/`MONTH`, bien plus anciennes
+et traduites de façon fiable depuis longtemps. `avecIferror_()`
+enveloppait bien ces formules, mais ne pouvait pas les protéger d'une
+erreur de ce type. Toutes les formules du projet ont donc été
+réécrites sans `LET()` (voir CHANGELOG.md V4.1.3) — uniquement des
+fonctions dont la traduction de locale est éprouvée.
+
 **Repli Chantiers** : si une colonne attendue est introuvable,
 `ensureChantiersLinks_()` (`30_Chantiers.gs`) ne laisse jamais une
 plage nommée `CHANTIERS_*` indéfinie — elle la fait pointer vers

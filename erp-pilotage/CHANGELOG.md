@@ -3,7 +3,82 @@
 Toutes les versions sont des révisions du même projet Apps Script
 (`erp-pilotage/`), livrées sur la branche `claude/erp-matiere-nuance-1mme8l`.
 
-## V4.1.2 — Correctif `chartArea.right`/`chartArea.bottom` (actuelle)
+## V4.1.3 — Correctif `LET()` (`#ERROR!`/`#VALUE!` en locale FR, actuelle)
+
+Correctif suite au **quatrième retour d'exécution réelle** du projet :
+installation V4.1.2 terminée avec succès, mais de nombreuses cellules
+affichaient `#ERROR!`/`#VALUE!` (Dashboard, Charges, Prévisionnel,
+Analyse) sur ce classeur en locale Google Sheets FR (séparateur
+d'arguments `;`, décimale `,`).
+
+**Cellules et formules concernées** (identifiées par lecture directe
+du code, pas par supposition) :
+
+| Feuille | Cellule(s) | Généré par | Utilisait `LET()` |
+|---|---|---|---|
+| Dashboard | A4:B4 (`CA RÉALISÉ`, = `DASHBOARD_CA_REALISE`) | `annualAmountFormula_()` | Oui |
+| Dashboard | M4:N4 (`PRÉVISION FIN D'ANNÉE`) | `previsionFormula` (`buildDashboardCartes_`) | Oui |
+| Dashboard | Q2:R13 (table cachée CA mensuel) | `monthlyAmountFormula_()` | Oui |
+| Dashboard | J4:K4 (`AVANCEMENT`) et J10:K10 (`CHARGES FIXES MENSUELLES`) | référencent les cellules ci-dessus | Non, mais en cascade |
+| Charges | A4:B4 (`CHARGES MENSUELLES`, = `CHARGES_MENSUELLES`) | `mensuelFormula` (`buildChargesCartes_`) | Oui |
+| Charges | E4:H4 (`CHARGES ANNUELLES`) | référence la cellule ci-dessus (`×12`) | Non, mais en cascade |
+| Prévisionnel | C4:C15 (`Réalisé`, 12 mois) | `monthlyAmountFormula_()` | Oui |
+| Prévisionnel | D4:D15 (`Ecart`) et ligne Total (C16, D16) | référencent la colonne C ci-dessus | Non, mais en cascade |
+| Analyse | K2:K13 / L2:L13 (table cachée CA/Marge mensuels) | `monthlyAmountFormula_()` | Oui |
+
+**Cause identifiée** : `LET()` est la seule fonction du projet dont la
+liste nom/valeur (séparée par des virgules, ex.
+`LET(d,...,v,...,ex,...,SUMPRODUCT(...))`) n'est pas retraduite de
+façon fiable par Google Sheets pour les locales dont le séparateur
+d'arguments natif est `;` (dont le français), lorsque la formule est
+écrite programmatiquement via `Range.setFormula()`/`setFormulas()`.
+Les fonctions historiques utilisées partout ailleurs dans le projet
+(`SUMPRODUCT`, `IFERROR`, `IF`, `IFS`, `YEAR`, `MONTH`, `SUM`, `MAX`,
+`MIN`, `TODAY`) sont, elles, traduites de façon fiable depuis de
+nombreuses années — c'est pourquoi seules les cellules construites via
+`LET()` sont touchées, jamais les autres. Confirmé par la
+correspondance exacte entre les cellules en erreur et l'usage de
+`LET()` dans le code (4 générateurs de formule au total, tous
+recensés ci-dessus).
+
+- **`monthlyAmountFormula_()` / `annualAmountFormula_()`**
+  (`01_Utils.gs`) : `LET()` supprimé, les plages nommées sont
+  réinjectées directement dans `SUMPRODUCT(...)` (elles étaient déjà
+  la seule abstraction nécessaire — `LET` ne faisait qu'un alias de
+  lisibilité). Résultat de calcul rigoureusement identique.
+- **Dashboard, carte "PRÉVISION FIN D'ANNÉE"** (`40_Dashboard.gs`) :
+  `LET()` supprimé, `debut`/`fin`/`auj`/`ecoule` réinjectés en ligne
+  dans la formule `IFERROR(.../MAX(MIN(...),1),1/365),0)`.
+- **Charges, carte "CHARGES MENSUELLES"** (`20_Charges.gs`) :
+  `LET(mensuel,...,SUM(mensuel))` remplacé par `SUMPRODUCT(...)` —
+  déjà le motif utilisé ailleurs dans le projet (Dashboard) pour
+  sommer ce même calcul ; supprime `LET()` et clarifie l'évaluation en
+  tableau (élimine aussi toute ambiguïté sur le caractère "tableau" du
+  résultat de `IF`/`IFS` en dehors de `SUMPRODUCT`).
+- **Durcissement complémentaire** (`50_Previsionnel.gs`) : le seul
+  littéral décimal restant dans une formule du projet (`*0.1`, règle
+  de mise en forme conditionnelle "objectif dépassé") remplacé par
+  `*(1/10)` — n'était pas la cause des `#ERROR!`/`#VALUE!` rapportés
+  (une règle de mise en forme conditionnelle ne peut jamais afficher de
+  texte d'erreur, seulement un fond de couleur), mais élimine par
+  précaution la dernière construction sensible à la locale du projet.
+
+**Non expliqué par ce correctif** : les 2 formules d'Accueil
+(`B3` = `IFERROR(PARAM_EXERCICE,"—")`, bouton `HYPERLINK(...)`)
+n'utilisent ni `LET()` ni aucune autre construction identifiée comme
+à risque — si des erreurs y persistent après ce correctif, il ne
+s'agit pas de la même cause et la cellule exacte devra être précisée
+pour investigation.
+
+**Fichiers modifiés** : `01_Utils.gs`, `40_Dashboard.gs`,
+`20_Charges.gs`, `50_Previsionnel.gs`, `ARCHITECTURE.md`,
+`KNOWN_LIMITATIONS.md`.
+**Non modifiés** : `60_Analyse.gs`, `85_NouvelExercice.gs` (consomment
+`monthlyAmountFormula_()`/`annualAmountFormula_()` sans les
+redéfinir) ; aucune valeur ni logique métier changée — même résultat
+de calcul dans tous les cas, uniquement la syntaxe de formule.
+
+## V4.1.2 — Correctif `chartArea.right`/`chartArea.bottom`
 
 Correctif suite au **troisième retour d'exécution réelle** du projet :
 l'Étape 2/3 de l'installation échouait avec "L'option graphique n'est

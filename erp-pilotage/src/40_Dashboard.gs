@@ -46,11 +46,10 @@ function buildDashboardCartes_(sheet) {
 
   buildKpiCard_(sheet, row, startCols[3], width, 'CHARGES FIXES MENSUELLES', '=' + NAMED_RANGES.CHARGES_MENSUELLES, FORMAT_EUR, false);
 
-  var previsionFormula = '=LET(debut,' + NAMED_RANGES.DATE_DEBUT +
-    ',fin,' + NAMED_RANGES.DATE_FIN +
-    ',auj,TODAY()' +
-    ',ecoule,MAX(MIN((auj-debut)/(fin-debut),1),1/365)' +
-    ',IFERROR(' + caA1 + '/ecoule,0))';
+  // V4.1.3 : plus de LET() ici (voir 01_Utils.gs, monthlyAmountFormula_)
+  // — "debut"/"fin"/"auj"/"ecoule" réinjectés directement.
+  var previsionFormula = '=IFERROR(' + caA1 + '/MAX(MIN((TODAY()-' + NAMED_RANGES.DATE_DEBUT +
+    ')/(' + NAMED_RANGES.DATE_FIN + '-' + NAMED_RANGES.DATE_DEBUT + '),1),1/365),0)';
   buildKpiCard_(sheet, row, startCols[4], width, 'PRÉVISION FIN D\'ANNÉE', previsionFormula, FORMAT_EUR, true);
 
   sheet.setRowHeight(row, DESIGN.CARD_LABEL_HEIGHT);

@@ -123,7 +123,7 @@ function buildPrevisionnelMiseEnFormeConditionnelle_(sheet) {
   var premiereLigne = PREVISIONNEL_FIRST_ROW;
 
   var regleDepasse = SpreadsheetApp.newConditionalFormatRule()
-    .whenFormulaSatisfied('=$D' + premiereLigne + '>$B' + premiereLigne + '*0.1')
+    .whenFormulaSatisfied('=$D' + premiereLigne + '>$B' + premiereLigne + '*(1/10)')
     .setBackground(COLORS.OBJECTIF_DEPASSE_BG)
     .setRanges([plageEcart])
     .build();

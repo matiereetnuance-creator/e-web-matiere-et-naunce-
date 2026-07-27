@@ -276,7 +276,10 @@ tableur. Concrètement :
 ## Journal des évolutions
 
 Voir **[`CHANGELOG.md`](CHANGELOG.md)** pour l'historique complet.
-En bref : **V4.1.2** (correctif `chartArea.right`/`chartArea.bottom`,
+En bref : **V4.1.3** (correctif `LET()` — cette fonction n'est pas
+retraduite de façon fiable par Sheets pour les locales FR, causant de
+nombreux `#ERROR!`/`#VALUE!` ; réécrit sans `LET()`, même résultat de
+calcul) ; **V4.1.2** (correctif `chartArea.right`/`chartArea.bottom`,
 clés inexistantes dans l'API Google Charts, qui faisaient échouer
 l'Étape 2/3 — aucune logique métier modifiée) ; **V4.1.1** (correctif
 `Range.setPadding()`, méthode inexistante dans l'API Apps Script, qui

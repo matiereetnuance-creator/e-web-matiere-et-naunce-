@@ -242,10 +242,19 @@ function toast_(message, title) {
 }
 
 /**
- * Formule (LET + SUMPRODUCT, protégée par IFERROR) du total d'une
- * valeur Chantiers pour un mois donné de l'exercice en cours. Utilisée
- * par Dashboard, Prévisionnel et Analyse pour éviter toute duplication
- * de logique — la durcir ici (V3) suffit à protéger les trois.
+ * Formule (SUMPRODUCT, protégée par IFERROR) du total d'une valeur
+ * Chantiers pour un mois donné de l'exercice en cours. Utilisée par
+ * Dashboard, Prévisionnel et Analyse pour éviter toute duplication de
+ * logique — la durcir ici (V3) suffit à protéger les trois.
+ *
+ * V4.1.3 : n'utilise plus LET() — la liste nom/valeur de LET n'est pas
+ * traduite de façon fiable par Sheets pour les locales non anglaises
+ * (séparateur d'arguments ";", décimale ",") lorsque la formule est
+ * écrite via l'API (setFormula), contrairement à SUMPRODUCT/IFERROR/
+ * YEAR/MONTH — des fonctions bien plus anciennes dont la traduction de
+ * locale est fiable depuis longtemps. Les plages nommées (déjà la
+ * seule abstraction nécessaire) sont réinjectées directement, sans
+ * alias LET — résultat rigoureusement identique.
  *
  * @param {string} namedValue Plage nommée de la valeur à sommer (ex. CHANTIERS_CA_HT).
  * @param {number} monthIndex 1 (janvier) à 12 (décembre).
@@ -254,24 +263,21 @@ function toast_(message, title) {
  */
 function monthlyAmountFormula_(namedValue, monthIndex, extraCondition) {
   var cond = extraCondition ? '*' + extraCondition : '';
-  var corps = 'LET(d,' + NAMED_RANGES.CHANTIERS_DATE +
-    ',v,' + namedValue +
-    ',ex,' + NAMED_RANGES.EXERCICE +
-    ',SUMPRODUCT((YEAR(d)=ex)*(MONTH(d)=' + monthIndex + ')*v' + cond + '))';
+  var corps = 'SUMPRODUCT((YEAR(' + NAMED_RANGES.CHANTIERS_DATE + ')=' + NAMED_RANGES.EXERCICE +
+    ')*(MONTH(' + NAMED_RANGES.CHANTIERS_DATE + ')=' + monthIndex + ')*' + namedValue + cond + ')';
   return avecIferror_(corps, 0);
 }
 
 /**
  * Même principe que monthlyAmountFormula_ mais sur l'exercice entier
- * (sans filtre de mois).
+ * (sans filtre de mois). Voir monthlyAmountFormula_ pour la raison de
+ * l'absence de LET() depuis la V4.1.3.
  * @return {string} Formule complète (avec "=").
  */
 function annualAmountFormula_(namedValue, extraCondition) {
   var cond = extraCondition ? '*' + extraCondition : '';
-  var corps = 'LET(d,' + NAMED_RANGES.CHANTIERS_DATE +
-    ',v,' + namedValue +
-    ',ex,' + NAMED_RANGES.EXERCICE +
-    ',SUMPRODUCT((YEAR(d)=ex)*v' + cond + '))';
+  var corps = 'SUMPRODUCT((YEAR(' + NAMED_RANGES.CHANTIERS_DATE + ')=' + NAMED_RANGES.EXERCICE + ')*' +
+    namedValue + cond + ')';
   return avecIferror_(corps, 0);
 }
 

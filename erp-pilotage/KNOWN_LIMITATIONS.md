@@ -55,12 +55,35 @@
   `width`, `height` sont valides), révélé par l'échec réel de l'Étape
   2/3 ("L'option graphique n'est plus compatible : chartArea.bottom").
   Corrigé en `width`/`height` en pourcentage (voir CHANGELOG.md,
-  ARCHITECTURE.md §15). Deux erreurs de la même famille (méthode/clé
-  d'API inventée, non détectable par une vérification de syntaxe) sur
-  les deux premières exécutions réelles du projet — renforce l'idée
-  qu'une revue par un compte Google test avant chaque livraison reste
-  la seule vérification fiable des appels d'API Apps Script/Google
-  Charts.
+  ARCHITECTURE.md §15).
+- **Troisième cas confirmé (V4.1.3)** : `LET()`, utilisée dans 4
+  générateurs de formule (`monthlyAmountFormula_()`,
+  `annualAmountFormula_()`, la carte "PRÉVISION FIN D'ANNÉE" du
+  Dashboard, la carte "CHARGES MENSUELLES" de Charges), n'est pas
+  retraduite de façon fiable par Google Sheets pour les locales dont
+  le séparateur d'arguments natif est `;` (dont le français) lorsque
+  la formule est écrite via `setFormula()`/`setFormulas()` — d'où de
+  nombreux `#ERROR!`/`#VALUE!` sur un classeur en locale FR (Dashboard,
+  Charges, Prévisionnel, Analyse), révélés par l'installation réelle
+  V4.1.2. `avecIferror_()` ne pouvait pas protéger ces cellules : une
+  erreur de syntaxe (`#ERROR!`) empêche l'analyse de la formule
+  entière, `IFERROR` inclus (voir ARCHITECTURE.md §9). Corrigé en
+  réécrivant les 4 formules sans `LET()`, avec uniquement des
+  fonctions dont la traduction de locale est éprouvée depuis longtemps
+  (`SUMPRODUCT`, `IF`, `IFS`, `YEAR`, `MONTH`, `MAX`, `MIN`, `TODAY`) —
+  voir CHANGELOG.md. **Aucune autre fonction récente de la famille
+  LAMBDA (`LAMBDA`, `MAP`, `REDUCE`, `BYROW`, `BYCOL`, `SCAN`,
+  `MAKEARRAY`) n'est utilisée dans le projet** — vérifié par recherche
+  exhaustive dans `src/*.gs` ; `LET()` était la seule.
+
+  Trois erreurs de la même famille (construction d'API/formule non
+  détectable par une vérification de syntaxe JavaScript, uniquement
+  révélée par l'exécution réelle sur un vrai classeur) en trois
+  installations consécutives — renforce l'idée qu'une revue par un
+  compte Google test avant chaque livraison reste la seule
+  vérification fiable des appels d'API Apps Script/Google Sheets et de
+  la syntaxe de formule réellement interprétée par le moteur de calcul
+  (par opposition à sa seule syntaxe JavaScript de construction).
 - **Limite d'exécution de 6 minutes — confirmée en conditions réelles
   (V4.1).** Le premier retour d'exécution réelle du projet (V4
   installée par le client sur un vrai classeur) a montré que
