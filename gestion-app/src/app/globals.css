@@ -1,0 +1,78 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html,
+  body {
+    height: 100%;
+  }
+
+  body {
+    @apply bg-mn-bg text-mn-ink antialiased;
+    letter-spacing: -0.003em;
+  }
+
+  ::selection {
+    background: rgba(120, 104, 78, 0.18);
+  }
+
+  a {
+    @apply text-mn-muted-4;
+  }
+  a:hover {
+    opacity: 0.75;
+  }
+
+  ::-webkit-scrollbar {
+    width: 11px;
+    height: 11px;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: #ded6c7;
+    border-radius: 9px;
+    border: 3px solid #f4f0e9;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: #cdc3b0;
+  }
+}
+
+@layer utilities {
+  .font-serif-display {
+    font-family: 'Cormorant Garamond', Georgia, serif;
+    letter-spacing: 0;
+  }
+
+  .tnum {
+    font-family: 'Lora', Georgia, serif;
+    letter-spacing: 0;
+    font-variant-numeric: tabular-nums;
+    font-feature-settings: 'tnum';
+    font-weight: 500 !important;
+    white-space: nowrap;
+  }
+
+  .lbl {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.13em;
+    text-transform: uppercase;
+    color: #a79c88;
+  }
+}
+
+@keyframes fadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.animate-fade-up {
+  animation: fadeUp 0.34s ease;
+}
