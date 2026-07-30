@@ -39,7 +39,10 @@ export function Table<T>({ columns, rows, getRowKey, showFooter = false }: Table
         </thead>
         <tbody>
           {rows.map((row, index) => (
-            <tr key={getRowKey(row, index)} className="border-b border-mn-row-border last:border-0">
+            <tr
+              key={getRowKey(row, index)}
+              className="border-b border-mn-row-border transition-colors duration-150 last:border-0 hover:bg-mn-table-head"
+            >
               {columns.map((column) => (
                 <td
                   key={column.key}

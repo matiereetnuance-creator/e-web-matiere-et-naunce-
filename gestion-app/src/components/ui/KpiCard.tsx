@@ -21,7 +21,7 @@ export function KpiCard({ icon, label, value, trend, accent = false, className }
   return (
     <div
       className={cn(
-        'rounded-card border p-6 pb-[22px] shadow-card',
+        'card-hover rounded-card border p-6 pb-[22px] shadow-card',
         accent ? 'bg-mn-card-alt border-mn-card-alt-border' : 'bg-mn-card border-mn-card-border',
         className,
       )}

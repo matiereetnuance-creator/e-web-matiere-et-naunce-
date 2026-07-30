@@ -31,7 +31,9 @@ export function Sidebar({ userLabel }: SidebarProps) {
               href={item.href}
               className={cn(
                 'flex w-full items-center gap-3.5 rounded-control px-3.5 py-2.5 font-sans text-[14.5px] transition-all duration-150',
-                active ? 'bg-mn-sidebar-active font-semibold text-mn-ink' : 'font-medium text-mn-muted-4',
+                active
+                  ? 'bg-mn-sidebar-active font-semibold text-mn-ink'
+                  : 'font-medium text-mn-muted-4 hover:bg-mn-sidebar-active/50 hover:text-mn-ink',
               )}
             >
               <Icon />

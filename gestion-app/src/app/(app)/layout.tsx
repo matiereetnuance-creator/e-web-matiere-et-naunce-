@@ -1,6 +1,7 @@
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 import { Header } from '@/components/layout/Header';
+import { PageTransition } from '@/components/layout/PageTransition';
 import { Sidebar } from '@/components/layout/Sidebar';
 import { ToastProvider } from '@/components/ui/Toast';
 import { SESSION_COOKIE_NAME, verifySessionToken } from '@/lib/session';
@@ -21,8 +22,8 @@ export default async function AppLayout({ children }: { children: React.ReactNod
         <Sidebar userLabel={displayName} />
         <main className="flex min-w-0 flex-1 flex-col">
           <Header greeting={`Bonjour ${displayName}`} />
-          <div key="app-content" className="animate-fade-up px-12 pb-[52px] pt-6">
-            {children}
+          <div className="px-12 pb-[52px] pt-6">
+            <PageTransition>{children}</PageTransition>
           </div>
         </main>
       </div>

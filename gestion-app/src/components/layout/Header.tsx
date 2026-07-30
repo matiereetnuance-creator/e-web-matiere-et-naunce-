@@ -31,7 +31,7 @@ export function Header({ greeting }: HeaderProps) {
       <div className="flex items-center gap-3 pt-1.5">
         <button
           type="button"
-          className="flex items-center gap-2.5 rounded-control border border-mn-border bg-mn-card px-[15px] py-[11px] font-sans text-[13.5px] font-semibold text-mn-ink-2 shadow-control"
+          className="flex items-center gap-2.5 rounded-control border border-mn-border bg-mn-card px-[15px] py-[11px] font-sans text-[13.5px] font-semibold text-mn-ink-2 shadow-control transition-colors duration-150 hover:bg-mn-card-alt"
         >
           <svg width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="#A79C88" strokeWidth="1.6">
             <rect x="3" y="4.5" width="14" height="12.5" rx="2.5" />
@@ -46,7 +46,7 @@ export function Header({ greeting }: HeaderProps) {
         <button
           type="button"
           aria-label="Notifications"
-          className="flex h-11 w-11 flex-none items-center justify-center rounded-control border border-mn-border bg-mn-card text-mn-muted shadow-control"
+          className="flex h-11 w-11 flex-none items-center justify-center rounded-control border border-mn-border bg-mn-card text-mn-muted shadow-control transition-colors duration-150 hover:bg-mn-card-alt"
         >
           <svg width="18" height="18" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.6">
             <path d="M10 3a3.2 3.2 0 0 0-3.2 3.2c0 3-1.3 4-2 4.8h10.4c-.7-.8-2-1.8-2-4.8A3.2 3.2 0 0 0 10 3Z" />

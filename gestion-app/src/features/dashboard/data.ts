@@ -9,6 +9,26 @@ export const dashboardKpis = {
   chargesDuMois: { value: '12 540 €', trendValue: '3,4 %' },
 };
 
+export const caEvolutionCategories = [
+  'Janv.', 'Fév.', 'Mars', 'Avr.', 'Mai', 'Juin', 'Juil.', 'Août', 'Sept.', 'Oct.', 'Nov.', 'Déc.',
+];
+
+export const caEvolutionMax = 1250000;
+export const caEvolutionYAxisLabels = ['1 250 k€', '1 000 k€', '750 k€', '500 k€', '250 k€', '0 €'];
+
+// Point de bascule réalisé → projeté : août (index 7), cohérent avec
+// dashboardKpis.caRealise ci-dessus (même valeur).
+export const caEvolutionRealise: Array<number | null> = [
+  210000, 265000, 320000, 385000, 455000, 530000, 640000, 842560, null, null, null, null,
+];
+export const caEvolutionProjection: Array<number | null> = [
+  null, null, null, null, null, null, null, 842560, 900000, 970000, 1050000, 1150000,
+];
+// Rythme linéaire à tenir pour atteindre l'objectif annuel (1 250 k€) — 2 points suffisent, le tracé relie le premier et le dernier point défini.
+export const caEvolutionObjectif: Array<number | null> = [
+  0, null, null, null, null, null, null, null, null, null, null, caEvolutionMax,
+];
+
 export const chargesRepartition = [
   { label: 'Fournitures', pct: 32.1 },
   { label: 'Véhicules', pct: 18.4 },

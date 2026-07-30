@@ -60,6 +60,12 @@
     text-transform: uppercase;
     color: #a79c88;
   }
+
+  /* Survol cohérent de toutes les cartes (KPI, graphiques, tableaux) —
+     un seul endroit qui définit "à quoi ressemble le survol d'une carte". */
+  .card-hover {
+    @apply transition-shadow duration-200 hover:shadow-popover;
+  }
 }
 
 @keyframes fadeUp {
@@ -73,6 +79,24 @@
   }
 }
 
-.animate-fade-up {
-  animation: fadeUp 0.34s ease;
+/*
+ * Animations — très sobres, cohérentes sur tout le logiciel :
+ * - .animate-fade-up : apparition douce (cartes au chargement, transition de page).
+ * - .stagger-children > * : léger décalage (60ms) entre les cartes d'une même grille.
+ * Respecte prefers-reduced-motion (aucune animation si l'utilisateur la désactive).
+ */
+@media (prefers-reduced-motion: no-preference) {
+  .animate-fade-up {
+    animation: fadeUp 0.36s ease both;
+  }
+
+  .stagger-children > * {
+    animation: fadeUp 0.36s ease both;
+  }
+  .stagger-children > *:nth-child(1) { animation-delay: 0ms; }
+  .stagger-children > *:nth-child(2) { animation-delay: 45ms; }
+  .stagger-children > *:nth-child(3) { animation-delay: 90ms; }
+  .stagger-children > *:nth-child(4) { animation-delay: 135ms; }
+  .stagger-children > *:nth-child(5) { animation-delay: 180ms; }
+  .stagger-children > *:nth-child(6) { animation-delay: 225ms; }
 }

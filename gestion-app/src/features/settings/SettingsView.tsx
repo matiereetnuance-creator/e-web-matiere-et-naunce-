@@ -3,8 +3,8 @@ import { hypotheses, objectifs, preferencesAffichage } from './data';
 
 export function SettingsView() {
   return (
-    <div className="grid max-w-[1000px] grid-cols-2 gap-5">
-      <div className="rounded-card border border-mn-card-border bg-mn-card p-[26px] px-7 shadow-card">
+    <div className="stagger-children grid max-w-[1000px] grid-cols-2 gap-5">
+      <div className="card-hover rounded-card border border-mn-card-border bg-mn-card p-[26px] px-7 shadow-card">
         <div className="font-serif-display text-[22px] font-semibold">Objectifs</div>
         <div className="mt-5 flex flex-col gap-4">
           {objectifs.map((champ) => (
@@ -13,7 +13,7 @@ export function SettingsView() {
         </div>
       </div>
 
-      <div className="rounded-card border border-mn-card-border bg-mn-card p-[26px] px-7 shadow-card">
+      <div className="card-hover rounded-card border border-mn-card-border bg-mn-card p-[26px] px-7 shadow-card">
         <div className="font-serif-display text-[22px] font-semibold">Hypothèses de calcul</div>
         <div className="mt-5 flex flex-col gap-4">
           {hypotheses.map((champ) => (
@@ -22,7 +22,7 @@ export function SettingsView() {
         </div>
       </div>
 
-      <div className="rounded-card border border-mn-card-border bg-mn-card p-[26px] px-7 shadow-card">
+      <div className="card-hover rounded-card border border-mn-card-border bg-mn-card p-[26px] px-7 shadow-card">
         <div className="font-serif-display text-[22px] font-semibold">Affichage</div>
         <div className="mt-3.5 flex flex-col gap-1">
           {preferencesAffichage.map((pref, index) => (

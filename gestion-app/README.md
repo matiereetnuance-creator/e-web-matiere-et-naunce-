@@ -69,9 +69,10 @@ maquette.
 
 - Next.js 15 (App Router), React 19, TypeScript strict.
 - Tailwind CSS 3 — design tokens dans `tailwind.config.ts`.
-- Aucune bibliothèque de graphiques : les visualisations (courbe,
-  donut, barres) sont du SVG/CSS pur, reproduisant exactement les
-  visuels de la maquette (aucune dépendance ajoutée non demandée).
+- Aucune bibliothèque de graphiques ni d'animation : les visualisations
+  (courbe, donut, barres) sont du SVG/CSS pur via `src/components/charts/`,
+  et les animations sont des transitions/keyframes CSS natives — aucune
+  dépendance ajoutée non demandée.
 
 ## Structure (architecture orientée fonctionnalités, Blueprint §4/§7)
 
@@ -81,11 +82,55 @@ src/
 ├── features/                Composition par module métier (dashboard, chantiers, charges, finance, analyses, settings)
 ├── components/
 │   ├── ui/                  Design system réutilisable (Button, Input, KpiCard, Table, Modal, Badge, Toast)
-│   └── layout/              Sidebar, Header, icônes de navigation
-├── lib/                     session, format, charts, nav, cn, env, user
+│   ├── charts/               ChartCard, LineChart, BarChart, DonutChart, PeriodChip — un seul jeu de composants pour tous les graphiques
+│   └── layout/              Sidebar, Header, PageTransition, icônes de navigation
+├── lib/                     session, format, charts (palette + conic-gradient), nav, cn, env, user
 ├── services/                Moteur de calcul (ex. chantiers.ts) — jamais dans Google Sheets
 └── types/                    Types partagés
 ```
+
+## Système de graphiques (préparation avant Sprint 2)
+
+Les graphiques ad hoc de Dashboard/Charges/Analyses ont été extraits en
+4 composants réutilisables dans `src/components/charts/` :
+
+- `ChartCard` — carte hôte commune (titre, action, légende textuelle).
+- `LineChart` — courbes pilotées par des valeurs (pas de tracé SVG en
+  dur) : plusieurs séries, callout, axe des Y, légende.
+- `BarChart` — barres verticales, série unique à couleur par barre
+  (Charges) ou séries groupées avec légende (Analyses).
+- `DonutChart` — anneau conique + centre optionnel + légende optionnelle.
+- `PeriodChip` — le bouton "Cette année" répété sur plusieurs cartes.
+
+**Écart assumé et documenté** : la ligne "Objectif annuel" du graphique
+Dashboard (auparavant un tracé décoratif dessiné à la main) est
+désormais une vraie série de données (rythme linéaire pour atteindre
+l'objectif annuel), cohérente avec le nouveau modèle "tout est piloté
+par des valeurs". L'angle visuel de cette ligne diffère donc légèrement
+de la maquette d'origine — le style (couleur, pointillés) reste
+identique. Vérifié par capture d'écran : aucune autre différence
+visuelle sur les 3 pages refactorées.
+
+## Animations (préparation avant Sprint 2)
+
+Très sobres, cohérentes sur tout le logiciel, respectent
+`prefers-reduced-motion` :
+
+- **Apparition douce** : `.animate-fade-up` (globals.css) sur le
+  contenu de chaque page ; `.stagger-children` (léger décalage de 45ms)
+  uniquement sur les grilles de cartes KPI (Dashboard, Santé
+  financière, Paramètres) — pas sur les cartes de graphiques, pour
+  éviter une animation trop chargée.
+- **Transition de page** : `PageTransition` (`components/layout`)
+  reclenche le fade à chaque navigation (clé React = chemin de la
+  route).
+- **Survol cohérent** : une seule classe `.card-hover` (ombre plus
+  marquée) appliquée à toutes les cartes (KPI, graphiques, tableaux) ;
+  boutons secondaires et lignes de tableau ont un fond au survol
+  cohérent avec le composant `Button`.
+
+Aucune bibliothèque d'animation ajoutée (Framer Motion, etc.) —
+transitions CSS natives, conformément à "simplicité avant complexité".
 
 ## Démarrage local
 
@@ -125,3 +170,12 @@ npm run dev
 
 Tout ceci est le contenu attendu du Sprint 2 (branchement Google
 Sheets, moteur de calcul complet, persistance des paramètres).
+
+**Non-critique, signalé plutôt que corrigé silencieusement** : quelques
+boutons secondaires ("Filtrer" sur Chantiers, "Voir tous" sur
+Dashboard) restent écrits en JSX brut avec des classes dupliquant le
+style du composant `Button` (variante secondaire), plutôt que d'utiliser
+`<Button variant="secondary">` directement. Le survol est cohérent
+partout (corrigé dans cette passe), mais l'unification complète de ces
+boutons vers le composant partagé n'a pas été faite — petit nettoyage
+possible dans une prochaine passe.

@@ -13,7 +13,7 @@ export default async function LoginPage() {
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-mn-bg px-6">
-      <div className="w-full max-w-md rounded-card border border-mn-card-border bg-mn-card p-10 shadow-card">
+      <div className="animate-fade-up w-full max-w-md rounded-card border border-mn-card-border bg-mn-card p-10 shadow-card">
         <div className="flex flex-col items-center text-center">
           <Image src="/logo-noir.png" alt="Matière & Nuance" width={186} height={42} priority />
           <h1 className="font-serif-display mt-8 text-[30px] font-semibold text-mn-ink">Gestion</h1>

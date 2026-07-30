@@ -56,13 +56,13 @@ export function ChantiersView() {
   });
 
   return (
-    <div className="overflow-hidden rounded-card border border-mn-card-border bg-mn-card shadow-card">
+    <div className="card-hover overflow-hidden rounded-card border border-mn-card-border bg-mn-card shadow-card">
       <div className="flex items-center gap-3 px-[26px] pb-[18px] pt-[22px]">
         <div className="font-serif-display text-[20px] font-semibold">{rows.length} chantiers terminés</div>
         <div className="flex-1" />
         <button
           type="button"
-          className="flex items-center gap-[7px] rounded-sm2 border border-mn-soft-border bg-mn-soft px-[13px] py-2.5 text-[13px] font-semibold text-mn-muted-4"
+          className="flex items-center gap-[7px] rounded-sm2 border border-mn-soft-border bg-mn-soft px-[13px] py-2.5 text-[13px] font-semibold text-mn-muted-4 transition-colors duration-150 hover:bg-mn-card-alt"
         >
           <svg width="15" height="15" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round">
             <path d="M3 5.5h14M6 10h8M9 14.5h2" />

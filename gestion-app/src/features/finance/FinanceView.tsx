@@ -47,12 +47,12 @@ export function FinanceView() {
         </div>
       </div>
 
-      <div className="grid grid-cols-3 gap-5">
+      <div className="stagger-children grid grid-cols-3 gap-5">
         {santeCartes.map((carte) => (
           <div
             key={carte.label}
             className={cn(
-              'rounded-card border p-[26px] shadow-card',
+              'card-hover rounded-card border p-[26px] shadow-card',
               carte.accent ? 'bg-mn-card-alt border-mn-card-alt-border' : 'bg-mn-card border-mn-card-border',
             )}
           >
