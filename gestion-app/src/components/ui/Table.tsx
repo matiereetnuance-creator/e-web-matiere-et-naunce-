@@ -41,7 +41,7 @@ export function Table<T>({ columns, rows, getRowKey, showFooter = false }: Table
           {rows.map((row, index) => (
             <tr
               key={getRowKey(row, index)}
-              className="border-b border-mn-row-border transition-colors duration-150 last:border-0 hover:bg-mn-table-head"
+              className="group border-b border-mn-row-border transition-colors duration-150 last:border-0 hover:bg-mn-table-head"
             >
               {columns.map((column) => (
                 <td

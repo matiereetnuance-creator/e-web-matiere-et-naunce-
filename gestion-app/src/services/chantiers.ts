@@ -31,7 +31,9 @@ export function computeChantiersTotals(rows: ChantierComputed[]): ChantierComput
   const jours = sum('jours');
 
   return {
+    id: 'total',
     client: 'Total',
+    nomChantier: 'Total',
     prixVenduHT,
     fournituresHT,
     sousTraitantHT,

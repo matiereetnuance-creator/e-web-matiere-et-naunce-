@@ -179,3 +179,75 @@ style du composant `Button` (variante secondaire), plutôt que d'utiliser
 partout (corrigé dans cette passe), mais l'unification complète de ces
 boutons vers le composant partagé n'a pas été faite — petit nettoyage
 possible dans une prochaine passe.
+
+## Sprint 2 — CRUD complet des Chantiers
+
+Création, modification, suppression (avec confirmation), colonnes
+dérivées toujours calculées automatiquement — jamais saisies. Le
+tableau Chantiers (11 colonnes validées au Sprint 1) n'a pas changé de
+structure.
+
+- **Drawer** (`components/ui/Drawer.tsx`) — nouveau composant
+  réutilisable : panneau latéral droit, 560px, pleine hauteur, fond
+  blanc, sans arrondi (aucun autre composant du Design System n'utilise
+  de coin arrondi d'un seul côté), fermeture par croix ou Échap. Réservé
+  à Créer/Modifier ; `Modal` reste réservée aux confirmations
+  (suppression).
+- **Actions discrètes** : pas de colonne "Actions" permanente. Un
+  menu **⋯** par ligne, invisible au repos, révélé au survol de la
+  ligne (ou au focus clavier) — "Modifier" / "Supprimer".
+- **`nomChantier`** : nouveau champ métier confirmé par le client,
+  saisi dans le drawer et stocké dans le modèle, **volontairement
+  absent du tableau** pour cette V1 (usage prévu : recherche/évolutions
+  futures). Les 8 chantiers d'exemple existants ont été initialisés
+  avec `nomChantier = client` (donnée historique, pas de vraie valeur
+  distincte disponible).
+- **Repository en mémoire** (`services/chantiers-repository.ts`) :
+  `listChantiers`/`getChantier`/`createChantier`/`updateChantier`/`deleteChantier`.
+  Le moteur de calcul (`services/chantiers.ts`) n'a pas été touché, à
+  une exception près : `computeChantiersTotals()` construit une ligne
+  "Total" synthétique qui doit maintenant fournir `id`/`nomChantier`
+  pour respecter le type — deux constantes ajoutées (`'total'`/`'Total'`),
+  **aucun calcul modifié**.
+- **Bug réel trouvé et corrigé pendant ce sprint** : un stockage en
+  mémoire via une simple variable de module (`let chantiers = [...]`)
+  ne fonctionne pas de façon fiable avec les Server Actions Next.js en
+  production — confirmé par test réel (une création était invisible
+  après rafraîchissement, alors que l'action elle-même la voyait). Next.js
+  peut regrouper Server Actions et Server Components dans des graphes de
+  modules distincts, chacun avec sa propre instance de `let`. Corrigé en
+  stockant l'état sur `globalThis` (singleton réellement partagé pour tout
+  le process Node) — solution standard pour ce problème connu, toujours
+  "en mémoire", aucune dépendance ajoutée.
+
+### Ce qui n'a volontairement pas été modifié
+- `services/chantiers.ts` (moteur de calcul) — sauf les 2 constantes
+  ci-dessus.
+- Le Design System, la charte graphique, les composants existants.
+- La structure du tableau Chantiers (toujours 11 colonnes).
+- Le bouton "Filtrer" (inchangé, toujours non fonctionnel).
+
+### Limites connues
+- **Persistance non durable** : les données créées/modifiées vivent en
+  RAM du process serveur — perdues au redémarrage, partagées
+  globalement (pas de séparation par utilisateur, cohérent avec
+  l'authentification à un seul compte du Sprint 1).
+- **Validation manuelle** (champs requis, nombres ≥ 0), pas de
+  bibliothèque de schéma — suffisant pour ce sprint, mais moins robuste
+  qu'une validation par schéma si les règles se complexifient.
+- `nomChantier` n'est ni recherchable ni filtrable pour l'instant
+  (stocké mais pas exploité ailleurs que dans le drawer).
+
+### Impact sur les prochains sprints
+- Le repository (`chantiers-repository.ts`) isole déjà l'accès aux
+  données derrière des fonctions simples : le sprint de connexion à
+  Google Sheets devra remplacer son implémentation interne, pas les
+  Server Actions ni l'UI.
+- Le contournement `globalThis` reste une solution "mémoire unique
+  process" : elle ne résout pas la cohérence entre plusieurs instances
+  serveur (déploiement multi-instance/serverless). C'est un argument de
+  plus pour brancher un vrai stockage (Google Sheets ou base de
+  données) dès que possible.
+- Si `nomChantier` doit un jour apparaître dans le tableau ou servir de
+  critère de recherche, la colonne pourra être ajoutée sans reprendre le
+  drawer (déjà en place).
