@@ -1,52 +1,57 @@
 import Link from 'next/link';
-import { ChartCard, DonutChart, LineChart, PeriodChip } from '@/components/charts';
+import { ChartCard, DonutChart, PeriodChip } from '@/components/charts';
 import { KpiCard } from '@/components/ui/KpiCard';
-import {
-  caEvolutionCategories,
-  caEvolutionMax,
-  caEvolutionObjectif,
-  caEvolutionProjection,
-  caEvolutionRealise,
-  caEvolutionYAxisLabels,
-  chantiersRentables,
-  chargesRepartition,
-  dashboardKpis,
-  pointsAttention,
-} from './data';
+import { computeChantier } from '@/services/chantiers';
+import { listChantiers } from '@/services/chantiers-repository';
+import { computeCharge } from '@/services/charges';
+import { listCharges } from '@/services/charges-repository';
+import { computeDashboardData } from '@/services/dashboard';
 import { AttentionNeutralIcon, AttentionWarningIcon, CaIcon, ChargesMoisIcon, ChevronRightIcon, MargeIcon, ResultatIcon } from './icons';
 
-export function DashboardView() {
+export async function DashboardView() {
+  const chantiers = listChantiers().map(computeChantier);
+  const charges = listCharges().map(computeCharge);
+  const data = computeDashboardData(chantiers, charges);
+
   return (
     <div className="flex flex-col gap-5">
       <div className="stagger-children grid grid-cols-4 gap-5">
-        <KpiCard icon={<CaIcon />} label="Chiffre d'affaires réalisé" value={dashboardKpis.caRealise.value} trend={{ value: dashboardKpis.caRealise.trendValue, direction: 'up', comparisonLabel: 'vs N-1' }} />
-        <KpiCard icon={<MargeIcon />} label="Marge moyenne" value={dashboardKpis.margeMoyenne.value} trend={{ value: dashboardKpis.margeMoyenne.trendValue, direction: 'up', comparisonLabel: 'vs N-1' }} />
-        <KpiCard icon={<ResultatIcon />} label="Résultat prévisionnel" value={dashboardKpis.resultatPrevisionnel.value} trend={{ value: dashboardKpis.resultatPrevisionnel.trendValue, direction: 'up', comparisonLabel: 'vs N-1' }} />
-        <KpiCard icon={<ChargesMoisIcon />} label="Charges du mois" value={dashboardKpis.chargesDuMois.value} trend={{ value: dashboardKpis.chargesDuMois.trendValue, direction: 'down', comparisonLabel: 'vs N-1' }} />
+        <KpiCard
+          icon={<CaIcon />}
+          label="Chiffre d'affaires réalisé"
+          value={data.kpis.caRealise.value}
+          trend={{ value: data.kpis.caRealise.trendValue, direction: 'up', comparisonLabel: 'vs N-1' }}
+        />
+        <KpiCard
+          icon={<MargeIcon />}
+          label="Marge moyenne"
+          value={data.kpis.margeMoyenne.value}
+          trend={{ value: data.kpis.margeMoyenne.trendValue, direction: 'up', comparisonLabel: 'vs N-1' }}
+        />
+        <KpiCard
+          icon={<ResultatIcon />}
+          label="Résultat prévisionnel"
+          value={data.kpis.resultatPrevisionnel.value}
+          trend={{ value: data.kpis.resultatPrevisionnel.trendValue, direction: 'up', comparisonLabel: 'vs N-1' }}
+        />
+        <KpiCard
+          icon={<ChargesMoisIcon />}
+          label="Charges du mois"
+          value={data.kpis.chargesDuMois.value}
+          trend={{ value: data.kpis.chargesDuMois.trendValue, direction: 'down', comparisonLabel: 'vs N-1' }}
+        />
       </div>
 
       <div className="grid grid-cols-[1.55fr_1fr] gap-5">
         <ChartCard title="Évolution du chiffre d'affaires" action={<PeriodChip label="Cette année" />}>
-          <LineChart
-            categories={caEvolutionCategories}
-            maxValue={caEvolutionMax}
-            yAxisLabels={caEvolutionYAxisLabels}
-            series={[
-              { values: caEvolutionRealise, color: '#211E19' },
-              { values: caEvolutionProjection, color: '#C3B597', dashed: true },
-              { values: caEvolutionObjectif, color: '#B9AF98', dashed: true, strokeWidth: 1.6 },
-            ]}
-            callout={{ seriesIndex: 0, index: 7, value: dashboardKpis.caRealise.value, caption: 'réalisé à ce jour' }}
-            legend={[
-              { label: 'CA réalisé', color: '#211E19', style: 'solid' },
-              { label: 'CA en cours', color: '#B98A3E', style: 'dashed' },
-              { label: 'Objectif annuel', color: '#B3A992', style: 'dotted' },
-            ]}
-          />
+          <div className="flex h-[262px] flex-col items-center justify-center gap-1.5 text-center">
+            <span className="text-[14px] font-semibold text-mn-ink-3">Données indisponibles</span>
+            <span className="max-w-[320px] text-[12.5px] font-medium text-mn-muted-2">{data.caEvolutionIndisponibleRaison}</span>
+          </div>
         </ChartCard>
 
         <ChartCard title="Répartition des charges" action={<PeriodChip label="Cette année" />}>
-          <DonutChart segments={chargesRepartition} legend className="mt-[22px]" />
+          <DonutChart segments={data.chargesRepartition} legend className="mt-[22px]" />
         </ChartCard>
       </div>
 
@@ -65,7 +70,7 @@ export function DashboardView() {
             <span className="lbl text-right">Marge %</span>
             <span className="lbl text-right">€/Jour</span>
           </div>
-          {chantiersRentables.map((row) => (
+          {data.chantiersRentables.map((row) => (
             <div key={row.client} className="grid grid-cols-[2.2fr_1fr_1fr_1fr_1fr] items-center border-b border-mn-row-border px-0.5 py-3.5 transition-colors duration-150 last:border-0 hover:bg-mn-table-head">
               <span className="text-[14px] font-semibold">{row.client}</span>
               <span className="text-[13.5px] font-medium text-mn-muted">{row.type}</span>
@@ -84,7 +89,7 @@ export function DashboardView() {
             </button>
           </div>
           <div className="mt-3.5 flex flex-col gap-1.5">
-            {pointsAttention.map((point) => (
+            {data.pointsAttention.map((point) => (
               <div key={point.title} className="flex items-center gap-3.5 border-b border-mn-row-border py-3.5 px-1.5 transition-colors duration-150 last:border-0 hover:bg-mn-table-head">
                 <div
                   className={`flex h-[38px] w-[38px] flex-none items-center justify-center rounded-sm2 ${

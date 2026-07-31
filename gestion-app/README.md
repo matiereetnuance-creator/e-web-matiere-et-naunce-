@@ -307,3 +307,85 @@ jamais saisis directement.
   par catégorie, évolution mensuelle), sans dépendance nouvelle.
 - Même repository/pattern que Chantiers : le sprint Google Sheets
   pourra traiter les deux modules de façon symétrique.
+
+## Sprint 4 — Dashboard dynamique
+
+Objectif : remplacer les données fictives du Dashboard par les données
+réelles des modules Chantiers/Charges, sans aucune modification visuelle
+(Design System, cartes, graphiques, mise en page inchangés).
+
+- **Source unique de vérité** : `services/dashboard.ts` (nouveau). Toute
+  la logique de calcul/regroupement du Dashboard y est centralisée ;
+  `DashboardView.tsx` ne fait plus que lire les repositories et afficher
+  ce que `computeDashboardData()` renvoie — aucune logique métier dans
+  la vue. Ce moteur ne fait que composer les sorties déjà calculées par
+  `chantiers.ts`/`charges.ts` (`computeChantiersTotals`, `margeNiveau`),
+  jamais de nouvelle formule financière.
+- **Chiffre d'affaires réalisé** = `computeChantiersTotals().prixVenduHT`.
+- **Marge moyenne** = `computeChantiersTotals().margePct`.
+- **Résultat prévisionnel** : **reste sur la valeur d'exemple Sprint 1**
+  (`146 850 €` / `24,1 %`), à la demande explicite du client — aucune
+  formule n'a été validée pour ce KPI. À reprendre dès qu'une formule
+  métier sera définie (voir `RESULTAT_PREVISIONNEL_PLACEHOLDER` dans
+  `services/dashboard.ts`).
+- **Charges du mois** = somme du Montant HT des charges **actives**
+  dont la date tombe dans le mois civil en cours. Lecture littérale du
+  champ `date` existant : aucune projection des charges récurrentes
+  (Mensuelle/Trimestrielle/Annuelle) sur les mois futurs n'est faite.
+  **Avec les données de départ (toutes datées 2024), ce KPI affichera
+  0 € tant qu'aucune charge n'est saisie avec une date dans le mois
+  réel en cours** — comportement attendu, pas un bug.
+- **Répartition des charges** (donut) = regroupement des charges
+  actives par catégorie, pourcentage du Montant HT total.
+- **Chantiers les plus rentables** = les 5 chantiers triés par
+  `margePct` décroissant. Colonne **Type** : affichée `—` (aucun champ
+  correspondant dans `ChantierInput` — pas de valeur inventée, à la
+  demande du client).
+- **Points d'attention** : réutilise `margeNiveau()` (seuils déjà
+  validés au Sprint 1) pour lister les chantiers en marge faible
+  (< 40 %) au lieu des exemples fictifs précédents. Affiche un état
+  "Aucun point d'attention" si aucun chantier n'est concerné (pour ne
+  pas laisser la carte vide).
+- **Évolution du chiffre d'affaires** : le graphique (`ChartCard`) est
+  conservé, mais **n'affiche plus aucune donnée fictive**. Les
+  chantiers n'ayant pas de champ date, une répartition mensuelle réelle
+  est impossible à calculer ; la carte affiche un état vide explicite
+  ("Données indisponibles : les chantiers ne renseignent pas encore de
+  date…"). Ajouter un champ date serait un changement de schéma —
+  cf. règle du projet sur les changements de structure de contenu, à
+  signaler explicitement au client avant toute livraison.
+- **`features/dashboard/data.ts` supprimé** : entièrement remplacé par
+  des données réelles ou par l'état vide explicite ci-dessus ; plus
+  aucun import ne le référençait.
+- **Badges "vs N-1"** : aucune donnée historique n'existe dans les
+  repositories (ni Chantiers ni Charges ne conservent de notion
+  d'exercice précédent) — les 4 badges restent fixés sur leurs valeurs
+  d'exemple Sprint 1, en attendant qu'un historique réel soit possible.
+
+### Ce qui n'a volontairement pas été modifié
+- Le Design System, les composants UI, les espacements, les couleurs,
+  les cartes, le responsive, la navigation.
+- `services/chantiers.ts` et `services/charges.ts` (moteurs de calcul
+  Sprint 2/3, inchangés — `dashboard.ts` les appelle, ne les duplique
+  pas).
+- Aucun nouveau KPI, aucun nouveau graphique.
+
+### Limites connues
+- "Résultat prévisionnel" reste un placeholder tant que sa formule
+  n'est pas définie avec le client.
+- "Charges du mois" affichera 0 € avec les données de départ (dates en
+  2024) jusqu'à saisie d'une charge datée du mois réel en cours.
+- "Évolution du chiffre d'affaires" reste indisponible tant qu'aucun
+  champ date n'existe sur les chantiers (changement de schéma hors
+  périmètre de ce sprint).
+- Colonne "Type" des chantiers les plus rentables toujours affichée
+  `—` (champ inexistant).
+
+### Impact sur les prochains sprints
+- Si un futur sprint ajoute un champ date aux chantiers (avec l'accord
+  explicite du client, cf. règle de changement de schéma), le graphique
+  "Évolution du chiffre d'affaires" pourra être rebranché sur des
+  données réelles dans `services/dashboard.ts` sans toucher à
+  `DashboardView.tsx`.
+- Dès qu'une formule "Résultat prévisionnel" sera validée, un seul
+  endroit à modifier : `services/dashboard.ts`.
