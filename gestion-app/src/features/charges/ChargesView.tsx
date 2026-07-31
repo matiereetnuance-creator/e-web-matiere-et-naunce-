@@ -1,6 +1,9 @@
 import { BarChart, ChartCard, DonutChart } from '@/components/charts';
 import { cn } from '@/lib/cn';
+import { computeCharge, computeChargesTotals } from '@/services/charges';
+import { listCharges } from '@/services/charges-repository';
 import { chargesEvolutionMensuelle, chargesParCategorie, chargesParCategorieDetail, chargesTotal } from './data';
+import { ChargesInteractive } from './ChargesInteractive';
 
 const EVOLUTION_TONE_CLASS: Record<'warning' | 'neutral' | 'positive', string> = {
   warning: 'text-warning-line',
@@ -8,7 +11,10 @@ const EVOLUTION_TONE_CLASS: Record<'warning' | 'neutral' | 'positive', string> =
   positive: 'text-success-line',
 };
 
-export function ChargesView() {
+export async function ChargesView() {
+  const rows = listCharges().map(computeCharge);
+  const totals = computeChargesTotals(rows);
+
   return (
     <div className="flex flex-col gap-5">
       <div className="grid grid-cols-[1fr_1.4fr] gap-5">
@@ -66,6 +72,8 @@ export function ChargesView() {
           </div>
         ))}
       </div>
+
+      <ChargesInteractive rows={rows} totals={totals} />
     </div>
   );
 }

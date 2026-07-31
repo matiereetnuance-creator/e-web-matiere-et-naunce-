@@ -5,3 +5,8 @@ export function formatEuro(value: number): string {
 export function formatRatioPct(ratio: number): string {
   return `${(ratio * 100).toFixed(1).replace('.', ',')} %`;
 }
+
+export function formatDate(iso: string): string {
+  const date = new Date(`${iso}T00:00:00`);
+  return new Intl.DateTimeFormat('fr-FR', { day: '2-digit', month: '2-digit', year: 'numeric' }).format(date);
+}

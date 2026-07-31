@@ -251,3 +251,59 @@ structure.
 - Si `nomChantier` doit un jour apparaître dans le tableau ou servir de
   critère de recherche, la colonne pourra être ajoutée sans reprendre le
   drawer (déjà en place).
+
+## Sprint 3 — CRUD complet des Charges
+
+Même principe que le Sprint 2 (Chantiers) : création, modification,
+suppression (avec confirmation), Montant HT / TVA calculés
+automatiquement à partir du Montant TTC saisi et du Taux de TVA —
+jamais saisis directement.
+
+- **Constat avant développement** : contrairement à Chantiers, la page
+  Charges (Sprint 1) n'affichait que des vues agrégées (donut par
+  catégorie, barres mensuelles, tableau de synthèse) — aucune charge
+  individuelle n'existait comme enregistrement. Le CRUD demandé
+  implique donc l'ajout d'une **vraie liste de charges** avec totaux,
+  en plus des graphiques existants. **Les 3 vues agrégées du Sprint 1
+  n'ont pas été touchées** (toujours leurs propres données d'exemple,
+  non reliées à la nouvelle liste) — les relier aurait été une
+  fonctionnalité non demandée.
+- **Catégories existantes** : les 6 déjà utilisées sur cette même page
+  (Fournitures, Véhicules, Charges fixes, Sous-traitance, Assurances,
+  Autres) — `types/charge.ts`, aucune catégorie inventée.
+- **Nouveau composant `Select`** (`components/ui/Select.tsx`) : aucun
+  composant de liste déroulante n'existait dans le Design System ;
+  nécessaire pour Catégorie/Taux de TVA/Périodicité. Copie exacte du
+  style visuel d'`Input` (mêmes tokens), pas une réinterprétation.
+- **Périodicité/Actif conservés** tels que confirmés précédemment
+  (Mensuelle/Trimestrielle/Annuelle/Ponctuelle ; bascule Actif reprenant
+  le style déjà utilisé sur Paramètres ▸ Affichage, rendue interactive).
+- **Repository en mémoire** (`services/charges-repository.ts`), même
+  architecture que Chantiers (`globalThis` dès le départ, pas de
+  redécouverte du bug du Sprint 2).
+- **Menu ⋯ dupliqué localement** dans `ChargesInteractive.tsx` (comme
+  dans `ChantiersInteractive.tsx`) plutôt que factorisé en composant
+  partagé — pour ne pas refactoriser le code existant de Chantiers.
+
+### Ce qui n'a volontairement pas été modifié
+- Les 3 graphiques/tableaux agrégés existants de Charges (donut,
+  barres, synthèse par catégorie) et leurs données.
+- `ChantiersInteractive.tsx` / `ChantierForm.tsx` (aucune factorisation
+  du menu ⋯ vers eux).
+- Le Design System, la charte graphique, `Drawer`/`Modal`/`Table`/`Badge`.
+
+### Limites connues
+- Mêmes limites que Chantiers : persistance en RAM serveur, validation
+  manuelle sans bibliothèque de schéma.
+- Les 3 vues agrégées de Charges restent des exemples statiques,
+  déconnectés de la nouvelle liste individuelle — les chiffres affichés
+  ne se recoupent pas nécessairement (non demandé pour ce sprint).
+- Pas de tri ni de filtre sur la liste des charges (non demandé).
+
+### Impact sur les prochains sprints
+- Si un futur sprint doit rendre les graphiques agrégés réellement
+  dérivés des charges individuelles, `services/charges.ts` fournit déjà
+  `computeChargesTotals()` — une base de calcul à étendre (répartition
+  par catégorie, évolution mensuelle), sans dépendance nouvelle.
+- Même repository/pattern que Chantiers : le sprint Google Sheets
+  pourra traiter les deux modules de façon symétrique.
