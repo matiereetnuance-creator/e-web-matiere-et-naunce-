@@ -389,3 +389,60 @@ réelles des modules Chantiers/Charges, sans aucune modification visuelle
   `DashboardView.tsx`.
 - Dès qu'une formule "Résultat prévisionnel" sera validée, un seul
   endroit à modifier : `services/dashboard.ts`.
+
+## Sprint 5 — Paramètres gérables
+
+Objectif : rendre les 6 informations déjà affichées sur la page Paramètres
+réellement modifiables et persistées, sans changer le périmètre (aucun
+nouveau paramètre) ni toucher aux autres modules.
+
+- **Vue de consultation + Drawer** (choix validé avec le client) : la
+  page reste un écran de lecture ; un bouton "Modifier" ouvre un Drawer
+  contenant les 6 champs (Objectif annuel de CA, Taux de marge cible,
+  Charges fixes mensuelles, Part fournitures de référence, Arrondir les
+  montants, Comparaison N-1) — même architecture Drawer + Server Action
+  que Chantiers/Charges.
+- **`services/settings-repository.ts`** (nouveau) : fiche unique
+  (pas de liste), stockage `globalThis` — même pattern que
+  `chantiers-repository.ts`/`charges-repository.ts`. Pas de fichier de
+  calcul dédié (`services/settings.ts`) : contrairement à Chantiers/
+  Charges, aucun champ n'est dérivé ici, il n'y a donc rien à calculer.
+- **`features/settings/actions.ts`** : `updateSettingsAction` + validation
+  manuelle (montants positifs, pourcentages entre 0 et 100), même
+  convention que `parseChargeForm`/`parseChantierForm`.
+- **`features/settings/SettingsForm.tsx`** : Drawer réutilisant
+  `Input` et le pattern d'interrupteur déjà utilisé pour "Charge active"
+  (Sprint 3), dupliqué localement (pas de nouveau composant partagé,
+  comme convenu).
+- **`features/settings/SettingsInteractive.tsx`** (nouveau) : Client
+  Component séparant l'affichage (identique à l'existant) de
+  l'ouverture du Drawer — même séparation Server/Client que
+  `ChantiersView`/`ChantiersInteractive`.
+- **`features/settings/data.ts` supprimé** : entièrement remplacé par
+  les données réelles du repository.
+- Les pourcentages sont stockés sur une échelle 0-100 (comme
+  `DonutSegment.pct`), pas en ratio 0-1, pour rester cohérent avec le
+  reste du codebase et éviter une conversion superflue.
+
+### Ce qui n'a volontairement pas été modifié
+- Dashboard, Chantiers, Charges, Design System, Layout, navigation,
+  authentification — aucun de ces fichiers n'a été touché.
+- Aucun nouveau paramètre, aucune nouvelle fonctionnalité au-delà de la
+  persistance des 6 champs déjà affichés.
+
+### Limites connues
+- Les préférences "Arrondir les montants" et "Comparaison N-1" sont
+  réellement enregistrées, mais ne modifient encore aucun autre écran
+  (les brancher sur Dashboard/Charges/Chantiers est hors périmètre de
+  ce sprint — cela toucherait des modules explicitement protégés).
+- Limitation déjà connue et confirmée pré-existante (pas une régression
+  de ce sprint) : en dessous de la largeur desktop, la Sidebar ne se
+  réduit pas et les grilles/tableaux débordent — identique sur
+  Charges/Chantiers, non spécifique à Paramètres.
+- Persistance en mémoire serveur (perdue au redémarrage), comme tous
+  les autres modules.
+
+### Impact sur les prochains sprints
+- Si un futur sprint doit faire agir "Arrondir les montants"/
+  "Comparaison N-1" sur d'autres écrans, `services/settings-repository.ts`
+  expose déjà `getSettings()` — à appeler depuis les vues concernées.
