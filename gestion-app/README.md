@@ -446,3 +446,106 @@ nouveau paramètre) ni toucher aux autres modules.
 - Si un futur sprint doit faire agir "Arrondir les montants"/
   "Comparaison N-1" sur d'autres écrans, `services/settings-repository.ts`
   expose déjà `getSettings()` — à appeler depuis les vues concernées.
+
+## Sprint 6 — Persistance Google Sheets (Apps Script)
+
+Objectif : remplacer le stockage en mémoire (`globalThis`) par Google
+Sheets, via une API REST Apps Script, sans changer une seule ligne de
+logique métier.
+
+```
+Next.js (Server Components / Server Actions)
+        │  fetch()
+        ▼
+Apps Script Web App (doGet / doPost)  — aucun calcul
+        ▼
+Google Sheets (Chantiers / Charges / Settings)
+```
+
+- **`services/chantiers.ts`, `services/charges.ts`, `services/dashboard.ts`
+  : strictement inchangés.** Ils ne connaissent que les types
+  (`ChantierInput`, `ChargeInput`, `SettingsInput`), jamais le
+  repository.
+- **`src/lib/apps-script-client.ts`** (nouveau) : client HTTP bas
+  niveau partagé — construit l'URL, injecte le token, décode
+  l'enveloppe `{ ok, data }` / `{ ok, error }`.
+- **Les 3 repositories** (`chantiers-repository.ts`,
+  `charges-repository.ts`, `settings-repository.ts`) : interface
+  publique identique à avant (mêmes fonctions, mêmes types), seule
+  l'implémentation change — HTTP au lieu de `globalThis`, donc passage
+  en `async`/`Promise`.
+- **Conséquence mécanique, validée avec le client** : chaque appelant
+  d'un repository doit `await` l'appel. Concerne uniquement
+  `features/{chantiers,charges,settings}/actions.ts`,
+  `features/{chantiers,charges,settings}/*View.tsx` et
+  `features/dashboard/DashboardView.tsx` — un seul `await` ajouté par
+  appel, aucune autre ligne modifiée (zéro changement visuel, zéro
+  changement de logique).
+- **`gestion-app/apps-script/`** (nouveau dossier) : code du Web App
+  (`Code.gs`, `Auth.gs`, `Chantiers.gs`, `Charges.gs`, `Settings.gs`,
+  `Utils.gs`, `appsscript.json`) + `README-APPS-SCRIPT.md` (installation,
+  déploiement, configuration Google Sheets, token). Indépendant du
+  dossier `erp-pilotage/` (produit Google Sheets historique différent,
+  non touché).
+- **Identifiants** : lisibles et séquentiels (`chantier-0001`,
+  `charge-0001`, …), générés côté Apps Script à partir du plus grand
+  suffixe déjà présent dans la feuille — jamais d'UUID (demande
+  explicite du client).
+- **Endpoint `health`** : `GET ?resource=health` → `{ ok, version,
+  timestamp }`, sans token (vérification de vie simple).
+- **Adaptation PUT/DELETE → POST + `action`** : un Web App Apps Script
+  n'expose que `doGet`/`doPost` (aucun `doPut`/`doDelete` possible côté
+  plateforme). Toutes les écritures passent donc par `POST`, avec
+  `action: "create" | "update" | "delete"` dans le corps JSON — validé
+  avec le client en ÉTAPE 1.
+- **Sécurisation** : token partagé (`APPS_SCRIPT_API_TOKEN`), transmis
+  en paramètre/corps JSON (Apps Script ne permet pas de lire des
+  en-têtes HTTP personnalisés), comparé à temps constant côté Apps
+  Script (`Auth.gs`), jamais exposé au navigateur (repositories
+  utilisés uniquement côté serveur).
+- **Formatage des nombres** : Apps Script lit les cellules via
+  `getValue()` (nombre brut), jamais `getDisplayValue()` — le
+  formatage €/%/entier reste entièrement géré par `lib/format.ts`/
+  `lib/charts.ts` côté Next.js, quelle que soit l'origine des données.
+
+### Variables d'environnement (`.env.local`)
+```
+APPS_SCRIPT_URL=https://script.google.com/macros/s/XXXX/exec
+APPS_SCRIPT_API_TOKEN=<token partagé avec Auth.gs>
+```
+
+### Tests effectués
+Impossible de provisionner un vrai classeur Google Sheets ni de
+déployer un vrai Web App Apps Script depuis cet environnement (accès
+Google propre au client). Le contrat de l'API a donc été testé avec un
+serveur Node local reproduisant fidèlement le comportement d'Apps
+Script (mêmes routes, même enveloppe `{ok,data}`/`{ok,error}`, mêmes
+règles de token) : CRUD complet (create/read/update/delete) sur
+Chantiers et Charges, lecture/écriture sur Settings, `health`, et rejet
+d'un token invalide — tous validés avec succès, zéro erreur console.
+La vérification contre le vrai déploiement Google du client reste à
+faire une fois celui-ci en place (procédure complète dans
+`apps-script/README-APPS-SCRIPT.md`).
+
+### Ce qui n'a volontairement pas été modifié
+- Design System, composants UI, Layout, navigation, authentification.
+- Toute logique de calcul (Chantiers, Charges, Dashboard, Paramètres).
+- Le dossier `erp-pilotage/` (produit différent).
+
+### Limites connues
+- Nécessite un vrai déploiement Google (classeur + Web App) pour
+  fonctionner en production — non testable en conditions réelles
+  depuis cet environnement (voir "Tests effectués").
+- Google Sheets n'est pas transactionnel : `LockService` sérialise les
+  écritures concurrentes côté Apps Script, mais reste plus lent qu'un
+  vrai SGBD sous forte charge.
+- Un Web App Apps Script répond toujours HTTP 200 ; les erreurs
+  s'inspectent via le JSON, jamais via le code HTTP.
+- Quotas d'exécution Apps Script selon le type de compte Google.
+- Le token circule en clair dans l'URL/le corps (aucune alternative
+  côté Apps Script) — à traiter comme un mot de passe.
+
+### Impact sur les prochains sprints
+- Toute nouvelle ressource suivrait le même schéma : une feuille
+  Sheets + un fichier `.gs` dédié + un repository Next.js async — sans
+  toucher aux moteurs de calcul.

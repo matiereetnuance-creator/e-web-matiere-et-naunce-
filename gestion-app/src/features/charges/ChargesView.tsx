@@ -12,7 +12,7 @@ const EVOLUTION_TONE_CLASS: Record<'warning' | 'neutral' | 'positive', string> =
 };
 
 export async function ChargesView() {
-  const rows = listCharges().map(computeCharge);
+  const rows = (await listCharges()).map(computeCharge);
   const totals = computeChargesTotals(rows);
 
   return (

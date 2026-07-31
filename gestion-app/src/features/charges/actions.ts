@@ -45,7 +45,7 @@ export async function createChargeAction(
   const { data, error } = parseChargeForm(formData);
   if (error || !data) return { error };
 
-  createCharge(data);
+  await createCharge(data);
   revalidatePath('/charges');
   return { success: true };
 }
@@ -58,7 +58,7 @@ export async function updateChargeAction(
   const { data, error } = parseChargeForm(formData);
   if (error || !data) return { error };
 
-  const updated = updateCharge(id, data);
+  const updated = await updateCharge(id, data);
   if (!updated) return { error: 'Cette charge n’existe plus — elle a peut-être déjà été supprimée.' };
 
   revalidatePath('/charges');
@@ -66,6 +66,6 @@ export async function updateChargeAction(
 }
 
 export async function deleteChargeAction(id: string): Promise<void> {
-  deleteCharge(id);
+  await deleteCharge(id);
   revalidatePath('/charges');
 }

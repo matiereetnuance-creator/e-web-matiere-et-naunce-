@@ -39,7 +39,7 @@ export async function createChantierAction(
   const { data, error } = parseChantierForm(formData);
   if (error || !data) return { error };
 
-  createChantier(data);
+  await createChantier(data);
   revalidatePath('/chantiers');
   return { success: true };
 }
@@ -52,7 +52,7 @@ export async function updateChantierAction(
   const { data, error } = parseChantierForm(formData);
   if (error || !data) return { error };
 
-  const updated = updateChantier(id, data);
+  const updated = await updateChantier(id, data);
   if (!updated) return { error: 'Ce chantier n’existe plus — il a peut-être déjà été supprimé.' };
 
   revalidatePath('/chantiers');
@@ -60,6 +60,6 @@ export async function updateChantierAction(
 }
 
 export async function deleteChantierAction(id: string): Promise<void> {
-  deleteChantier(id);
+  await deleteChantier(id);
   revalidatePath('/chantiers');
 }

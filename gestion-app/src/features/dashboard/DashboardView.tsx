@@ -9,8 +9,8 @@ import { computeDashboardData } from '@/services/dashboard';
 import { AttentionNeutralIcon, AttentionWarningIcon, CaIcon, ChargesMoisIcon, ChevronRightIcon, MargeIcon, ResultatIcon } from './icons';
 
 export async function DashboardView() {
-  const chantiers = listChantiers().map(computeChantier);
-  const charges = listCharges().map(computeCharge);
+  const chantiers = (await listChantiers()).map(computeChantier);
+  const charges = (await listCharges()).map(computeCharge);
   const data = computeDashboardData(chantiers, charges);
 
   return (

@@ -49,7 +49,7 @@ export async function updateSettingsAction(
   const { data, error } = parseSettingsForm(formData);
   if (error || !data) return { error };
 
-  updateSettings(data);
+  await updateSettings(data);
   revalidatePath('/parametres');
   return { success: true };
 }
