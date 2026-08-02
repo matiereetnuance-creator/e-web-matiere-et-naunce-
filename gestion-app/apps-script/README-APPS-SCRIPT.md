@@ -25,9 +25,22 @@ avec `gestion-app`) : ne pas les confondre ni les fusionner.
    | id | date | categorie | motif | montantTTC | tauxTVA | periodicite | actif |
    |---|---|---|---|---|---|---|---|
 
-   **Onglet "Settings"** (une seule ligne de données, en ligne 2)
+   **Onglet "Settings"**
    | objectifAnnuelCA | tauxMargeCible | chargesFixesMensuelles | partFournituresReference | arrondirMontants | comparaisonN1 |
    |---|---|---|---|---|---|
+
+   **Aucune ligne de données à saisir dans aucun des 3 onglets** — les
+   en-têtes seuls suffisent. Chantiers/Charges démarrent vides (liste
+   vide tant qu'aucune création n'est faite depuis l'application).
+   Settings est un cas particulier : au premier appel `GET
+   ?resource=settings`, si la ligne 2 est absente, Apps Script écrit
+   automatiquement une ligne de valeurs par défaut (mêmes valeurs
+   qu'avant ce sprint : Objectif CA 1 250 000 €, Taux de marge cible
+   31 %, Charges fixes mensuelles 12 540 €, Part fournitures 28 %,
+   les deux préférences activées) puis les renvoie — voir
+   `SETTINGS_DEFAULTS` dans `Settings.gs`. Aucune saisie manuelle n'est
+   donc nécessaire nulle part : toutes les créations/modifications/
+   suppressions se font exclusivement depuis l'application.
 
 3. **Formats de colonnes importants** (pour que les nombres restent des
    nombres, pas des chaînes déjà formatées) :
@@ -45,10 +58,9 @@ avec `gestion-app`) : ne pas les confondre ni les fusionner.
      Apps Script lit alors un vrai booléen JS.
    - Colonne `date` (Charges) : format **Date**.
 
-4. (Optionnel mais recommandé) Pré-remplir avec les données de
-   démarrage actuelles (mêmes valeurs que les seeds Sprint 2/3/5 du
-   code, voir `src/services/*-repository.ts` avant ce sprint dans
-   l'historique Git) pour retrouver un état de départ identique.
+   Ces formats peuvent être appliqués sur toute la colonne (par ex.
+   A2:A1000) même si aucune ligne n'existe encore : ils s'appliqueront
+   automatiquement aux lignes créées ensuite depuis l'application.
 
 ## 2. Créer le projet Apps Script
 
