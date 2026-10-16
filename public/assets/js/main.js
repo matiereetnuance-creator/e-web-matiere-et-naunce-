@@ -298,7 +298,8 @@
   /* ---------- Formulaire de contact ---------- */
   function initContactForm() {
     var form = document.querySelector('[data-mn-contact-form]');
-    if (!form) return;
+    if (!form || form.dataset.mnBound) return;
+    form.dataset.mnBound = '1';
     var loadedAt = Date.now();
     var successPanel = document.querySelector('[data-mn-contact-success]');
     var errorBox = document.querySelector('[data-mn-contact-error]');
@@ -345,6 +346,17 @@
           if (result.ok && result.json && result.json.success) {
             form.hidden = true;
             if (successPanel) successPanel.hidden = false;
+            // 'lead' (distinct de 'success') exclut les soumissions piégées par le
+            // honeypot anti-spam : voir api/contact.php, qui répond success:true
+            // sans l'avoir réellement envoyé pour ne pas alerter le robot. Ne compter
+            // comme demande de devis (Google Ads) qu'un envoi réellement transmis.
+            if (result.json.lead === true && !form.dataset.mnLeadSent && typeof gtag === 'function') {
+              form.dataset.mnLeadSent = '1';
+              gtag('event', 'generate_lead', {
+                event_category: 'contact',
+                event_label: 'formulaire_contact'
+              });
+            }
           } else {
             var msg =
               (result.json && result.json.message) ||
@@ -371,6 +383,34 @@
     });
   }
 
+  /* ---------- Suivi des clics téléphone / email (distinct d'une demande confirmée) ---------- */
+  function initClickTracking() {
+    function bind(selector, eventName) {
+      document.querySelectorAll(selector).forEach(function (a) {
+        if (a.dataset.mnTrackBound) return;
+        a.dataset.mnTrackBound = '1';
+        a.addEventListener('click', function () {
+          if (typeof gtag === 'function') {
+            gtag('event', eventName, { event_category: 'contact', event_label: a.getAttribute('href') || '' });
+          }
+        });
+      });
+    }
+    bind('a[href^="tel:"]', 'phone_click');
+    bind('a[href^="mailto:"]', 'email_click');
+  }
+
+  /* ---------- Lien pied de page "Gérer les cookies" (rouvre le bandeau de consentement) ---------- */
+  function initConsentManagerLink() {
+    document.querySelectorAll('[data-mn-manage-consent]').forEach(function (btn) {
+      if (btn.dataset.mnBound) return;
+      btn.dataset.mnBound = '1';
+      btn.addEventListener('click', function () {
+        if (typeof window.mnOpenConsentManager === 'function') window.mnOpenConsentManager();
+      });
+    });
+  }
+
   document.addEventListener('DOMContentLoaded', function () {
     initPageTransition();
     initGrain();
@@ -380,5 +420,7 @@
     initBeforeAfter();
     initMobileMenu();
     initContactForm();
+    initClickTracking();
+    initConsentManagerLink();
   });
 })();

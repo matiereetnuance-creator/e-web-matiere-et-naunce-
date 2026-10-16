@@ -35,7 +35,9 @@ $smtp = [
 // --- Anti-spam : honeypot -------------------------------------------------
 if (!empty($_POST['site_web'])) {
     // Robot détecté : on répond succès pour ne pas l'informer, sans envoyer.
-    json_response(['success' => true]);
+    // 'lead' reste à false : ce n'est pas une vraie demande (voir main.js,
+    // qui ne déclenche l'événement GA4 generate_lead que si lead === true).
+    json_response(['success' => true, 'lead' => false]);
 }
 
 // --- Anti-spam : délai minimum entre affichage et soumission -------------
@@ -129,4 +131,4 @@ if ($visitorEmail !== null) {
     );
 }
 
-json_response(['success' => true]);
+json_response(['success' => true, 'lead' => true]);
