@@ -86,8 +86,9 @@ $extraJsonLd = '<script type="application/ld+json">' . json_encode([
 <!-- ======================= SAVOIR-FAIRE ======================= -->
 <section id="savoirfaire" style="padding:96px 64px;border-top:1px solid #e8e1d3">
   <div class="container" style="padding:0;max-width:1280px">
-    <div data-mn-reveal style="display:flex;justify-content:space-between;align-items:baseline">
+    <div data-mn-reveal style="display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:12px 20px">
       <h2 class="mn-h2" style="font:400 46px/1.1 'Instrument Serif',serif;color:#2b2926;margin:0;font-weight:400">Trois savoir-faire</h2>
+      <a href="/savoir-faire" style="font:500 12px 'Instrument Sans',sans-serif;letter-spacing:.2em;color:#8a7a63">DÉCOUVRIR NOS SAVOIR-FAIRE →</a>
     </div>
     <div class="mn-grid-3" style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:28px;margin-top:56px">
       <article data-mn-reveal class="card-sf">
@@ -169,8 +170,8 @@ $extraJsonLd = '<script type="application/ld+json">' . json_encode([
       <div data-mn-reveal style="font:500 12px 'Instrument Sans',sans-serif;letter-spacing:.28em;color:#a6947c">L'ENTREPRISE</div>
       <h2 class="mn-h2" data-mn-reveal style="font:400 52px/1.12 'Instrument Serif',serif;color:#2b2926;margin:22px 0 0;font-weight:400;text-wrap:balance">L'exigence du détail, la passion des beaux <em style="font-style:italic;color:#8a7a63">intérieurs.</em></h2>
       <div data-mn-reveal class="mn-body-lg" style="font:400 15.5px/1.9 'Instrument Sans',sans-serif;color:#6c665c;margin:26px 0 0;max-width:520px"><?= t_raw($textes, 'home_entreprise_intro', "Entreprise de peinture, de plâtrerie et de béton ciré basée dans l'Ouest lyonnais, nous accompagnons les particuliers et les professionnels dans l'ensemble de l'Ouest lyonnais et du Beaujolais.") ?></div>
-      <div data-mn-reveal style="display:flex;gap:40px;margin-top:38px;font:500 12px 'Instrument Sans',sans-serif;letter-spacing:.18em;color:#8a7a63">
-        <a href="/entreprise#histoire" style="color:#8a7a63">L'HISTOIRE</a><a href="/entreprise#valeurs" style="color:#8a7a63">LES VALEURS</a><a href="/entreprise#garanties" style="color:#8a7a63">LES GARANTIES</a>
+      <div data-mn-reveal style="display:flex;flex-wrap:wrap;gap:16px 40px;margin-top:38px;font:500 12px 'Instrument Sans',sans-serif;letter-spacing:.18em;color:#8a7a63">
+        <a href="/entreprise#histoire" style="color:#8a7a63">L'HISTOIRE</a><a href="/entreprise#valeurs" style="color:#8a7a63">LES VALEURS</a><a href="/entreprise#garanties" style="color:#8a7a63">LES GARANTIES</a><a href="/entreprise" style="color:#8a7a63">DÉCOUVRIR L'ENTREPRISE</a>
       </div>
     </div>
   </div>
@@ -237,8 +238,9 @@ $extraJsonLd = '<script type="application/ld+json">' . json_encode([
     <div data-mn-reveal>
       <h2 class="mn-h2--md" style="font:400 40px/1.15 'Instrument Serif',serif;color:#2b2926;margin:0;font-weight:400;display:flex;align-items:baseline;gap:14px;flex-wrap:wrap">Ouest lyonnais <img src="/assets/img/esperluette-beige.svg" alt="&amp;" style="height:30px;align-self:center" width="30" height="30"> Beaujolais</h2>
       <p style="font:400 15px/1.85 'Instrument Sans',sans-serif;color:#6c665c;margin:20px 0 0;max-width:440px"><?= t($textes, 'home_zone_text', "Nous accompagnons nos clients dans l'ensemble de l'Ouest lyonnais et du Beaujolais avec une même exigence : être disponibles, réactifs et présents du premier rendez-vous jusqu'aux dernières finitions.") ?></p>
-      <div class="mn-ph-contain mn-ph-contain--home" style="height:300px;margin-top:32px;position:relative">
-        <?= render_photo(photo_src('zone-carte'), 'Carte de la zone d\'intervention Matière & Nuance — Ouest lyonnais et Beaujolais', 'width="600" height="300" loading="lazy"') ?>
+      <div style="margin-top:32px">
+        <h3 style="font:400 22px 'Instrument Serif',serif;color:#2b2926;margin:0;font-weight:400">Un savoir-faire de proximité</h3>
+        <p style="font:400 14px/1.8 'Instrument Sans',sans-serif;color:#6c665c;margin:12px 0 0;max-width:440px">Matière &amp; Nuance accompagne vos projets de plâtrerie, peinture et béton ciré dans l'Ouest lyonnais et une partie du Beaujolais. Chaque chantier fait l'objet d'une attention particulière, avec une exigence constante portée aux finitions, à l'esthétique et à la durabilité des ouvrages.</p>
       </div>
     </div>
     <div data-mn-reveal data-mn-grain style="background:#2b2926;padding:56px 56px 48px;display:flex;flex-direction:column;justify-content:space-between;position:relative;overflow:hidden">

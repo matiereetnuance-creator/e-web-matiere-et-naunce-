@@ -35,7 +35,7 @@ if ($phoneTel !== '' && $phoneTel[0] === '0') {
       <span style="font:500 13px 'Instrument Sans',sans-serif;letter-spacing:.28em;color:#a6947c">CONTACT</span>
     </div>
     <h1 class="mn-h1" data-mn-reveal style="font:400 76px/1.06 'Instrument Serif',serif;color:#2b2926;margin:26px 0 0;max-width:820px;font-weight:400;text-wrap:balance">Parlons de votre <em style="font-style:italic;color:#8a7a63">projet.</em></h1>
-    <p data-mn-reveal class="mn-body-lg" style="font:400 16px/1.9 'Instrument Sans',sans-serif;color:#6c665c;margin:30px 0 0;max-width:540px">Décrivez-nous la pièce, la commune, l'envie. Nous répondons sous 48 h — et la première visite est toujours sans engagement.</p>
+    <p data-mn-reveal class="mn-body-lg" style="font:400 16px/1.9 'Instrument Sans',sans-serif;color:#6c665c;margin:30px 0 0;max-width:540px">Décrivez-nous votre projet. Nous répondons sous 48 h — et la première visite est toujours sans engagement.</p>
   </div>
 </header>
 
@@ -104,15 +104,7 @@ if ($phoneTel !== '' && $phoneTel[0] === '0') {
             <div style="font:500 11px 'Instrument Sans',sans-serif;letter-spacing:.22em;color:#c8b394">EMAIL</div>
             <div style="font:400 20px 'Instrument Serif',serif;color:#f7f3ec;margin-top:8px"><a href="mailto:<?= htmlspecialchars(t_raw($textes, 'contact_email', 'matiereetnuance@hotmail.com')) ?>" style="color:#f7f3ec"><?= t($textes, 'contact_email', 'matiereetnuance@hotmail.com') ?></a></div>
           </div>
-          <div>
-            <div style="font:500 11px 'Instrument Sans',sans-serif;letter-spacing:.22em;color:#c8b394">ZONE D'INTERVENTION</div>
-            <div style="font:400 15px/1.8 'Instrument Sans',sans-serif;color:#b0a99b;margin-top:8px"><?= t($textes, 'contact_zone', "Basée dans l'Ouest lyonnais, Matière & Nuance intervient auprès des particuliers et des professionnels dans l'ensemble de l'Ouest lyonnais et du Beaujolais.") ?></div>
-            <div style="font:400 12.5px/1.7 'Instrument Sans',sans-serif;color:#7d766b;margin-top:10px"><?= t($textes, 'contact_zone_communes', "Tassin-la-Demi-Lune, Écully, Charbonnières-les-Bains, La Tour-de-Salvagny, Dommartin, Marcy-l'Étoile, Craponne, Grézieu-la-Varenne, Dardilly, Limonest, Francheville, Champagne-au-Mont-d'Or, Saint-Didier-au-Mont-d'Or, Sainte-Consorce, Brindas, Mornant, Villefranche-sur-Saône, Belleville-en-Beaujolais, Beaujeu, Lyon 5ᵉ, Lyon 9ᵉ et les communes environnantes.") ?></div>
-          </div>
         </div>
-      </div>
-      <div data-mn-reveal class="mn-ph-contain mn-ph-contain--contact" style="height:280px;overflow:hidden">
-        <?= render_photo(photo_src('contact-carte'), "Carte de la zone d'intervention — Ouest lyonnais et Beaujolais", 'width="500" height="280" loading="lazy"') ?>
       </div>
     </div>
   </div>

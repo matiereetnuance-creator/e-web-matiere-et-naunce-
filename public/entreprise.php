@@ -84,7 +84,6 @@ $extraJsonLd = '<script type="application/ld+json">' . json_encode([
         <div style="display:flex;gap:16px;align-items:baseline"><span style="color:#a6947c">—</span>Assurance décennale &amp; responsabilité civile professionnelle</div>
         <div style="display:flex;gap:16px;align-items:baseline"><span style="color:#a6947c">—</span>Devis détaillé poste par poste, sans surprise</div>
         <div style="display:flex;gap:16px;align-items:baseline"><span style="color:#a6947c">—</span>Produits sélectionnés : peintures haut de gamme, faibles émissions</div>
-        <div style="display:flex;gap:16px;align-items:baseline"><span style="color:#a6947c">—</span>Réception de chantier contradictoire, retouches immédiates</div>
       </div>
     </div>
     <div data-mn-reveal style="height:440px;overflow:hidden">
