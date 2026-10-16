@@ -98,13 +98,48 @@ $extraJsonLd = '<script type="application/ld+json">' . json_encode([
 </section>
 
 <section style="padding:0 64px 96px">
-  <div data-mn-reveal class="cta-dark">
+  <div data-mn-reveal class="cta-dark" style="flex-direction:column;align-items:flex-start;gap:28px">
     <img class="cta-dark__amp" src="/assets/img/esperluette-laiton.svg" alt="">
     <div style="position:relative">
       <div class="cta-dark__title">Un projet, une pièce, une <em style="font-style:italic;color:#c8b394">envie ?</em></div>
       <div class="cta-dark__sub">La première visite est toujours sans engagement.</div>
     </div>
-    <a class="btn-outline-gold" style="position:relative" href="/contact">DEMANDER UN ÉCHANGE</a>
+
+    <div data-mn-contact-success hidden style="position:relative">
+      <div style="font:400 22px 'Instrument Serif',serif;color:#f7f3ec">Merci, votre message est bien <em style="font-style:italic;color:#c8b394">parti.</em></div>
+      <div style="font:400 13px/1.7 'Instrument Sans',sans-serif;color:#b0a99b;margin-top:10px">Nous revenons vers vous sous 48 h.</div>
+    </div>
+
+    <form data-mn-contact-form action="/api/contact.php" method="post" novalidate style="position:relative;width:100%;max-width:520px">
+      <div role="alert" data-mn-contact-error hidden style="margin-bottom:16px;padding:12px 14px;background:rgba(227,177,153,.12);border:1px solid rgba(227,177,153,.4);color:#e3b199;font:400 12.5px/1.6 'Instrument Sans',sans-serif"></div>
+      <div class="mn-hp" aria-hidden="true">
+        <label for="sf-site-web">Ne pas remplir ce champ</label>
+        <input type="text" id="sf-site-web" name="site_web" tabindex="-1" autocomplete="off">
+      </div>
+      <div class="mn-mini-form">
+        <div class="mn-mini-form__row">
+          <div>
+            <label for="sf-nom">NOM</label>
+            <input type="text" id="sf-nom" name="nom" placeholder="Votre nom" required autocomplete="name">
+          </div>
+          <div>
+            <label for="sf-email">E-MAIL</label>
+            <input type="email" id="sf-email" name="contact_val" placeholder="vous@exemple.fr" required autocomplete="email">
+          </div>
+        </div>
+        <div>
+          <label for="sf-tel">TÉLÉPHONE (FACULTATIF)</label>
+          <input type="tel" id="sf-tel" name="telephone" placeholder="06 00 00 00 00" autocomplete="tel">
+        </div>
+        <div>
+          <label for="sf-message">DESCRIPTION DU PROJET</label>
+          <textarea id="sf-message" name="message" rows="2" placeholder="La pièce, l'envie, le délai souhaité…" required></textarea>
+        </div>
+      </div>
+      <button type="submit" class="btn-outline-gold" style="position:relative;margin-top:22px">DEMANDER UN DEVIS</button>
+    </form>
+
+    <a href="/contact" style="position:relative;font:500 11px 'Instrument Sans',sans-serif;letter-spacing:.14em;color:#c8b394;text-decoration:underline">VOIR LA PAGE CONTACT →</a>
   </div>
 </section>
 

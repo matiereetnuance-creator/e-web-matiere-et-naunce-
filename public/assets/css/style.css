@@ -126,7 +126,7 @@ button{font-family:var(--font-sans)}
 /* ============ Boutons ============ */
 .btn-dark{display:inline-block;font:500 12.5px var(--font-sans);letter-spacing:.18em;border:1px solid var(--ink);background:var(--ink);color:var(--cream);padding:16px 36px;cursor:pointer;transition:all .3s}
 .btn-dark:hover{background:var(--cream);color:var(--ink)}
-.btn-outline-gold{position:relative;display:inline-block;font:500 12.5px var(--font-sans);letter-spacing:.18em;border:1px solid var(--taupe-2);color:var(--offwhite);padding:15px 32px;white-space:nowrap;transition:all .3s}
+.btn-outline-gold{position:relative;display:inline-block;font:500 12.5px var(--font-sans);letter-spacing:.18em;border:1px solid var(--taupe-2);background:transparent;color:var(--offwhite);padding:15px 32px;white-space:nowrap;cursor:pointer;transition:all .3s}
 .btn-outline-gold:hover{background:var(--gold);color:var(--ink)}
 .link-underline{font:500 12.5px var(--font-sans);letter-spacing:.18em;color:var(--taupe);border-bottom:1px solid var(--gold);padding-bottom:6px}
 
@@ -211,6 +211,20 @@ input:focus,textarea:focus,select:focus{
   box-shadow:0 0 0 6px rgba(138,122,99,.12)
 }
 .mn-hp{position:absolute;left:-9999px;width:1px;height:1px;opacity:0}
+
+/* ============ Mini-formulaire (blocs sombres — accueil / savoir-faire) ============ */
+.mn-mini-form{display:grid;gap:18px;margin-top:4px}
+.mn-mini-form label{display:block;font:500 11px var(--font-sans);letter-spacing:.16em;color:var(--gold)}
+.mn-mini-form input,.mn-mini-form textarea{
+  width:100%;box-sizing:border-box;margin-top:8px;padding:11px 0;
+  border:none;border-bottom:1px solid rgba(247,243,236,.22);background:transparent;
+  font:400 14.5px var(--font-sans);color:var(--cream);transition:border-color .3s
+}
+.mn-mini-form input::placeholder,.mn-mini-form textarea::placeholder{color:var(--dark-muted-2)}
+.mn-mini-form input:focus,.mn-mini-form textarea:focus{border-color:var(--gold)}
+.mn-mini-form textarea{resize:vertical;min-height:52px}
+.mn-mini-form__row{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+@media (max-width:640px){.mn-mini-form__row{grid-template-columns:1fr}}
 
 /* ============ Avant / Après ============ */
 [data-ba]{position:relative;overflow:hidden;cursor:ew-resize;user-select:none;touch-action:none}

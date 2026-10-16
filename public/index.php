@@ -249,10 +249,44 @@ $extraJsonLd = '<script type="application/ld+json">' . json_encode([
         <div style="font:500 12px 'Instrument Sans',sans-serif;letter-spacing:.28em;color:#c8b394">CONTACT</div>
         <div style="font:400 44px/1.15 'Instrument Serif',serif;color:#f7f3ec;margin-top:20px">Parlons de votre <em style="font-style:italic;color:#c8b394">projet.</em></div>
         <p style="font:400 14.5px/1.85 'Instrument Sans',sans-serif;color:#b0a99b;margin:20px 0 0;max-width:380px">Décrivez-nous la pièce, la commune, l'envie. Nous répondons sous 48 h, et la première visite est toujours sans engagement.</p>
+
+        <div data-mn-contact-success hidden style="margin-top:28px">
+          <div style="font:400 22px 'Instrument Serif',serif;color:#f7f3ec">Merci, votre message est bien <em style="font-style:italic;color:#c8b394">parti.</em></div>
+          <div style="font:400 13px/1.7 'Instrument Sans',sans-serif;color:#b0a99b;margin-top:10px">Nous revenons vers vous sous 48 h.</div>
+        </div>
+
+        <form data-mn-contact-form action="/api/contact.php" method="post" novalidate style="margin-top:28px;max-width:420px">
+          <div role="alert" data-mn-contact-error hidden style="margin-bottom:16px;padding:12px 14px;background:rgba(227,177,153,.12);border:1px solid rgba(227,177,153,.4);color:#e3b199;font:400 12.5px/1.6 'Instrument Sans',sans-serif"></div>
+          <div class="mn-hp" aria-hidden="true">
+            <label for="home-site-web">Ne pas remplir ce champ</label>
+            <input type="text" id="home-site-web" name="site_web" tabindex="-1" autocomplete="off">
+          </div>
+          <div class="mn-mini-form">
+            <div class="mn-mini-form__row">
+              <div>
+                <label for="home-nom">NOM</label>
+                <input type="text" id="home-nom" name="nom" placeholder="Votre nom" required autocomplete="name">
+              </div>
+              <div>
+                <label for="home-email">E-MAIL</label>
+                <input type="email" id="home-email" name="contact_val" placeholder="vous@exemple.fr" required autocomplete="email">
+              </div>
+            </div>
+            <div>
+              <label for="home-tel">TÉLÉPHONE (FACULTATIF)</label>
+              <input type="tel" id="home-tel" name="telephone" placeholder="06 00 00 00 00" autocomplete="tel">
+            </div>
+            <div>
+              <label for="home-message">DESCRIPTION DU PROJET</label>
+              <textarea id="home-message" name="message" rows="2" placeholder="La pièce, l'envie, le délai souhaité…" required></textarea>
+            </div>
+          </div>
+          <button type="submit" class="btn-outline-gold" style="position:relative;margin-top:22px">PARLER DE VOTRE PROJET</button>
+        </form>
       </div>
-      <div style="position:relative;margin-top:44px">
-        <a class="btn-outline-gold" href="/contact">DEMANDER UN ÉCHANGE</a>
-        <div style="font:400 13px 'Instrument Sans',sans-serif;color:#7d766b;margin-top:22px"><a href="tel:<?= htmlspecialchars(preg_replace('/\s+/', '', t_raw($textes, 'contact_phone', '0760033820'))) ?>" style="color:#7d766b"><?= t($textes, 'contact_phone', '07 60 03 38 20') ?></a>&nbsp;&nbsp;<br><a href="mailto:<?= htmlspecialchars(t_raw($textes, 'contact_email', 'matiereetnuance@hotmail.com')) ?>" style="color:#7d766b"><?= t($textes, 'contact_email', 'matiereetnuance@hotmail.com') ?></a></div>
+      <div style="position:relative;margin-top:36px">
+        <div style="font:400 13px 'Instrument Sans',sans-serif;color:#7d766b"><a href="tel:<?= htmlspecialchars(preg_replace('/\s+/', '', t_raw($textes, 'contact_phone', '0760033820'))) ?>" style="color:#7d766b"><?= t($textes, 'contact_phone', '07 60 03 38 20') ?></a>&nbsp;&nbsp;<br><a href="mailto:<?= htmlspecialchars(t_raw($textes, 'contact_email', 'matiereetnuance@hotmail.com')) ?>" style="color:#7d766b"><?= t($textes, 'contact_email', 'matiereetnuance@hotmail.com') ?></a></div>
+        <a href="/contact" style="display:inline-block;margin-top:14px;font:500 11px 'Instrument Sans',sans-serif;letter-spacing:.14em;color:#c8b394;text-decoration:underline">VOIR LA PAGE CONTACT →</a>
       </div>
     </div>
   </div>

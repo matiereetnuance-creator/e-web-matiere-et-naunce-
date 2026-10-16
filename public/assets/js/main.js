@@ -323,6 +323,15 @@
         return;
       }
 
+      // Formulaires courts (accueil, savoir-faire) : un champ téléphone facultatif
+      // existe en plus du champ e-mail, sans équivalent côté serveur — on l'intègre
+      // simplement au message avant envoi plutôt que de modifier api/contact.php.
+      var telInput = form.querySelector('[name="telephone"]');
+      var msgInput = form.querySelector('[name="message"]');
+      if (telInput && telInput.value.trim() && msgInput) {
+        msgInput.value = 'Téléphone : ' + telInput.value.trim() + '\n\n' + msgInput.value;
+      }
+
       var data = new FormData(form);
       data.append('elapsed_ms', String(Date.now() - loadedAt));
 
