@@ -302,6 +302,9 @@ input:focus,textarea:focus,select:focus{
 @media (max-width:640px){
   .container{padding-left:20px;padding-right:20px}
 
+  /* Un peu plus d'air entre le champ message et le bouton d'envoi des mini-formulaires de contact */
+  .mn-mini-form+button{margin-top:36px !important}
+
   .mn-nav{padding:16px 20px}
   .mn-nav__logo{height:36px;width:auto}
   .mn-nav__links--desktop{display:none}
