@@ -341,6 +341,7 @@ input:focus,textarea:focus,select:focus{
 
   .mn-hero-images{flex-direction:column !important}
   .mn-hero-images > div{width:100% !important;margin-bottom:0 !important}
+  .mn-hero-images > p{max-width:100% !important;text-align:center !important;margin:8px auto 0 !important}
 
   .mn-rating{gap:10px}
   .mn-rating__score{font-size:34px}
