@@ -27,7 +27,7 @@ $extraJsonLd = '<script type="application/ld+json">' . json_encode([
 <header style="padding:110px 64px 90px">
   <div class="container" style="padding:0;max-width:1280px">
     <div data-mn-reveal style="display:flex;align-items:center;gap:18px">
-      <img data-mn-amp src="/assets/img/esperluette-beige.svg" alt="" style="height:44px" width="44" height="44">
+      <img data-mn-amp class="mn-amp--static" src="/assets/img/esperluette-beige.svg" alt="" style="height:44px" width="44" height="44">
       <span style="font:500 13px 'Instrument Sans',sans-serif;letter-spacing:.28em;color:#a6947c">L'ENTREPRISE</span>
     </div>
     <h1 class="mn-h1" data-mn-reveal style="font:400 76px/1.06 'Instrument Serif',serif;color:#2b2926;margin:26px 0 0;max-width:940px;font-weight:400;text-wrap:balance">L'exigence du détail, la passion des beaux <em style="font-style:italic;color:#8a7a63">intérieurs.</em></h1>
@@ -41,7 +41,7 @@ $extraJsonLd = '<script type="application/ld+json">' . json_encode([
     </div>
     <div style="padding-top:12px">
       <div data-mn-reveal style="font:500 12px 'Instrument Sans',sans-serif;letter-spacing:.28em;color:#a6947c">L'HISTOIRE</div>
-      <p data-mn-reveal style="font:400 24px/1.65 'Instrument Serif',serif;color:#2b2926;margin:24px 0 0"><?= t($textes, 'ent_histoire_lead', "Matière & Nuance est née d'une conviction simple : la peinture n'est pas une couche, c'est une matière que l'on travaille.") ?></p>
+      <p data-mn-reveal style="font:400 24px/1.65 'Instrument Serif',serif;color:#2b2926;margin:24px 0 0"><?= t($textes, 'ent_histoire_lead', "Matière & Nuance est née d'une conviction simple : la qualité n'est pas une option, c'est une évidence.") ?></p>
       <p data-mn-reveal class="mn-body-lg" style="font:400 15.5px/1.95 'Instrument Sans',sans-serif;color:#6c665c;margin:26px 0 0"><?= t($textes, 'ent_histoire_p1', "Après plusieurs années de métier, j'ai souhaité créer une entreprise à mon image.") ?></p>
       <p data-mn-reveal class="mn-body-lg" style="font:400 15.5px/1.95 'Instrument Sans',sans-serif;color:#6c665c;margin:20px 0 0"><?= t($textes, 'ent_histoire_p2', "J'accorde une importance particulière à la préparation des supports, à la qualité des finitions et au respect des lieux de vie.") ?></p>
       <p data-mn-reveal class="mn-body-lg" style="font:400 15.5px/1.95 'Instrument Sans',sans-serif;color:#6c665c;margin:20px 0 0"><?= t($textes, 'ent_histoire_p3', "Installée dans l'Ouest lyonnais, Matière & Nuance accompagne les particuliers et les professionnels dans leurs projets d'aménagement et de rénovation intérieure, en intervenant dans l'ensemble de l'Ouest lyonnais et du Beaujolais avec la même exigence de qualité et de finition.") ?></p>

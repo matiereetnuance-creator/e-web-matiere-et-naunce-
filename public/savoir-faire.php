@@ -26,7 +26,7 @@ $extraJsonLd = '<script type="application/ld+json">' . json_encode([
 <header style="padding:110px 64px 90px">
   <div class="container" style="padding:0;max-width:1280px">
     <div data-mn-reveal style="display:flex;align-items:center;gap:18px">
-      <img data-mn-amp src="/assets/img/esperluette-beige.svg" alt="" style="height:44px" width="44" height="44">
+      <img data-mn-amp class="mn-amp--static" src="/assets/img/esperluette-beige.svg" alt="" style="height:44px" width="44" height="44">
       <span style="font:500 13px 'Instrument Sans',sans-serif;letter-spacing:.28em;color:#a6947c">SAVOIR-FAIRE</span>
     </div>
     <h1 class="mn-h1" data-mn-reveal style="font:400 76px/1.06 'Instrument Serif',serif;color:#2b2926;margin:26px 0 0;max-width:900px;font-weight:400;text-wrap:balance">Trois métiers, une même <em style="font-style:italic;color:#8a7a63">exigence.</em></h1>

@@ -87,6 +87,11 @@ button{font-family:var(--font-sans)}
 [data-mn-reveal].is-visible{opacity:1;transform:none}
 [data-mn-amp]{opacity:0;will-change:opacity,transform}
 [data-mn-amp].is-visible{opacity:1;animation:mnamp 1.3s cubic-bezier(.22,1,.36,1) both,mnpaint 2s .15s cubic-bezier(.4,0,.2,1) both,mnfloat 8s ease-in-out 2.6s infinite}
+/* Petite esperluette à côté d'un libellé de page (Savoir-faire, Réalisations,
+   Entreprise, Avis, Accueil) : le léger flottement continu, perceptible à cette
+   taille contre un texte statique, donnait une impression de saccade — on
+   garde l'apparition mais on retire le flottement perpétuel. */
+[data-mn-amp].is-visible.mn-amp--static{animation:mnamp 1.3s cubic-bezier(.22,1,.36,1) both}
 [data-mn-amp-once].is-visible{opacity:1;-webkit-mask-image:linear-gradient(105deg,#000 45%,transparent 60%);mask-image:linear-gradient(105deg,#000 45%,transparent 60%);-webkit-mask-size:260% 100%;mask-size:260% 100%;animation:mnpaint 1.6s cubic-bezier(.4,0,.2,1) both}
 
 /* Cinematic word-by-word title (Accueil uniquement) */
