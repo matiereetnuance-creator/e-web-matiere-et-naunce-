@@ -99,10 +99,9 @@ $extraJsonLd = '<script type="application/ld+json">' . json_encode([
 
 <section style="padding:0 64px 96px">
   <div data-mn-reveal class="cta-dark" style="flex-direction:column;align-items:flex-start;gap:28px">
-    <img class="cta-dark__amp" src="/assets/img/esperluette-laiton.svg" alt="">
+    <img class="cta-dark__amp" src="/assets/img/esperluette-laiton.svg" alt="" style="right:6px;bottom:6px;height:230px;opacity:.2">
     <div style="position:relative">
-      <div class="cta-dark__title">Un projet, une pièce, une <em style="font-style:italic;color:#c8b394">envie ?</em></div>
-      <div class="cta-dark__sub">La première visite est toujours sans engagement.</div>
+      <div class="cta-dark__title">Parlons de votre <em style="font-style:italic;color:#c8b394">projet.</em></div>
     </div>
 
     <div data-mn-contact-success hidden style="position:relative">

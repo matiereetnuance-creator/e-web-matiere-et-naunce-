@@ -237,11 +237,7 @@ $extraJsonLd = '<script type="application/ld+json">' . json_encode([
   <div class="mn-contact-grid container" style="padding:0;max-width:1280px;display:grid;grid-template-columns:4fr 5fr;gap:28px;padding-bottom:96px">
     <div data-mn-reveal>
       <h2 class="mn-h2--md" style="font:400 40px/1.15 'Instrument Serif',serif;color:#2b2926;margin:0;font-weight:400;display:flex;align-items:baseline;gap:14px;flex-wrap:wrap">Ouest lyonnais <img src="/assets/img/esperluette-beige.svg" alt="&amp;" style="height:30px;align-self:center" width="30" height="30"> Beaujolais</h2>
-      <p style="font:400 15px/1.85 'Instrument Sans',sans-serif;color:#6c665c;margin:20px 0 0;max-width:440px"><?= t($textes, 'home_zone_text', "Nous accompagnons nos clients dans l'ensemble de l'Ouest lyonnais et du Beaujolais avec une même exigence : être disponibles, réactifs et présents du premier rendez-vous jusqu'aux dernières finitions.") ?></p>
-      <div style="margin-top:32px">
-        <h3 style="font:400 22px 'Instrument Serif',serif;color:#2b2926;margin:0;font-weight:400">Un savoir-faire de proximité</h3>
-        <p style="font:400 14px/1.8 'Instrument Sans',sans-serif;color:#6c665c;margin:12px 0 0;max-width:440px">Matière &amp; Nuance accompagne vos projets de plâtrerie, peinture et béton ciré dans l'Ouest lyonnais et une partie du Beaujolais. Chaque chantier fait l'objet d'une attention particulière, avec une exigence constante portée aux finitions, à l'esthétique et à la durabilité des ouvrages.</p>
-      </div>
+      <p style="font:400 15px/1.85 'Instrument Sans',sans-serif;color:#6c665c;margin:20px 0 0;max-width:440px"><?= t($textes, 'home_zone_text', "Matière & Nuance accompagne vos projets de plâtrerie, peinture et béton ciré dans l'Ouest lyonnais et le Beaujolais. Chaque intervention est abordée avec la même exigence : une écoute attentive de vos besoins, des conseils adaptés à votre intérieur et un soin particulier apporté aux finitions. De la première rencontre jusqu'à la réalisation des travaux, nous privilégions un accompagnement personnalisé, la qualité des ouvrages et leur durabilité.") ?></p>
     </div>
     <div data-mn-reveal data-mn-grain style="background:#2b2926;padding:56px 56px 48px;display:flex;flex-direction:column;justify-content:space-between;position:relative;overflow:hidden">
       <img src="/assets/img/esperluette-laiton.svg" alt="" style="position:absolute;right:-30px;bottom:-60px;height:320px;opacity:.14;pointer-events:none">
