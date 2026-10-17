@@ -73,10 +73,10 @@ function field($name, $label, $textes, $multiline = false, $help = '')
   <div class="card">
     <h2>Chiffres clés <span class="muted">(page L'entreprise)</span></h2>
     <div class="field-row">
-      <?php field('stat_years', 'Années d\'expérience', $textes); ?>
+      <?php field('stat_years', 'Années d\'expérience', $textes, false, 'Nombre uniquement (ex. 10) — le signe + et « ans » sont ajoutés automatiquement.'); ?>
       <?php field('stat_rating', 'Note Google', $textes); ?>
     </div>
-    <?php field('stat_clients', 'Clients accompagnés', $textes); ?>
+    <?php field('stat_clients', 'Clients accompagnés', $textes, false, 'Nombre uniquement (ex. 40) — le signe + est ajouté automatiquement, et le chiffre défile à l\'affichage.'); ?>
   </div>
 
   <div class="card">

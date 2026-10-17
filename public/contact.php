@@ -93,17 +93,15 @@ if ($phoneTel !== '' && $phoneTel[0] === '0') {
     </div>
     <!-- COORDONNÉES -->
     <div style="display:grid;gap:28px">
-      <div data-mn-reveal data-mn-grain style="background:#2b2926;padding:56px 48px;position:relative;overflow:hidden;display:flex;flex-direction:column;justify-content:center;height:100%;box-sizing:border-box">
-        <img src="/assets/img/esperluette-laiton.svg" alt="" style="position:absolute;right:10px;bottom:10px;height:200px;opacity:.18;pointer-events:none">
-        <div style="position:relative;display:grid;gap:30px">
+      <div data-mn-reveal data-mn-grain class="mn-coord-card">
+        <img class="mn-coord-card__amp" src="/assets/img/esperluette-laiton.svg" alt="">
+        <div style="position:relative;display:grid;gap:34px">
+          <div style="font:500 11px 'Instrument Sans',sans-serif;letter-spacing:.26em;color:#c8b394">NOUS CONTACTER</div>
           <div>
-            <div style="font:500 11px 'Instrument Sans',sans-serif;letter-spacing:.22em;color:#c8b394">TÉLÉPHONE</div>
-            <div style="font:400 22px 'Instrument Serif',serif;color:#f4f2ef;margin-top:8px"><a href="tel:<?= htmlspecialchars($phoneTel) ?>" style="color:#f4f2ef"><?= t($textes, 'contact_phone', '07 60 03 38 20') ?></a></div>
+            <div class="mn-coord-card__phone"><a href="tel:<?= htmlspecialchars($phoneTel) ?>" style="color:#f4f2ef"><?= t($textes, 'contact_phone', '07 60 03 38 20') ?></a></div>
+            <div style="font:400 14px 'Instrument Sans',sans-serif;color:#b0a99b;margin-top:10px"><a href="mailto:<?= htmlspecialchars(t_raw($textes, 'contact_email', 'matiereetnuance@hotmail.com')) ?>" style="color:#b0a99b"><?= t($textes, 'contact_email', 'matiereetnuance@hotmail.com') ?></a></div>
           </div>
-          <div>
-            <div style="font:500 11px 'Instrument Sans',sans-serif;letter-spacing:.22em;color:#c8b394">EMAIL</div>
-            <div style="font:400 20px 'Instrument Serif',serif;color:#f4f2ef;margin-top:8px"><a href="mailto:<?= htmlspecialchars(t_raw($textes, 'contact_email', 'matiereetnuance@hotmail.com')) ?>" style="color:#f4f2ef"><?= t($textes, 'contact_email', 'matiereetnuance@hotmail.com') ?></a></div>
-          </div>
+          <p style="font:400 14px/1.7 'Instrument Sans',sans-serif;color:#b0a99b;margin:0;max-width:280px">Une question ou un projet à nous confier ? Nous sommes à votre écoute.</p>
         </div>
       </div>
     </div>
