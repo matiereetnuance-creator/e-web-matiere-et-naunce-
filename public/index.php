@@ -242,7 +242,7 @@ $extraJsonLd = '<script type="application/ld+json">' . json_encode([
       <h2 class="mn-h2--md" style="font:400 40px/1.15 'Instrument Serif',serif;color:#2b2926;margin:0;font-weight:400;display:flex;align-items:baseline;gap:14px;flex-wrap:wrap">Ouest lyonnais <img src="/assets/img/esperluette-beige.svg" alt="&amp;" style="height:30px;align-self:center" width="30" height="30"> Beaujolais</h2>
       <p style="font:400 15px/1.85 'Instrument Sans',sans-serif;color:#6c665c;margin:20px 0 0;max-width:440px"><?= t($textes, 'home_zone_text', "Matière & Nuance accompagne vos projets de plâtrerie, peinture et béton ciré dans l'Ouest lyonnais et le Beaujolais. Chaque intervention est abordée avec la même exigence : une écoute attentive de vos besoins, des conseils adaptés à votre intérieur et un soin particulier apporté aux finitions. De la première rencontre jusqu'à la réalisation des travaux, nous privilégions un accompagnement personnalisé, la qualité des ouvrages et leur durabilité.") ?></p>
     </div>
-    <div data-mn-reveal data-mn-grain style="background:#2b2926;padding:56px 56px 48px;display:flex;flex-direction:column;justify-content:space-between;position:relative;overflow:hidden">
+    <div data-mn-reveal data-mn-grain style="background:#1c1b19;padding:56px 56px 48px;display:flex;flex-direction:column;justify-content:space-between;position:relative;overflow:hidden">
       <img src="/assets/img/esperluette-laiton.svg" alt="" style="position:absolute;right:-30px;bottom:-60px;height:320px;opacity:.14;pointer-events:none">
       <div style="position:relative">
         <div style="font:500 12px 'Instrument Sans',sans-serif;letter-spacing:.28em;color:#c8b394">CONTACT</div>

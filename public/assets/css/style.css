@@ -39,7 +39,7 @@
   --cream-card:#fbfaf9;
   --border:#e2dfd9;
   --border-2:#d9d6cf;
-  --ink:#2b2926;
+  --ink:#1c1b19;
   --ink-2:#161513;
   --text-muted:#6c665c;
   --text-muted-2:#4c463d;
@@ -213,7 +213,7 @@ input:focus,textarea:focus,select:focus{
 .mn-hp{position:absolute;left:-9999px;width:1px;height:1px;opacity:0}
 
 /* ============ Carte coordonnées (page Contact) — variante « Hiérarchie accentuée » ============ */
-.mn-coord-card{background:#2b2926;padding:56px 48px;position:relative;overflow:hidden;height:100%;box-sizing:border-box}
+.mn-coord-card{background:#1c1b19;padding:56px 48px;position:relative;overflow:hidden;height:100%;box-sizing:border-box}
 .mn-coord-card__amp{position:absolute;right:-40px;bottom:-60px;height:280px;opacity:.16;pointer-events:none}
 .mn-coord-card__phone{font:400 30px 'Instrument Serif',serif;color:#f4f2ef}
 @media (max-width:640px){
