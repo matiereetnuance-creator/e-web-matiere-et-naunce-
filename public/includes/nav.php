@@ -22,7 +22,7 @@ $navClass = static function (string $key) use ($activePage): string {
     <a class="mn-nav__ig" href="<?= htmlspecialchars($instagram) ?>" target="_blank" rel="noopener" aria-label="Instagram Matière &amp; Nuance">
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2.5" y="2.5" width="19" height="19" rx="5.5"></rect><circle cx="12" cy="12" r="4.2"></circle><circle cx="17.4" cy="6.6" r="1.1" fill="currentColor" stroke="none"></circle></svg>
     </a>
-    <a class="mn-nav__cta" href="/contact"<?= $activePage === 'contact' ? ' style="background:#2b2926;color:#f7f3ec"' : '' ?>>CONTACT</a>
+    <a class="mn-nav__cta" href="/contact"<?= $activePage === 'contact' ? ' style="background:#2b2926;color:#f4f2ef"' : '' ?>>CONTACT</a>
   </div>
   <div class="mn-burger-wrap">
     <a href="<?= htmlspecialchars($instagram) ?>" target="_blank" rel="noopener" aria-label="Instagram" style="display:flex;align-items:center;color:#2b2926;padding:8px">

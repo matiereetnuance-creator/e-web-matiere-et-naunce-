@@ -35,12 +35,12 @@ if ($phoneTel !== '' && $phoneTel[0] === '0') {
       <span style="font:500 13px 'Instrument Sans',sans-serif;letter-spacing:.28em;color:#a6947c">CONTACT</span>
     </div>
     <h1 class="mn-h1" data-mn-reveal style="font:400 76px/1.06 'Instrument Serif',serif;color:#2b2926;margin:26px 0 0;max-width:820px;font-weight:400;text-wrap:balance">Parlons de votre <em style="font-style:italic;color:#8a7a63">projet.</em></h1>
-    <p data-mn-reveal class="mn-body-lg" style="font:400 16px/1.9 'Instrument Sans',sans-serif;color:#6c665c;margin:30px 0 0;max-width:540px">Décrivez-nous votre projet. Nous répondons sous 48 h — et la première visite est toujours sans engagement.</p>
+    <p data-mn-reveal class="mn-body-lg" style="font:400 16px/1.9 'Instrument Sans',sans-serif;color:#6c665c;margin:30px 0 0;max-width:540px">Décrivez-nous votre projet. Nous vous répondrons sous 48 h.</p>
   </div>
 </header>
 
 <section style="padding:0 64px 100px">
-  <div class="mn-contact-grid container" style="padding:0;max-width:1280px;display:grid;grid-template-columns:1.3fr 1fr;gap:28px;align-items:start">
+  <div class="mn-contact-grid container" style="padding:0;max-width:1280px;display:grid;grid-template-columns:1.3fr 1fr;gap:28px;align-items:stretch">
     <!-- FORMULAIRE -->
     <div data-mn-reveal style="background:#fbfaf9;border:1px solid #e2dfd9;padding:52px">
 
@@ -93,9 +93,9 @@ if ($phoneTel !== '' && $phoneTel[0] === '0') {
     </div>
     <!-- COORDONNÉES -->
     <div style="display:grid;gap:28px">
-      <div data-mn-reveal data-mn-grain style="background:#2b2926;padding:44px;position:relative;overflow:hidden">
-        <img src="/assets/img/esperluette-laiton.svg" alt="" style="position:absolute;right:-24px;bottom:-50px;height:220px;opacity:.14;pointer-events:none">
-        <div style="position:relative;display:grid;gap:26px">
+      <div data-mn-reveal data-mn-grain style="background:#2b2926;padding:56px 48px;position:relative;overflow:hidden;display:flex;flex-direction:column;justify-content:center;height:100%;box-sizing:border-box">
+        <img src="/assets/img/esperluette-laiton.svg" alt="" style="position:absolute;right:10px;bottom:10px;height:200px;opacity:.18;pointer-events:none">
+        <div style="position:relative;display:grid;gap:30px">
           <div>
             <div style="font:500 11px 'Instrument Sans',sans-serif;letter-spacing:.22em;color:#c8b394">TÉLÉPHONE</div>
             <div style="font:400 22px 'Instrument Serif',serif;color:#f4f2ef;margin-top:8px"><a href="tel:<?= htmlspecialchars($phoneTel) ?>" style="color:#f4f2ef"><?= t($textes, 'contact_phone', '07 60 03 38 20') ?></a></div>

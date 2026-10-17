@@ -43,7 +43,7 @@ $cssVersion = @filemtime(__DIR__ . '/../assets/css/style.css') ?: time();
 <meta name="description" content="<?= htmlspecialchars($description) ?>">
 <link rel="canonical" href="<?= htmlspecialchars($canonical) ?>">
 <meta name="robots" content="<?= htmlspecialchars($robots) ?>">
-<meta name="theme-color" content="#f7f3ec">
+<meta name="theme-color" content="#f4f2ef">
 <meta property="og:type" content="<?= htmlspecialchars($ogType) ?>">
 <meta property="og:site_name" content="Matière &amp; Nuance">
 <meta property="og:locale" content="fr_FR">

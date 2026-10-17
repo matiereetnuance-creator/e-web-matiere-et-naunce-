@@ -63,8 +63,8 @@ require __DIR__ . '/includes/seo-head.php';
           <span class="mn-ba-arrow mn-ba-arrow--r" aria-hidden="true">›</span>
         </div>
       </div>
-      <div style="position:absolute;left:24px;bottom:20px;font:500 11px 'Instrument Sans',sans-serif;letter-spacing:.22em;color:#f7f3ec;background:rgba(43,41,38,.55);padding:8px 14px;backdrop-filter:blur(4px)">AVANT</div>
-      <div style="position:absolute;right:24px;bottom:20px;font:500 11px 'Instrument Sans',sans-serif;letter-spacing:.22em;color:#f7f3ec;background:rgba(43,41,38,.55);padding:8px 14px;backdrop-filter:blur(4px)">APRÈS</div>
+      <div style="position:absolute;left:24px;bottom:20px;font:500 11px 'Instrument Sans',sans-serif;letter-spacing:.22em;color:#f4f2ef;background:rgba(43,41,38,.55);padding:8px 14px;backdrop-filter:blur(4px)">AVANT</div>
+      <div style="position:absolute;right:24px;bottom:20px;font:500 11px 'Instrument Sans',sans-serif;letter-spacing:.22em;color:#f4f2ef;background:rgba(43,41,38,.55);padding:8px 14px;backdrop-filter:blur(4px)">APRÈS</div>
     </div>
   </div>
 </section>
