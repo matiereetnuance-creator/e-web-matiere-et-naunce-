@@ -49,7 +49,7 @@ $extraJsonLd = '<script type="application/ld+json">' . json_encode([
       <div data-mn-reveal class="mn-stat-row" style="display:flex;gap:56px;margin-top:44px">
         <div><div style="font:400 44px 'Instrument Serif',serif;color:#2b2926"><?= t($textes, 'stat_years', '10') ?><span style="color:#a6947c"> ans</span></div><div style="font:500 11.5px 'Instrument Sans',sans-serif;letter-spacing:.18em;color:#8a7a63;margin-top:6px">D'EXPÉRIENCE</div></div>
         <div><div style="font:400 44px 'Instrument Serif',serif;color:#2b2926"><?= t($textes, 'stat_rating', '4,9') ?><span style="color:#a6947c">/5</span></div><div style="font:500 11.5px 'Instrument Sans',sans-serif;letter-spacing:.18em;color:#8a7a63;margin-top:6px">SUR GOOGLE</div></div>
-        <div><div style="font:400 44px 'Instrument Serif',serif;color:#2b2926"><?= t($textes, 'stat_clients', '+ 20') ?></div><div style="font:500 11.5px 'Instrument Sans',sans-serif;letter-spacing:.18em;color:#8a7a63;margin-top:6px">CLIENTS ACCOMPAGNÉS</div></div>
+        <div><div style="font:400 44px 'Instrument Serif',serif;color:#2b2926"><span data-mn-counter data-mn-counter-target="<?= (int) preg_replace('/\D+/', '', t_raw($textes, 'stat_clients', '+ 40')) ?>" data-mn-counter-prefix="+ "><?= t($textes, 'stat_clients', '+ 40') ?></span></div><div style="font:500 11.5px 'Instrument Sans',sans-serif;letter-spacing:.18em;color:#8a7a63;margin-top:6px">CLIENTS ACCOMPAGNÉS</div></div>
       </div>
     </div>
   </div>
@@ -97,7 +97,7 @@ $extraJsonLd = '<script type="application/ld+json">' . json_encode([
     <img class="cta-dark__amp" src="/assets/img/esperluette-laiton.svg" alt="">
     <div style="position:relative">
       <div class="cta-dark__title">Rencontrons-nous chez <em style="font-style:italic;color:#c8b394">vous.</em></div>
-      <div class="cta-dark__sub">La première visite est toujours sans engagement.</div>
+      <div class="cta-dark__sub">Vous avez un projet de rénovation ou d'aménagement intérieur ? Échangeons sur vos besoins et imaginons ensemble une réalisation adaptée à votre intérieur.</div>
     </div>
     <a class="btn-outline-gold" style="position:relative" href="/contact">DEMANDER UN ÉCHANGE</a>
   </div>

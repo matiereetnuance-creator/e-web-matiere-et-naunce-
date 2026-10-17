@@ -420,6 +420,48 @@
     });
   }
 
+  /* ---------- Chiffres clés : défilement du nombre à l'apparition (ex. "clients accompagnés") ----------
+   * Le HTML contient déjà le texte final rendu côté serveur (fonctionne sans JS). Si JS et
+   * IntersectionObserver sont disponibles ET que le visiteur n'a pas demandé de réduire les
+   * animations (prefers-reduced-motion), l'élément compte de 0 jusqu'à sa valeur, une seule fois,
+   * puis se fixe exactement sur le texte d'origine pour ne jamais diverger de la source (CMS). */
+  function initCounters() {
+    var counters = document.querySelectorAll('[data-mn-counter]');
+    if (!counters.length) return;
+    if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    if (typeof IntersectionObserver === 'undefined') return;
+
+    function animate(el) {
+      var target = parseInt(el.getAttribute('data-mn-counter-target'), 10);
+      var prefix = el.getAttribute('data-mn-counter-prefix') || '';
+      var finalText = el.textContent;
+      if (!target || isNaN(target)) return;
+      var duration = 900;
+      var start = null;
+      function step(ts) {
+        if (start === null) start = ts;
+        var progress = Math.min((ts - start) / duration, 1);
+        var eased = 1 - Math.pow(1 - progress, 3);
+        el.textContent = prefix + Math.round(eased * target);
+        if (progress < 1) {
+          requestAnimationFrame(step);
+        } else {
+          el.textContent = finalText;
+        }
+      }
+      requestAnimationFrame(step);
+    }
+
+    var observer = new IntersectionObserver(function (entries) {
+      entries.forEach(function (entry) {
+        if (!entry.isIntersecting) return;
+        observer.unobserve(entry.target);
+        animate(entry.target);
+      });
+    }, { threshold: 0.4 });
+    counters.forEach(function (el) { observer.observe(el); });
+  }
+
   document.addEventListener('DOMContentLoaded', function () {
     initPageTransition();
     initGrain();
@@ -431,5 +473,6 @@
     initContactForm();
     initClickTracking();
     initConsentManagerLink();
+    initCounters();
   });
 })();

@@ -84,7 +84,7 @@ if ($phoneTel !== '' && $phoneTel[0] === '0') {
           </div>
           <div class="mn-field" style="grid-column:1/-1">
             <label for="message">VOTRE MESSAGE</label>
-            <textarea id="message" name="message" rows="5" placeholder="La pièce, les surfaces, l'ambiance recherchée…" required></textarea>
+            <textarea id="message" name="message" rows="5" placeholder="Présentez-nous votre projet en quelques mots : les travaux envisagés, les espaces concernés et toute précision qui vous semble utile." required></textarea>
           </div>
         </div>
         <p style="font:400 11.5px/1.6 'Instrument Sans',sans-serif;color:#a39a8a;margin:16px 0 0">En envoyant ce formulaire, vous acceptez que vos données soient utilisées pour vous recontacter au sujet de votre projet. Elles ne sont ni conservées au-delà de ce besoin, ni transmises à des tiers.</p>

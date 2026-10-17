@@ -132,7 +132,7 @@ $extraJsonLd = '<script type="application/ld+json">' . json_encode([
         </div>
         <div>
           <label for="sf-message">DESCRIPTION DU PROJET</label>
-          <textarea id="sf-message" name="message" rows="2" placeholder="La pièce, l'envie, le délai souhaité…" required></textarea>
+          <textarea id="sf-message" name="message" rows="2" placeholder="Décrivez votre projet, les travaux envisagés et les détails que vous souhaitez partager…" required></textarea>
         </div>
       </div>
       <button type="submit" class="btn-outline-gold" style="position:relative;margin-top:22px">DEMANDER UN DEVIS</button>

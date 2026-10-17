@@ -167,11 +167,14 @@ $extraJsonLd = '<script type="application/ld+json">' . json_encode([
       <?= render_photo(photo_src('ent-portrait'), 'Portrait du fondateur de Matière & Nuance', 'width="520" height="520" loading="lazy"') ?>
     </div>
     <div>
-      <div data-mn-reveal style="font:500 12px 'Instrument Sans',sans-serif;letter-spacing:.28em;color:#a6947c">L'ENTREPRISE</div>
+      <div data-mn-reveal style="display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:12px 20px">
+        <div style="font:500 12px 'Instrument Sans',sans-serif;letter-spacing:.28em;color:#a6947c">L'ENTREPRISE</div>
+        <a href="/entreprise" style="font:500 12px 'Instrument Sans',sans-serif;letter-spacing:.2em;color:#8a7a63">DÉCOUVRIR L'ENTREPRISE →</a>
+      </div>
       <h2 class="mn-h2" data-mn-reveal style="font:400 52px/1.12 'Instrument Serif',serif;color:#2b2926;margin:22px 0 0;font-weight:400;text-wrap:balance">L'exigence du détail, la passion des beaux <em style="font-style:italic;color:#8a7a63">intérieurs.</em></h2>
       <div data-mn-reveal class="mn-body-lg" style="font:400 15.5px/1.9 'Instrument Sans',sans-serif;color:#6c665c;margin:26px 0 0;max-width:520px"><?= t_raw($textes, 'home_entreprise_intro', "Entreprise de peinture, de plâtrerie et de béton ciré basée dans l'Ouest lyonnais, nous accompagnons les particuliers et les professionnels dans l'ensemble de l'Ouest lyonnais et du Beaujolais.") ?></div>
       <div data-mn-reveal style="display:flex;flex-wrap:wrap;gap:16px 40px;margin-top:38px;font:500 12px 'Instrument Sans',sans-serif;letter-spacing:.18em;color:#8a7a63">
-        <a href="/entreprise#histoire" style="color:#8a7a63">L'HISTOIRE</a><a href="/entreprise#valeurs" style="color:#8a7a63">LES VALEURS</a><a href="/entreprise#garanties" style="color:#8a7a63">LES GARANTIES</a><a href="/entreprise" style="color:#8a7a63">DÉCOUVRIR L'ENTREPRISE</a>
+        <a href="/entreprise#histoire" style="color:#8a7a63">L'HISTOIRE</a><a href="/entreprise#valeurs" style="color:#8a7a63">LES VALEURS</a><a href="/entreprise#garanties" style="color:#8a7a63">LES GARANTIES</a>
       </div>
     </div>
   </div>
@@ -244,7 +247,7 @@ $extraJsonLd = '<script type="application/ld+json">' . json_encode([
       <div style="position:relative">
         <div style="font:500 12px 'Instrument Sans',sans-serif;letter-spacing:.28em;color:#c8b394">CONTACT</div>
         <div style="font:400 44px/1.15 'Instrument Serif',serif;color:#f4f2ef;margin-top:20px">Parlons de votre <em style="font-style:italic;color:#c8b394">projet.</em></div>
-        <p style="font:400 14.5px/1.85 'Instrument Sans',sans-serif;color:#b0a99b;margin:20px 0 0;max-width:380px">Décrivez-nous la pièce, la commune, l'envie. Nous répondons sous 48 h, et la première visite est toujours sans engagement.</p>
+        <p style="font:400 14.5px/1.85 'Instrument Sans',sans-serif;color:#b0a99b;margin:20px 0 0;max-width:380px">Parlez-nous de votre projet et de vos envies. Nous prendrons le temps d'étudier votre demande et vous répondrons sous 48 h.</p>
 
         <div data-mn-contact-success hidden style="margin-top:28px">
           <div style="font:400 22px 'Instrument Serif',serif;color:#f4f2ef">Merci, votre message est bien <em style="font-style:italic;color:#c8b394">parti.</em></div>
@@ -274,7 +277,7 @@ $extraJsonLd = '<script type="application/ld+json">' . json_encode([
             </div>
             <div>
               <label for="home-message">DESCRIPTION DU PROJET</label>
-              <textarea id="home-message" name="message" rows="2" placeholder="La pièce, l'envie, le délai souhaité…" required></textarea>
+              <textarea id="home-message" name="message" rows="2" placeholder="Décrivez votre projet, les travaux envisagés et les détails que vous souhaitez partager…" required></textarea>
             </div>
           </div>
           <button type="submit" class="btn-outline-gold" style="position:relative;margin-top:22px">PARLER DE VOTRE PROJET</button>
