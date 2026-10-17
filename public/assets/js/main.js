@@ -436,13 +436,12 @@
       var prefix = el.getAttribute('data-mn-counter-prefix') || '';
       var finalText = el.textContent;
       if (!target || isNaN(target)) return;
-      var duration = 1800;
+      var duration = 3200;
       var start = null;
       function step(ts) {
         if (start === null) start = ts;
         var progress = Math.min((ts - start) / duration, 1);
-        var eased = 1 - Math.pow(1 - progress, 3);
-        el.textContent = prefix + Math.round(eased * target);
+        el.textContent = prefix + Math.round(progress * target);
         if (progress < 1) {
           requestAnimationFrame(step);
         } else {
