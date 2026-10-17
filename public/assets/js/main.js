@@ -436,7 +436,7 @@
       var prefix = el.getAttribute('data-mn-counter-prefix') || '';
       var finalText = el.textContent;
       if (!target || isNaN(target)) return;
-      var duration = 900;
+      var duration = 1800;
       var start = null;
       function step(ts) {
         if (start === null) start = ts;
