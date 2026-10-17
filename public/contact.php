@@ -42,7 +42,7 @@ if ($phoneTel !== '' && $phoneTel[0] === '0') {
 <section style="padding:0 64px 100px">
   <div class="mn-contact-grid container" style="padding:0;max-width:1280px;display:grid;grid-template-columns:1.3fr 1fr;gap:28px;align-items:start">
     <!-- FORMULAIRE -->
-    <div data-mn-reveal style="background:#fdfbf7;border:1px solid #e8e1d3;padding:52px">
+    <div data-mn-reveal style="background:#fbfaf9;border:1px solid #e2dfd9;padding:52px">
 
       <div data-mn-contact-success hidden style="text-align:center;padding:60px 20px">
         <img src="/assets/img/esperluette-beige.svg" alt="" style="height:64px">
@@ -98,11 +98,11 @@ if ($phoneTel !== '' && $phoneTel[0] === '0') {
         <div style="position:relative;display:grid;gap:26px">
           <div>
             <div style="font:500 11px 'Instrument Sans',sans-serif;letter-spacing:.22em;color:#c8b394">TÉLÉPHONE</div>
-            <div style="font:400 22px 'Instrument Serif',serif;color:#f7f3ec;margin-top:8px"><a href="tel:<?= htmlspecialchars($phoneTel) ?>" style="color:#f7f3ec"><?= t($textes, 'contact_phone', '07 60 03 38 20') ?></a></div>
+            <div style="font:400 22px 'Instrument Serif',serif;color:#f4f2ef;margin-top:8px"><a href="tel:<?= htmlspecialchars($phoneTel) ?>" style="color:#f4f2ef"><?= t($textes, 'contact_phone', '07 60 03 38 20') ?></a></div>
           </div>
           <div>
             <div style="font:500 11px 'Instrument Sans',sans-serif;letter-spacing:.22em;color:#c8b394">EMAIL</div>
-            <div style="font:400 20px 'Instrument Serif',serif;color:#f7f3ec;margin-top:8px"><a href="mailto:<?= htmlspecialchars(t_raw($textes, 'contact_email', 'matiereetnuance@hotmail.com')) ?>" style="color:#f7f3ec"><?= t($textes, 'contact_email', 'matiereetnuance@hotmail.com') ?></a></div>
+            <div style="font:400 20px 'Instrument Serif',serif;color:#f4f2ef;margin-top:8px"><a href="mailto:<?= htmlspecialchars(t_raw($textes, 'contact_email', 'matiereetnuance@hotmail.com')) ?>" style="color:#f4f2ef"><?= t($textes, 'contact_email', 'matiereetnuance@hotmail.com') ?></a></div>
           </div>
         </div>
       </div>

@@ -84,7 +84,7 @@ $extraJsonLd = '<script type="application/ld+json">' . json_encode([
 </header>
 
 <!-- ======================= SAVOIR-FAIRE ======================= -->
-<section id="savoirfaire" style="padding:96px 64px;border-top:1px solid #e8e1d3">
+<section id="savoirfaire" style="padding:96px 64px;border-top:1px solid #e2dfd9">
   <div class="container" style="padding:0;max-width:1280px">
     <div data-mn-reveal style="display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:12px 20px">
       <h2 class="mn-h2" style="font:400 46px/1.1 'Instrument Serif',serif;color:#2b2926;margin:0;font-weight:400">Trois savoir-faire</h2>
@@ -124,7 +124,7 @@ $extraJsonLd = '<script type="application/ld+json">' . json_encode([
 </section>
 
 <!-- ======================= MÉTHODE ======================= -->
-<section style="background:#eee8db;padding:96px 64px">
+<section style="background:#e9e6e0;padding:96px 64px">
   <div class="container" style="padding:0;max-width:1280px">
     <h2 class="mn-h2" data-mn-reveal style="font:400 46px/1.1 'Instrument Serif',serif;color:#2b2926;margin:0;font-weight:400">Notre <em style="font-style:italic;color:#8a7a63">méthode</em></h2>
     <div class="mn-grid-4" style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:32px;margin-top:56px">
@@ -154,9 +154,9 @@ $extraJsonLd = '<script type="application/ld+json">' . json_encode([
 
 <!-- ======================= LE SIGNE — respiration ======================= -->
 <div style="padding:110px 64px;display:flex;align-items:center;justify-content:center;gap:52px;max-width:1280px;margin:0 auto">
-  <div data-mn-reveal style="flex:1;height:1px;background:#ddd3c0"></div>
+  <div data-mn-reveal style="flex:1;height:1px;background:#d5d1c8"></div>
   <img data-mn-amp src="/assets/img/esperluette-beige.svg" alt="" style="height:150px" width="150" height="150">
-  <div data-mn-reveal style="flex:1;height:1px;background:#ddd3c0"></div>
+  <div data-mn-reveal style="flex:1;height:1px;background:#d5d1c8"></div>
 </div>
 <p data-mn-reveal style="font:400 25px/1.5 'Instrument Serif',serif;font-style:italic;color:#8a7a63;margin:-52px auto 0;padding:0 64px 96px;max-width:560px;text-align:center;text-wrap:balance">L'élégance se construit dans les détails.</p>
 
@@ -178,7 +178,7 @@ $extraJsonLd = '<script type="application/ld+json">' . json_encode([
 </section>
 
 <!-- ======================= RÉALISATIONS ======================= -->
-<section id="realisations" style="padding:96px 64px;border-top:1px solid #e8e1d3">
+<section id="realisations" style="padding:96px 64px;border-top:1px solid #e2dfd9">
   <div class="container" style="padding:0;max-width:1280px">
     <div data-mn-reveal style="display:flex;justify-content:space-between;align-items:baseline">
       <h2 class="mn-h2" style="font:400 46px/1.1 'Instrument Serif',serif;color:#2b2926;margin:0;font-weight:400">Réalisations</h2>
@@ -206,7 +206,7 @@ $extraJsonLd = '<script type="application/ld+json">' . json_encode([
 
 <?php if ($avisEnabled): ?>
 <!-- ======================= AVIS GOOGLE ======================= -->
-<section id="avis" style="padding:96px 64px;border-top:1px solid #e8e1d3;background:#fdfbf7">
+<section id="avis" style="padding:96px 64px;border-top:1px solid #e2dfd9;background:#fbfaf9">
   <div class="container" style="padding:0;max-width:1280px">
     <div data-mn-reveal style="display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:20px">
       <h2 class="mn-h2" style="font:400 46px/1.1 'Instrument Serif',serif;color:#2b2926;margin:0;font-weight:400">Ils nous ont confié leurs <em style="font-style:italic;color:#8a7a63">projets .</em></h2>
@@ -233,7 +233,7 @@ $extraJsonLd = '<script type="application/ld+json">' . json_encode([
 <?php endif; ?>
 
 <!-- ======================= ZONE + CONTACT ======================= -->
-<section id="contact" style="padding:96px 64px 0;border-top:1px solid #e8e1d3">
+<section id="contact" style="padding:96px 64px 0;border-top:1px solid #e2dfd9">
   <div class="mn-contact-grid container" style="padding:0;max-width:1280px;display:grid;grid-template-columns:4fr 5fr;gap:28px;padding-bottom:96px">
     <div data-mn-reveal>
       <h2 class="mn-h2--md" style="font:400 40px/1.15 'Instrument Serif',serif;color:#2b2926;margin:0;font-weight:400;display:flex;align-items:baseline;gap:14px;flex-wrap:wrap">Ouest lyonnais <img src="/assets/img/esperluette-beige.svg" alt="&amp;" style="height:30px;align-self:center" width="30" height="30"> Beaujolais</h2>
@@ -243,11 +243,11 @@ $extraJsonLd = '<script type="application/ld+json">' . json_encode([
       <img src="/assets/img/esperluette-laiton.svg" alt="" style="position:absolute;right:-30px;bottom:-60px;height:320px;opacity:.14;pointer-events:none">
       <div style="position:relative">
         <div style="font:500 12px 'Instrument Sans',sans-serif;letter-spacing:.28em;color:#c8b394">CONTACT</div>
-        <div style="font:400 44px/1.15 'Instrument Serif',serif;color:#f7f3ec;margin-top:20px">Parlons de votre <em style="font-style:italic;color:#c8b394">projet.</em></div>
+        <div style="font:400 44px/1.15 'Instrument Serif',serif;color:#f4f2ef;margin-top:20px">Parlons de votre <em style="font-style:italic;color:#c8b394">projet.</em></div>
         <p style="font:400 14.5px/1.85 'Instrument Sans',sans-serif;color:#b0a99b;margin:20px 0 0;max-width:380px">Décrivez-nous la pièce, la commune, l'envie. Nous répondons sous 48 h, et la première visite est toujours sans engagement.</p>
 
         <div data-mn-contact-success hidden style="margin-top:28px">
-          <div style="font:400 22px 'Instrument Serif',serif;color:#f7f3ec">Merci, votre message est bien <em style="font-style:italic;color:#c8b394">parti.</em></div>
+          <div style="font:400 22px 'Instrument Serif',serif;color:#f4f2ef">Merci, votre message est bien <em style="font-style:italic;color:#c8b394">parti.</em></div>
           <div style="font:400 13px/1.7 'Instrument Sans',sans-serif;color:#b0a99b;margin-top:10px">Nous revenons vers vous sous 48 h.</div>
         </div>
 

@@ -131,8 +131,8 @@ $extraJsonLd = '<script type="application/ld+json">' . json_encode($jsonLd, JSON
           <span class="mn-ba-arrow mn-ba-arrow--r" aria-hidden="true">›</span>
         </div>
       </div>
-      <div style="position:absolute;left:24px;bottom:20px;font:500 11px 'Instrument Sans',sans-serif;letter-spacing:.22em;color:#f7f3ec;background:rgba(43,41,38,.55);padding:8px 14px;backdrop-filter:blur(4px)">AVANT</div>
-      <div style="position:absolute;right:24px;bottom:20px;font:500 11px 'Instrument Sans',sans-serif;letter-spacing:.22em;color:#f7f3ec;background:rgba(43,41,38,.55);padding:8px 14px;backdrop-filter:blur(4px)">APRÈS</div>
+      <div style="position:absolute;left:24px;bottom:20px;font:500 11px 'Instrument Sans',sans-serif;letter-spacing:.22em;color:#f4f2ef;background:rgba(43,41,38,.55);padding:8px 14px;backdrop-filter:blur(4px)">AVANT</div>
+      <div style="position:absolute;right:24px;bottom:20px;font:500 11px 'Instrument Sans',sans-serif;letter-spacing:.22em;color:#f4f2ef;background:rgba(43,41,38,.55);padding:8px 14px;backdrop-filter:blur(4px)">APRÈS</div>
     </div>
   </div>
 </section>
@@ -161,7 +161,7 @@ $extraJsonLd = '<script type="application/ld+json">' . json_encode($jsonLd, JSON
 
 <?php if ($prev || $next): ?>
 <section style="padding:0 64px 60px">
-  <div class="container" style="padding:0;max-width:1280px;display:flex;justify-content:space-between;gap:20px;border-top:1px solid #e8e1d3;padding-top:28px;flex-wrap:wrap">
+  <div class="container" style="padding:0;max-width:1280px;display:flex;justify-content:space-between;gap:20px;border-top:1px solid #e2dfd9;padding-top:28px;flex-wrap:wrap">
     <?php if ($prev): ?>
       <a href="/realisations/<?= rawurlencode($prev['id']) ?>" style="font:500 12px 'Instrument Sans',sans-serif;letter-spacing:.14em;color:#8a7a63">← <?= htmlspecialchars($prev['title'] ?? '') ?></a>
     <?php else: ?><span></span><?php endif; ?>

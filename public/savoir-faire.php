@@ -34,7 +34,7 @@ $extraJsonLd = '<script type="application/ld+json">' . json_encode([
   </div>
 </header>
 
-<section id="platrerie" style="padding:90px 64px;border-top:1px solid #e8e1d3">
+<section id="platrerie" style="padding:90px 64px;border-top:1px solid #e2dfd9">
   <div class="mn-entreprise-grid container" style="padding:0;max-width:1280px;display:grid;grid-template-columns:1.2fr 1fr;gap:72px;align-items:center">
     <div data-mn-reveal style="height:560px;overflow:hidden">
       <div style="height:100%;transition:transform 1.8s cubic-bezier(.22,1,.36,1)" class="mn-fig__img-inner">
@@ -55,7 +55,7 @@ $extraJsonLd = '<script type="application/ld+json">' . json_encode([
   </div>
 </section>
 
-<section id="peinture" style="padding:90px 64px;background:#eee8db">
+<section id="peinture" style="padding:90px 64px;background:#e9e6e0">
   <div class="mn-entreprise-grid container" style="padding:0;max-width:1280px;display:grid;grid-template-columns:1fr 1.2fr;gap:72px;align-items:center">
     <div>
       <div data-mn-reveal style="font:400 18px 'Instrument Serif',serif;font-style:italic;color:#a6947c">02</div>
@@ -105,7 +105,7 @@ $extraJsonLd = '<script type="application/ld+json">' . json_encode([
     </div>
 
     <div data-mn-contact-success hidden style="position:relative">
-      <div style="font:400 22px 'Instrument Serif',serif;color:#f7f3ec">Merci, votre message est bien <em style="font-style:italic;color:#c8b394">parti.</em></div>
+      <div style="font:400 22px 'Instrument Serif',serif;color:#f4f2ef">Merci, votre message est bien <em style="font-style:italic;color:#c8b394">parti.</em></div>
       <div style="font:400 13px/1.7 'Instrument Sans',sans-serif;color:#b0a99b;margin-top:10px">Nous revenons vers vous sous 48 h.</div>
     </div>
 

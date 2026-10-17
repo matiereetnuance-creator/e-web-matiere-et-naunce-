@@ -55,7 +55,7 @@ $extraJsonLd = '<script type="application/ld+json">' . json_encode([
   </div>
 </section>
 
-<section id="valeurs" style="background:#eee8db;padding:96px 64px">
+<section id="valeurs" style="background:#e9e6e0;padding:96px 64px">
   <div class="container" style="padding:0;max-width:1280px">
     <h2 class="mn-h2" data-mn-reveal style="font:400 46px/1.1 'Instrument Serif',serif;color:#2b2926;margin:0;font-weight:400">Ce qui nous <em style="font-style:italic;color:#8a7a63">tient.</em></h2>
     <div class="mn-grid-3" style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:32px;margin-top:56px">
