@@ -329,6 +329,9 @@ input:focus,textarea:focus,select:focus{
   .mn-realisations-grid .mn-fig__img{height:320px !important}
 
   .mn-contact-grid{grid-template-columns:1fr !important;gap:22px !important}
+  /* La section « Ouest lyonnais & Beaujolais » gardait son padding desktop (96px) en haut,
+     ce qui repoussait trop bas son texte sur mobile */
+  #contact{padding-top:48px !important}
   .mn-field-grid{grid-template-columns:1fr !important}
 
   .cta-dark{flex-direction:column;align-items:flex-start;text-align:left;padding:40px 24px;gap:24px}

@@ -24,7 +24,4 @@ $showLogoLink = $showLogoLink ?? true;
     </div>
     <div class="mn-footer__copy">© <?= date('Y') ?> Matière &amp; Nuance</div>
   </div>
-  <div class="mn-footer__legal">
-    <button type="button" data-mn-manage-consent>Gérer les cookies</button>
-  </div>
 </footer>
