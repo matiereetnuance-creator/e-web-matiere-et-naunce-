@@ -67,7 +67,10 @@
     banner.setAttribute('aria-label', 'Préférences de cookies');
     banner.innerHTML =
       '<div class="mn-consent__box">' +
-      '<p class="mn-consent__text">Nous utilisons des cookies de mesure d’audience (Google Analytics) pour comprendre la fréquentation du site. Vos choix sont modifiables à tout moment depuis le lien « Gérer les cookies » en bas de page. <a href="/confidentialite">En savoir plus</a>.</p>' +
+      '<div class="mn-consent__copy">' +
+      '<p class="mn-consent__title">Votre confidentialité</p>' +
+      '<p class="mn-consent__text">Nous utilisons des cookies pour mesurer la fréquentation du site et améliorer votre expérience. <a href="/confidentialite">En savoir plus</a>.</p>' +
+      '</div>' +
       '<div class="mn-consent__actions">' +
       '<button type="button" class="mn-consent__btn mn-consent__btn--ghost" data-mn-consent-refuse>Refuser</button>' +
       '<button type="button" class="mn-consent__btn mn-consent__btn--accent" data-mn-consent-accept>Accepter</button>' +

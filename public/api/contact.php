@@ -59,6 +59,9 @@ $contactVal = clean_text((string) ($_POST['contact_val'] ?? ''), 200);
 $commune = clean_text((string) ($_POST['commune'] ?? ''), 120);
 $projet = clean_text((string) ($_POST['projet'] ?? ''), 120);
 $message = clean_text((string) ($_POST['message'] ?? ''), 4000);
+// Facultatif : seuls les formulaires courts (accueil, savoir-faire) l'envoient —
+// la page Contact n'a pas ce champ, donc $telephone y est toujours vide.
+$telephone = clean_text((string) ($_POST['telephone'] ?? ''), 40);
 
 $errors = [];
 if ($nom === '') {
@@ -84,6 +87,7 @@ $visitorEmail = filter_var($contactVal, FILTER_VALIDATE_EMAIL) ?: null;
 $body = "Nouvelle demande reçue depuis le site matiereetnuance.fr\n\n"
     . "Nom : {$nom}\n"
     . "Contact (tél. ou email) : {$contactVal}\n"
+    . ($telephone !== '' ? "Téléphone : {$telephone}\n" : '')
     . "Commune : " . ($commune !== '' ? $commune : 'non précisée') . "\n"
     . "Type de projet : " . ($projet !== '' ? $projet : 'non précisé') . "\n\n"
     . "Message :\n{$message}\n\n"
