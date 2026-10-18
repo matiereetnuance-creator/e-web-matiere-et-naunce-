@@ -48,9 +48,37 @@
     gtag('config', ga4Id);
   }
 
+  /* Supprime les cookies déposés par GA4 (_ga, _ga_<id>, _gid, _gat…) lors d'un
+     refus ou d'un retrait de consentement. Le mode Basic de Consent Mode v2
+     empêche gtag.js d'envoyer nos données après un refus, mais ne supprime pas
+     de lui-même des cookies déjà posés lors d'une visite précédente où le
+     visiteur avait accepté : on le fait explicitement ici. */
+  function clearAnalyticsCookies() {
+    try {
+      var host = window.location.hostname;
+      var bareHost = host.replace(/^www\./, '');
+      var domains = ['', host, '.' + host, bareHost, '.' + bareHost];
+      document.cookie.split(';').forEach(function (entry) {
+        var name = entry.split('=')[0].trim();
+        // Couvre les variantes connues posées par gtag.js : _ga, _ga_<ID conteneur>, _gid, _gat / _gat_gtag_<ID>.
+        var isGaCookie = name === '_ga' || /^_ga_/i.test(name) || name === '_gid' || /^_gat/i.test(name);
+        if (!isGaCookie) return;
+        domains.forEach(function (d) {
+          document.cookie = name + '=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/' + (d ? '; domain=' + d : '');
+        });
+      });
+    } catch (e) {
+      /* cookies indisponibles (navigation privée, etc.) : rien à nettoyer */
+    }
+  }
+
   function applyChoice(granted) {
     gtag('consent', 'update', { analytics_storage: granted ? 'granted' : 'denied' });
-    if (granted) loadGa4();
+    if (granted) {
+      loadGa4();
+    } else {
+      clearAnalyticsCookies();
+    }
   }
 
   function removeBanner() {
