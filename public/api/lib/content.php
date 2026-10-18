@@ -135,7 +135,7 @@ function photo_src(string $slot): string
     if (isset($cache[$slot])) {
         return MN_UPLOADS_URL . '/' . rawurlencode($cache[$slot]) . '?v=' . filemtime(MN_UPLOADS_DIR . '/' . $cache[$slot]);
     }
-    return 'assets/img/placeholders/' . $slot . '.svg';
+    return '/assets/img/placeholders/' . $slot . '.svg';
 }
 
 /** URL publique d'une photo de réalisation (galerie / image principale / avant-après). */
@@ -159,7 +159,7 @@ function realisation_main_image_url(array $realisation): string
         }
     }
     $slot = $realisation['fallback_slot'] ?? $realisation['id'];
-    return 'assets/img/placeholders/' . $slot . '.svg';
+    return '/assets/img/placeholders/' . $slot . '.svg';
 }
 
 /** Étend/répète un motif de tailles pour un nombre variable d'éléments (fidélité visuelle du design). */
