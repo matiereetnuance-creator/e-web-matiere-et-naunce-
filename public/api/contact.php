@@ -67,7 +67,7 @@ $errors = [];
 if ($nom === '') {
     $errors[] = 'le nom';
 }
-if ($contactVal === '') {
+if ($contactVal === '' && $telephone === '') {
     $errors[] = 'un téléphone ou un email';
 }
 if ($message === '') {
@@ -86,7 +86,7 @@ $visitorEmail = filter_var($contactVal, FILTER_VALIDATE_EMAIL) ?: null;
 // --- Composition de l'e-mail vers le studio -------------------------------
 $body = "Nouvelle demande reçue depuis le site matiereetnuance.fr\n\n"
     . "Nom : {$nom}\n"
-    . "Contact (tél. ou email) : {$contactVal}\n"
+    . ($contactVal !== '' ? "Contact (tél. ou email) : {$contactVal}\n" : '')
     . ($telephone !== '' ? "Téléphone : {$telephone}\n" : '')
     . "Commune : " . ($commune !== '' ? $commune : 'non précisée') . "\n"
     . "Type de projet : " . ($projet !== '' ? $projet : 'non précisé') . "\n\n"

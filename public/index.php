@@ -267,12 +267,12 @@ $extraJsonLd = '<script type="application/ld+json">' . json_encode([
                 <input type="text" id="home-nom" name="nom" placeholder="Votre nom" required autocomplete="name">
               </div>
               <div>
-                <label for="home-email">E-MAIL</label>
-                <input type="email" id="home-email" name="contact_val" placeholder="vous@exemple.fr" required autocomplete="email">
+                <label for="home-email">E-MAIL OU TÉLÉPHONE</label>
+                <input type="email" id="home-email" name="contact_val" placeholder="vous@exemple.fr" autocomplete="email">
               </div>
             </div>
             <div>
-              <label for="home-tel">TÉLÉPHONE (FACULTATIF)</label>
+              <label for="home-tel">TÉLÉPHONE</label>
               <input type="tel" id="home-tel" name="telephone" placeholder="06 00 00 00 00" autocomplete="tel">
             </div>
             <div>
