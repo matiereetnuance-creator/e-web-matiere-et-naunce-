@@ -30,7 +30,7 @@ $extraJsonLd = '<script type="application/ld+json">' . json_encode([
       <img data-mn-amp class="mn-amp--static" src="/assets/img/esperluette-beige.svg" alt="" style="height:44px" width="44" height="44">
       <span style="font:500 13px 'Instrument Sans',sans-serif;letter-spacing:.28em;color:#a6947c">L'ENTREPRISE</span>
     </div>
-    <h1 class="mn-h1" data-mn-reveal style="font:400 76px/1.06 'Instrument Serif',serif;color:#2b2926;margin:26px 0 0;max-width:940px;font-weight:400;text-wrap:balance">L'exigence du détail, la passion des beaux <em style="font-style:italic;color:#8a7a63">intérieurs.</em></h1>
+    <h1 class="mn-h1 mn-h1--entreprise" data-mn-reveal style="font:400 76px/1.06 'Instrument Serif',serif;color:#2b2926;margin:26px 0 0;max-width:940px;font-weight:400;text-wrap:balance">L'exigence du détail, la passion des beaux <em style="font-style:italic;color:#8a7a63">intérieurs.</em></h1>
   </div>
 </header>
 

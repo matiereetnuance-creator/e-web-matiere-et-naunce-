@@ -313,6 +313,9 @@ input:focus,textarea:focus,select:focus{
   section,.mn-hero{padding-left:20px !important;padding-right:20px !important}
 
   h1.mn-h1{font-size:46px !important;line-height:1.08 !important}
+  /* Titre Entreprise plus long que les autres pages : 46px le fragmentait en 5 lignes
+     étroites ; réduit pour une composition à 3-4 lignes plus harmonieuse */
+  h1.mn-h1--entreprise{font-size:36px !important;line-height:1.2 !important}
   h2.mn-h2{font-size:32px !important;line-height:1.15 !important}
   .mn-h2--md{font-size:30px !important}
   .mn-body-lg{font-size:14px !important;line-height:1.8 !important}
@@ -333,6 +336,18 @@ input:focus,textarea:focus,select:focus{
      ce qui repoussait trop bas son texte sur mobile */
   #contact{padding-top:48px !important}
   .mn-field-grid{grid-template-columns:1fr !important}
+
+  /* Mêmes grands vides entre sections (padding desktop non réduit) sur l'accueil
+     (signe + teaser Entreprise) et sur la page Entreprise (stats + « Ce qui nous tient ») */
+  .mn-signe{padding-top:48px !important;padding-bottom:48px !important}
+  .mn-signe__tagline{padding-bottom:48px !important}
+  #entreprise{padding-top:48px !important}
+  #histoire{padding-bottom:48px !important}
+  #valeurs{padding-top:48px !important}
+
+  /* Comparateur avant/après : la hauteur fixe desktop (600px) donnait un bloc
+     démesurément haut et étroit sur mobile */
+  [data-ba]{height:420px !important}
 
   .cta-dark{flex-direction:column;align-items:flex-start;text-align:left;padding:40px 24px;gap:24px}
   .cta-dark__title{font-size:26px}

@@ -153,12 +153,12 @@ $extraJsonLd = '<script type="application/ld+json">' . json_encode([
 </section>
 
 <!-- ======================= LE SIGNE — respiration ======================= -->
-<div style="padding:110px 64px;display:flex;align-items:center;justify-content:center;gap:52px;max-width:1280px;margin:0 auto">
+<div class="mn-signe" style="padding:110px 64px;display:flex;align-items:center;justify-content:center;gap:52px;max-width:1280px;margin:0 auto">
   <div data-mn-reveal style="flex:1;height:1px;background:#d5d1c8"></div>
   <img data-mn-amp src="/assets/img/esperluette-beige.svg" alt="" style="height:150px" width="150" height="150">
   <div data-mn-reveal style="flex:1;height:1px;background:#d5d1c8"></div>
 </div>
-<p data-mn-reveal style="font:400 25px/1.5 'Instrument Serif',serif;font-style:italic;color:#8a7a63;margin:-52px auto 0;padding:0 64px 96px;max-width:560px;text-align:center;text-wrap:balance">L'élégance se construit dans les détails.</p>
+<p data-mn-reveal class="mn-signe__tagline" style="font:400 25px/1.5 'Instrument Serif',serif;font-style:italic;color:#8a7a63;margin:-52px auto 0;padding:0 64px 96px;max-width:560px;text-align:center;text-wrap:balance">L'élégance se construit dans les détails.</p>
 
 <!-- ======================= L'ENTREPRISE ======================= -->
 <section id="entreprise" style="padding:110px 64px;position:relative;overflow:hidden">
