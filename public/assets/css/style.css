@@ -13,7 +13,7 @@
   font-style:normal;
   font-weight:400 600;
   font-display:swap;
-  src:url('/assets/fonts/instrument-sans-latin.woff2') format('woff2');
+  src:url('/assets/fonts/instrument-sans-latin.woff2?v=20261019') format('woff2');
   unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD;
 }
 @font-face{
@@ -21,7 +21,7 @@
   font-style:normal;
   font-weight:400;
   font-display:swap;
-  src:url('/assets/fonts/instrument-serif-latin.woff2') format('woff2');
+  src:url('/assets/fonts/instrument-serif-latin.woff2?v=20261019') format('woff2');
   unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD;
 }
 @font-face{
@@ -29,8 +29,38 @@
   font-style:italic;
   font-weight:400;
   font-display:swap;
-  src:url('/assets/fonts/instrument-serif-latin-italic.woff2') format('woff2');
+  src:url('/assets/fonts/instrument-serif-latin-italic.woff2?v=20261019') format('woff2');
   unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD;
+}
+
+/* Correctif tofu iOS Safari : Instrument Sans/Serif sont des sous-jeux latins et ne
+   contiennent pas les flèches (→, utilisées dans presque tous les liens du site) ni les
+   étoiles (★☆, utilisées pour les avis) — en dehors de leur plage unicode-range ci-dessus.
+   Les autres navigateurs basculent alors silencieusement sur la police système suivante de
+   la pile ; Safari iOS, lui, peut afficher le glyphe « carré avec point d'interrogation »
+   de la police personnalisée au lieu de ce repli. Ces déclarations supplémentaires, pour
+   les mêmes noms de police, couvrent explicitement ces caractères via une police système
+   fiable — aucun glyphe des polices Instrument n'est modifié ou remplacé. */
+@font-face{
+  font-family:'Instrument Sans';
+  font-style:normal;
+  font-weight:400 600;
+  src:local('Helvetica Neue'),local('Arial');
+  unicode-range:U+2190-21FF,U+2600-27BF;
+}
+@font-face{
+  font-family:'Instrument Serif';
+  font-style:normal;
+  font-weight:400;
+  src:local('Helvetica Neue'),local('Arial');
+  unicode-range:U+2190-21FF,U+2600-27BF;
+}
+@font-face{
+  font-family:'Instrument Serif';
+  font-style:italic;
+  font-weight:400;
+  src:local('Helvetica Neue'),local('Arial');
+  unicode-range:U+2190-21FF,U+2600-27BF;
 }
 
 :root{
