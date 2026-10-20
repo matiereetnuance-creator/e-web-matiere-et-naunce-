@@ -1,0 +1,94 @@
+# ============================================================
+# Matière & Nuance — configuration Apache (o2switch)
+# ============================================================
+
+# Force index.php comme page d'accueil, même si un ancien index.html
+# statique (issu d'une version antérieure du site) traîne encore dans
+# public_html : sans cette ligne, certaines configurations Apache
+# serviraient l'HTML statique à la place du gabarit PHP dynamique
+# (et donc sans Google Analytics, sans SEO dynamique, etc.).
+DirectoryIndex index.php index.html
+
+# --- HTTPS + domaine canonique (www) -------------------------------------
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+
+  # Forcer HTTPS
+  RewriteCond %{HTTPS} off
+  RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+
+  # Forcer le sous-domaine www
+  RewriteCond %{HTTP_HOST} ^matiereetnuance\.fr$ [NC]
+  RewriteRule ^ https://www.matiereetnuance.fr%{REQUEST_URI} [L,R=301]
+
+  # sitemap.xml généré dynamiquement (inclut automatiquement les réalisations)
+  RewriteRule ^sitemap\.xml$ sitemap.php [L]
+
+  # Page dédiée à chaque réalisation : /realisations/{slug}
+  RewriteCond %{REQUEST_FILENAME} !-f
+  RewriteRule ^realisations/([a-zA-Z0-9_-]+)/?$ realisation.php?id=$1 [L,QSA]
+
+  # URLs propres : matiereetnuance.fr/contact au lieu de /contact.php ou /contact.html
+  # (l'administration et l'API gardent leurs URLs .php explicites)
+  # 1) On redirige les accès directs en .php ou .html vers la version sans extension
+  RewriteCond %{REQUEST_URI} !^/(admin|api)/
+  RewriteCond %{THE_REQUEST} \s/+([^?\s]+)\.(php|html)[\s?] [NC]
+  RewriteRule ^ /%1 [R=301,L]
+
+  # 2) En interne, on ressert le fichier .php correspondant, sinon .html
+  RewriteCond %{REQUEST_FILENAME} !-f
+  RewriteCond %{REQUEST_FILENAME} !-d
+  RewriteCond %{REQUEST_FILENAME}\.php -f
+  RewriteRule ^(.*)$ $1.php [L]
+
+  RewriteCond %{REQUEST_FILENAME} !-f
+  RewriteCond %{REQUEST_FILENAME} !-d
+  RewriteCond %{REQUEST_FILENAME}\.html -f
+  RewriteRule ^(.*)$ $1.html [L]
+</IfModule>
+
+ErrorDocument 404 /404.html
+
+# --- En-têtes de sécurité ---------------------------------------------------
+<IfModule mod_headers.c>
+  Header always set X-Content-Type-Options "nosniff"
+  Header always set X-Frame-Options "SAMEORIGIN"
+  Header always set Referrer-Policy "strict-origin-when-cross-origin"
+  Header always set Permissions-Policy "camera=(), microphone=(), geolocation=()"
+  Header always set Strict-Transport-Security "max-age=31536000; includeSubDomains"
+</IfModule>
+
+# --- Compression -------------------------------------------------------------
+# Brotli en priorité si le serveur le propose (meilleur taux que gzip),
+# gzip en repli sinon — les deux directives sont sans risque si le module
+# correspondant n'est pas chargé (encadrées par IfModule).
+<IfModule mod_brotli.c>
+  AddOutputFilterByType BROTLI_COMPRESS text/html text/css text/plain text/xml application/xml
+  AddOutputFilterByType BROTLI_COMPRESS application/javascript application/json image/svg+xml
+</IfModule>
+<IfModule mod_deflate.c>
+  AddOutputFilterByType DEFLATE text/html text/css text/plain text/xml application/xml
+  AddOutputFilterByType DEFLATE application/javascript application/json image/svg+xml
+</IfModule>
+
+# --- Cache navigateur ---------------------------------------------------------
+<IfModule mod_expires.c>
+  ExpiresActive On
+  ExpiresByType text/css                "access plus 1 year"
+  ExpiresByType application/javascript   "access plus 1 year"
+  ExpiresByType image/svg+xml            "access plus 1 year"
+  ExpiresByType image/png                "access plus 1 year"
+  ExpiresByType image/jpeg               "access plus 1 year"
+  ExpiresByType image/webp               "access plus 1 year"
+  ExpiresByType font/woff2               "access plus 1 year"
+  ExpiresByType text/html                "access plus 0 seconds"
+  ExpiresByType application/xml          "access plus 1 hour"
+</IfModule>
+
+<IfModule mod_headers.c>
+  <FilesMatch "\.(css|js|svg|png|jpe?g|webp|woff2)$">
+    Header set Cache-Control "public, max-age=31536000, immutable"
+  </FilesMatch>
+</IfModule>
+
+Options -Indexes

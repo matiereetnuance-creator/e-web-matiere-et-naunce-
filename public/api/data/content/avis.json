@@ -1,0 +1,50 @@
+[
+  {
+    "id": "avis-1",
+    "author_name": "Claire M.",
+    "commune": "Écully",
+    "rating": 5,
+    "text": "Un chantier d'une propreté irréprochable et des murs parfaitement tendus. On sent le souci du détail à chaque étape.",
+    "relative_time": "il y a 2 mois"
+  },
+  {
+    "id": "avis-2",
+    "author_name": "Bruno T.",
+    "commune": "Tassin-la-Demi-Lune",
+    "rating": 5,
+    "text": "Des conseils de teintes remarquables : la pièce a changé d'âme. Délais tenus, équipe discrète et précise.",
+    "relative_time": "il y a 4 mois"
+  },
+  {
+    "id": "avis-3",
+    "author_name": "Sophie L.",
+    "commune": "Villefranche",
+    "rating": 5,
+    "text": "Le béton ciré de notre salle d'eau est magnifique, la finition est digne d'un hôtel. Nous recommandons sans réserve.",
+    "relative_time": "il y a 6 mois"
+  },
+  {
+    "id": "avis-4",
+    "author_name": "Hélène & Marc D.",
+    "commune": "Charbonnières",
+    "rating": 5,
+    "text": "Rénovation complète de notre séjour : ponctuels, soigneux, de très bon conseil. Le rendu dépasse ce que nous imaginions.",
+    "relative_time": "il y a 7 mois"
+  },
+  {
+    "id": "avis-5",
+    "author_name": "Julien R.",
+    "commune": "Craponne",
+    "rating": 5,
+    "text": "Devis clair, chantier protégé du sol au plafond, et un blanc absolument parfait. Une vraie maison de confiance.",
+    "relative_time": "il y a 9 mois"
+  },
+  {
+    "id": "avis-6",
+    "author_name": "Anne S.",
+    "commune": "Sainte-Foy-lès-Lyon",
+    "rating": 5,
+    "text": "Le meuble vasque en béton ciré est une pièce unique. Un travail d'artisan, au sens le plus noble du terme.",
+    "relative_time": "il y a 11 mois"
+  }
+]

@@ -1,0 +1,11 @@
+# Défense en profondeur : ce dossier ne doit jamais exécuter de code,
+# même si un fichier inattendu venait à s'y trouver. Les photos y sont
+# systématiquement ré-encodées par le serveur (jamais stockées telles
+# quelles), mais cette règle élimine tout risque résiduel.
+<IfModule mod_php.c>
+  php_flag engine off
+</IfModule>
+<FilesMatch "\.(php|phtml|php[0-9]?|phar|cgi|pl|py|sh)$">
+  Require all denied
+</FilesMatch>
+Options -Indexes -ExecCGI
