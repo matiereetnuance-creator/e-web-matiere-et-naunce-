@@ -27,7 +27,7 @@ $extraJsonLd = '<script type="application/ld+json">' . json_encode([
 <header style="padding:110px 64px 90px">
   <div class="container" style="padding:0;max-width:1280px">
     <div data-mn-reveal style="display:flex;align-items:center;gap:18px">
-      <img data-mn-amp class="mn-amp--static" src="/assets/img/esperluette-beige.svg" alt="" style="height:44px" width="44" height="44">
+      <img data-mn-amp class="mn-amp--static" src="/assets/img/esperluette-beige.svg?v=<?= asset_version('assets/img/esperluette-beige.svg') ?>" alt="" style="height:44px" width="44" height="44">
       <span style="font:500 13px 'Instrument Sans',sans-serif;letter-spacing:.28em;color:#a6947c">L'ENTREPRISE</span>
     </div>
     <h1 class="mn-h1 mn-h1--entreprise" data-mn-reveal style="font:400 76px/1.06 'Instrument Serif',serif;color:#2b2926;margin:26px 0 0;max-width:940px;font-weight:400;text-wrap:balance">L'exigence du détail, la passion des beaux <em style="font-style:italic;color:#8a7a63">intérieurs.</em></h1>
@@ -95,7 +95,7 @@ $extraJsonLd = '<script type="application/ld+json">' . json_encode([
 
 <section style="padding:0 64px 96px">
   <div data-mn-reveal class="cta-dark">
-    <img class="cta-dark__amp" src="/assets/img/esperluette-laiton.svg" alt="">
+    <img class="cta-dark__amp" src="/assets/img/esperluette-laiton.svg?v=<?= asset_version('assets/img/esperluette-laiton.svg') ?>" alt="">
     <div style="position:relative">
       <div class="cta-dark__title">Rencontrons-nous chez <em style="font-style:italic;color:#c8b394">vous.</em></div>
       <div class="cta-dark__sub">Vous avez un projet de rénovation ou d'aménagement intérieur ? Échangeons sur vos besoins et imaginons ensemble une réalisation adaptée à votre intérieur.</div>

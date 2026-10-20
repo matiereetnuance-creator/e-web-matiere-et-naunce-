@@ -31,7 +31,7 @@ if ($phoneTel !== '' && $phoneTel[0] === '0') {
 <header style="padding:110px 64px 70px">
   <div class="container" style="padding:0;max-width:1280px">
     <div data-mn-reveal style="display:flex;align-items:center;gap:18px">
-      <img data-mn-amp src="/assets/img/esperluette-beige.svg" alt="" style="height:44px" width="44" height="44">
+      <img data-mn-amp src="/assets/img/esperluette-beige.svg?v=<?= asset_version('assets/img/esperluette-beige.svg') ?>" alt="" style="height:44px" width="44" height="44">
       <span style="font:500 13px 'Instrument Sans',sans-serif;letter-spacing:.28em;color:#a6947c">CONTACT</span>
     </div>
     <h1 class="mn-h1" data-mn-reveal style="font:400 76px/1.06 'Instrument Serif',serif;color:#2b2926;margin:26px 0 0;max-width:820px;font-weight:400;text-wrap:balance">Parlons de votre <em style="font-style:italic;color:#8a7a63">projet.</em></h1>
@@ -45,7 +45,7 @@ if ($phoneTel !== '' && $phoneTel[0] === '0') {
     <div data-mn-reveal style="background:#fbfaf9;border:1px solid #e2dfd9;padding:52px">
 
       <div data-mn-contact-success hidden style="text-align:center;padding:60px 20px">
-        <img src="/assets/img/esperluette-beige.svg" alt="" style="height:64px">
+        <img src="/assets/img/esperluette-beige.svg?v=<?= asset_version('assets/img/esperluette-beige.svg') ?>" alt="" style="height:64px">
         <div style="font:400 32px 'Instrument Serif',serif;color:#2b2926;margin-top:26px">Merci, votre message est bien <em style="font-style:italic;color:#8a7a63">parti.</em></div>
         <div style="font:400 14.5px/1.8 'Instrument Sans',sans-serif;color:#6c665c;margin-top:14px">Nous revenons vers vous sous 48 h. Un e-mail de confirmation vient de vous être envoyé.</div>
       </div>
@@ -94,7 +94,7 @@ if ($phoneTel !== '' && $phoneTel[0] === '0') {
     <!-- COORDONNÉES -->
     <div style="display:grid;gap:28px">
       <div data-mn-reveal data-mn-grain class="mn-coord-card">
-        <img class="mn-coord-card__amp" src="/assets/img/esperluette-laiton.svg" alt="">
+        <img class="mn-coord-card__amp" src="/assets/img/esperluette-laiton.svg?v=<?= asset_version('assets/img/esperluette-laiton.svg') ?>" alt="">
         <div style="position:relative;display:grid;gap:34px">
           <div style="font:500 11px 'Instrument Sans',sans-serif;letter-spacing:.26em;color:#c8b394">NOUS CONTACTER</div>
           <div>

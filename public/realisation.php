@@ -75,7 +75,7 @@ $extraJsonLd = '<script type="application/ld+json">' . json_encode($jsonLd, JSON
 <header style="padding:110px 64px 50px">
   <div class="container" style="padding:0;max-width:1280px">
     <div data-mn-reveal style="display:flex;align-items:center;gap:18px">
-      <img data-mn-amp src="/assets/img/esperluette-beige.svg" alt="" style="height:44px" width="44" height="44">
+      <img data-mn-amp src="/assets/img/esperluette-beige.svg?v=<?= asset_version('assets/img/esperluette-beige.svg') ?>" alt="" style="height:44px" width="44" height="44">
       <span style="font:500 13px 'Instrument Sans',sans-serif;letter-spacing:.28em;color:#a6947c">RÉALISATION</span>
     </div>
     <h1 class="mn-h1" data-mn-reveal style="font:400 62px/1.1 'Instrument Serif',serif;color:#2b2926;margin:26px 0 0;max-width:900px;font-weight:400;text-wrap:balance"><?= htmlspecialchars($r['title'] ?? '') ?></h1>
@@ -127,7 +127,7 @@ $extraJsonLd = '<script type="application/ld+json">' . json_encode($jsonLd, JSON
       <div data-ba-line style="left:55%;width:2px">
         <div class="mn-ba-handle">
           <span class="mn-ba-arrow mn-ba-arrow--l" aria-hidden="true">‹</span>
-          <img src="/assets/img/esperluette-beige.svg" alt="" draggable="false" style="height:35px">
+          <img src="/assets/img/esperluette-beige.svg?v=<?= asset_version('assets/img/esperluette-beige.svg') ?>" alt="" draggable="false" style="height:35px">
           <span class="mn-ba-arrow mn-ba-arrow--r" aria-hidden="true">›</span>
         </div>
       </div>
@@ -174,7 +174,7 @@ $extraJsonLd = '<script type="application/ld+json">' . json_encode($jsonLd, JSON
 
 <section style="padding:0 64px 96px">
   <div data-mn-reveal class="cta-dark">
-    <img class="cta-dark__amp" src="/assets/img/esperluette-laiton.svg" alt="">
+    <img class="cta-dark__amp" src="/assets/img/esperluette-laiton.svg?v=<?= asset_version('assets/img/esperluette-laiton.svg') ?>" alt="">
     <div style="position:relative">
       <div class="cta-dark__title">Votre intérieur mérite la même <em style="font-style:italic;color:#c8b394">attention.</em></div>
       <div class="cta-dark__sub">Parlons de votre pièce, de votre projet.</div>

@@ -8,9 +8,9 @@ $showLogoLink = $showLogoLink ?? true;
 <footer class="mn-footer">
   <div class="mn-footer__row">
     <?php if ($showLogoLink): ?>
-      <a href="/"><img src="/assets/img/logo-blanc.png" alt="Matière &amp; Nuance" style="height:40px" width="177" height="40"></a>
+      <a href="/"><img src="/assets/img/logo-blanc.png?v=<?= asset_version('assets/img/logo-blanc.png') ?>" alt="Matière &amp; Nuance" style="height:40px" width="177" height="40"></a>
     <?php else: ?>
-      <img src="/assets/img/logo-blanc.png" alt="Matière &amp; Nuance" style="height:40px" width="177" height="40">
+      <img src="/assets/img/logo-blanc.png?v=<?= asset_version('assets/img/logo-blanc.png') ?>" alt="Matière &amp; Nuance" style="height:40px" width="177" height="40">
     <?php endif; ?>
     <div class="mn-footer__links">
       <a href="/savoir-faire">SAVOIR-FAIRE</a>

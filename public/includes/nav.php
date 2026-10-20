@@ -13,7 +13,7 @@ $navClass = static function (string $key) use ($activePage): string {
 ?>
 <a class="mn-skip-link" href="#main-content">Aller au contenu principal</a>
 <nav class="mn-nav" aria-label="Navigation principale">
-  <a href="/" aria-label="Retour à l'accueil Matière &amp; Nuance"><img class="mn-nav__logo" src="/assets/img/logo-noir.png" alt="Matière &amp; Nuance" width="230" height="52"></a>
+  <a href="/" aria-label="Retour à l'accueil Matière &amp; Nuance"><img class="mn-nav__logo" src="/assets/img/logo-noir.png?v=<?= asset_version('assets/img/logo-noir.png') ?>" alt="Matière &amp; Nuance" width="230" height="52"></a>
   <div class="mn-nav__links mn-nav__links--desktop">
     <a class="<?= $navClass('savoir-faire') ?>" href="/savoir-faire">SAVOIR-FAIRE</a>
     <a class="<?= $navClass('realisations') ?>" href="/realisations">RÉALISATIONS</a>
@@ -34,7 +34,7 @@ $navClass = static function (string $key) use ($activePage): string {
 
 <div class="mn-mobile-menu" id="mn-mobile-menu" data-mn-mobile-menu>
   <div style="display:flex;justify-content:space-between;align-items:center">
-    <img src="/assets/img/logo-noir.png" alt="Matière &amp; Nuance" style="height:36px">
+    <img src="/assets/img/logo-noir.png?v=<?= asset_version('assets/img/logo-noir.png') ?>" alt="Matière &amp; Nuance" style="height:36px">
     <button data-mn-close aria-label="Fermer" style="background:none;border:none;cursor:pointer;font:400 26px 'Instrument Serif',serif;color:#2b2926;padding:6px 10px">×</button>
   </div>
   <div style="display:flex;flex-direction:column;gap:26px;margin-top:70px;padding:0 8px">
@@ -45,7 +45,7 @@ $navClass = static function (string $key) use ($activePage): string {
     <a href="/contact" style="font:400 32px 'Instrument Serif',serif;color:#2b2926">Contact</a>
   </div>
   <div style="margin-top:auto;padding:0 8px 28px;display:flex;align-items:center;gap:14px">
-    <img src="/assets/img/esperluette-beige.svg" alt="&amp;" style="height:26px">
+    <img src="/assets/img/esperluette-beige.svg?v=<?= asset_version('assets/img/esperluette-beige.svg') ?>" alt="&amp;" style="height:26px">
     <span style="font:400 12.5px 'Instrument Sans',sans-serif;color:#8a7a63"><?= htmlspecialchars($phone) ?> · Ouest lyonnais &amp; Beaujolais</span>
   </div>
 </div>

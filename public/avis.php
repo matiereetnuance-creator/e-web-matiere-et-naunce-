@@ -34,7 +34,7 @@ $extraJsonLd = '<script type="application/ld+json">' . json_encode([
   <div class="container" style="padding:0;max-width:1280px;display:flex;justify-content:space-between;align-items:flex-end;gap:40px;flex-wrap:wrap">
     <div>
       <div data-mn-reveal style="display:flex;align-items:center;gap:18px">
-        <img data-mn-amp class="mn-amp--static" src="/assets/img/esperluette-beige.svg" alt="" style="height:44px" width="44" height="44">
+        <img data-mn-amp class="mn-amp--static" src="/assets/img/esperluette-beige.svg?v=<?= asset_version('assets/img/esperluette-beige.svg') ?>" alt="" style="height:44px" width="44" height="44">
         <span style="font:500 13px 'Instrument Sans',sans-serif;letter-spacing:.28em;color:#a6947c">AVIS</span>
       </div>
       <h1 class="mn-h1" data-mn-reveal style="font:400 76px/1.06 'Instrument Serif',serif;color:#2b2926;margin:26px 0 0;max-width:820px;font-weight:400;text-wrap:balance">Ils nous ont confié leur <em style="font-style:italic;color:#8a7a63">intérieur.</em></h1>
@@ -65,7 +65,7 @@ $extraJsonLd = '<script type="application/ld+json">' . json_encode([
 
 <section style="padding:0 64px 96px">
   <div data-mn-reveal class="cta-dark">
-    <img class="cta-dark__amp" src="/assets/img/esperluette-laiton.svg" alt="">
+    <img class="cta-dark__amp" src="/assets/img/esperluette-laiton.svg?v=<?= asset_version('assets/img/esperluette-laiton.svg') ?>" alt="">
     <div style="position:relative">
       <div class="cta-dark__title">Et si le prochain avis était le <em style="font-style:italic;color:#c8b394">vôtre ?</em></div>
       <div class="cta-dark__sub">Décrivez-nous votre projet, nous répondons sous 48 h.</div>

@@ -65,7 +65,7 @@ $extraJsonLd = '<script type="application/ld+json">' . json_encode([
 <header id="hero" class="mn-hero" style="position:relative;padding:96px 64px 88px;overflow:hidden">
   <div class="container" style="padding:0;max-width:1280px">
     <div data-mn-reveal style="display:flex;align-items:center;gap:18px">
-      <img data-mn-amp class="mn-amp--static" src="/assets/img/esperluette-beige.svg" alt="" style="height:44px" width="44" height="44">
+      <img data-mn-amp class="mn-amp--static" src="/assets/img/esperluette-beige.svg?v=<?= asset_version('assets/img/esperluette-beige.svg') ?>" alt="" style="height:44px" width="44" height="44">
       <span style="font:500 13px 'Instrument Sans',sans-serif;letter-spacing:.28em;color:#a6947c"><?= t($textes, 'home_eyebrow', 'PLÂTRERIE · PEINTURE · BÉTON CIRÉ — OUEST LYONNAIS & BEAUJOLAIS') ?></span>
     </div>
     <h1 class="mn-h1" data-mn-title style="font:400 92px/1.04 'Instrument Serif',serif;color:#2b2926;margin:26px 0 0;max-width:820px;font-weight:400;text-wrap:balance"><?= t($textes, 'home_title', 'La matière juste, la nuance') ?> <em style="font-style:italic;color:#8a7a63"><?= t($textes, 'home_title_emphasis', 'exacte.') ?></em></h1>
@@ -155,7 +155,7 @@ $extraJsonLd = '<script type="application/ld+json">' . json_encode([
 <!-- ======================= LE SIGNE — respiration ======================= -->
 <div class="mn-signe" style="padding:110px 64px;display:flex;align-items:center;justify-content:center;gap:52px;max-width:1280px;margin:0 auto">
   <div data-mn-reveal style="flex:1;height:1px;background:#d5d1c8"></div>
-  <img data-mn-amp src="/assets/img/esperluette-beige.svg" alt="" style="height:150px" width="150" height="150">
+  <img data-mn-amp src="/assets/img/esperluette-beige.svg?v=<?= asset_version('assets/img/esperluette-beige.svg') ?>" alt="" style="height:150px" width="150" height="150">
   <div data-mn-reveal style="flex:1;height:1px;background:#d5d1c8"></div>
 </div>
 <p data-mn-reveal class="mn-signe__tagline" style="font:400 25px/1.5 'Instrument Serif',serif;font-style:italic;color:#8a7a63;margin:-52px auto 0;padding:0 64px 96px;max-width:560px;text-align:center;text-wrap:balance">L'élégance se construit dans les détails.</p>
@@ -239,11 +239,11 @@ $extraJsonLd = '<script type="application/ld+json">' . json_encode([
 <section id="contact" style="padding:96px 64px 0;border-top:1px solid #e2dfd9">
   <div class="mn-contact-grid container" style="padding:0;max-width:1280px;display:grid;grid-template-columns:4fr 5fr;gap:28px;padding-bottom:96px">
     <div data-mn-reveal>
-      <h2 class="mn-h2--md" style="font:400 40px/1.15 'Instrument Serif',serif;color:#2b2926;margin:0;font-weight:400;display:flex;align-items:baseline;gap:14px;flex-wrap:wrap">Ouest lyonnais <img src="/assets/img/esperluette-beige.svg" alt="&amp;" style="height:30px;align-self:center" width="30" height="30"> Beaujolais</h2>
+      <h2 class="mn-h2--md" style="font:400 40px/1.15 'Instrument Serif',serif;color:#2b2926;margin:0;font-weight:400;display:flex;align-items:baseline;gap:14px;flex-wrap:wrap">Ouest lyonnais <img src="/assets/img/esperluette-beige.svg?v=<?= asset_version('assets/img/esperluette-beige.svg') ?>" alt="&amp;" style="height:30px;align-self:center" width="30" height="30"> Beaujolais</h2>
       <p style="font:400 15px/1.85 'Instrument Sans',sans-serif;color:#6c665c;margin:20px 0 0;max-width:440px"><?= t($textes, 'home_zone_text', "Matière & Nuance accompagne vos projets de plâtrerie, peinture et béton ciré dans l'Ouest lyonnais et le Beaujolais. Chaque intervention est abordée avec la même exigence : une écoute attentive de vos besoins, des conseils adaptés à votre intérieur et un soin particulier apporté aux finitions. De la première rencontre jusqu'à la réalisation des travaux, nous privilégions un accompagnement personnalisé, la qualité des ouvrages et leur durabilité.") ?></p>
     </div>
     <div data-mn-reveal data-mn-grain style="background:#1c1b19;padding:56px 56px 48px;display:flex;flex-direction:column;justify-content:space-between;position:relative;overflow:hidden">
-      <img src="/assets/img/esperluette-laiton.svg" alt="" style="position:absolute;right:-30px;bottom:-60px;height:320px;opacity:.14;pointer-events:none">
+      <img src="/assets/img/esperluette-laiton.svg?v=<?= asset_version('assets/img/esperluette-laiton.svg') ?>" alt="" style="position:absolute;right:-30px;bottom:-60px;height:320px;opacity:.14;pointer-events:none">
       <div style="position:relative">
         <div style="font:500 12px 'Instrument Sans',sans-serif;letter-spacing:.28em;color:#c8b394">CONTACT</div>
         <div style="font:400 44px/1.15 'Instrument Serif',serif;color:#f4f2ef;margin-top:20px">Parlons de votre <em style="font-style:italic;color:#c8b394">projet.</em></div>
